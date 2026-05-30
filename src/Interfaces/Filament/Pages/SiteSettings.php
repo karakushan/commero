@@ -1,0 +1,375 @@
+<?php
+
+namespace Commero\Interfaces\Filament\Pages;
+
+use Commero\Models\SiteSetting;
+use Commero\Support\Filament\AdminLocales;
+use Commero\Support\Locales;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+use Filament\Actions\Action;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Illuminate\Validation\ValidationException;
+
+class SiteSettings extends Page
+{
+    use HasPageShield;
+
+    protected const ACTIVE_LOCALE_FIELD = 'active_locale_context';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
+
+    protected static ?int $navigationSort = 9999;
+
+    protected string $view = 'filament.pages.site-settings';
+
+    public ?array $data = [];
+    public string $activeLocale = '';
+
+    public function mount(): void
+    {
+        $this->activeLocale = $this->resolveActiveLocale();
+        $this->form->fill($this->getFormState());
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.resources.site_setting.navigation');
+    }
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('admin.navigation.system');
+    }
+
+    public function getTitle(): string
+    {
+        return __('admin.resources.site_setting.navigation');
+    }
+
+    public function form(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Form::make([
+                    Hidden::make(static::ACTIVE_LOCALE_FIELD)
+                        ->dehydrated(),
+                    Section::make(__('admin.site_setting.general_section'))
+                        ->schema([
+                            TextInput::make('site_name')->label(__('admin.site_setting.site_name'))->maxLength(255),
+                            FileUpload::make('logo_path')
+                                ->label(__('admin.site_setting.logo_path'))
+                                ->disk('public')
+                                ->directory('settings')
+                                ->visibility('public')
+                                ->image(),
+                            FileUpload::make('footer_logo_path')
+                                ->label(__('admin.site_setting.footer_logo_path'))
+                                ->disk('public')
+                                ->directory('settings')
+                                ->visibility('public')
+                                ->image(),
+                            FileUpload::make('favicon_svg_path')
+                                ->label(__('admin.site_setting.favicon_svg_path'))
+                                ->disk('public')
+                                ->directory('settings/favicons')
+                                ->visibility('public')
+                                ->acceptedFileTypes(['image/svg+xml'])
+                                ->helperText(__('admin.site_setting.favicon_svg_path_hint')),
+                            FileUpload::make('favicon_png_path')
+                                ->label(__('admin.site_setting.favicon_png_path'))
+                                ->disk('public')
+                                ->directory('settings/favicons')
+                                ->visibility('public')
+                                ->acceptedFileTypes(['image/png'])
+                                ->image()
+                                ->helperText(__('admin.site_setting.favicon_png_path_hint')),
+                        ])
+                        ->columns(2),
+                    Section::make(__('admin.site_setting.delivery_section'))
+                        ->schema([
+                            TextInput::make('nova_poshta_api_key')
+                                ->label(__('admin.site_setting.nova_poshta_api_key'))
+                                ->password()
+                                ->revealable()
+                                ->autocomplete('off')
+                                ->helperText(__('admin.site_setting.nova_poshta_api_key_hint'))
+                                ->maxLength(255),
+                        ]),
+                    Section::make(__('admin.site_setting.contacts'))
+                        ->schema([
+                            Repeater::make('contacts')
+                                ->label(__('admin.site_setting.contacts'))
+                                ->schema([
+                                    TextInput::make('identifier')
+                                        ->label(__('admin.common.identifier'))
+                                        ->required()
+                                        ->alphaDash()
+                                        ->maxLength(50)
+                                        ->placeholder('phone')
+                                        ->helperText(__('admin.site_setting.contact_identifier_hint')),
+                                    FileUpload::make('icon')
+                                        ->label(__('admin.common.icon'))
+                                        ->disk('public')
+                                        ->directory('settings/contacts')
+                                        ->visibility('public')
+                                        ->image(),
+                                    TextInput::make('label')
+                                        ->label(__('admin.common.label'))
+                                        ->required(fn ($livewire): bool => data_get($livewire, 'activeLocale') === Locales::default()),
+                                    TextInput::make('value')
+                                        ->label(__('admin.common.value'))
+                                        ->required(fn ($livewire): bool => data_get($livewire, 'activeLocale') === Locales::default()),
+                                ])
+                                ->columns(4)
+                                ->columnSpanFull(),
+                        ]),
+                    Section::make(__('admin.site_setting.social_links'))
+                        ->schema([
+                            Repeater::make('social_links')
+                                ->label(__('admin.site_setting.social_links'))
+                                ->schema([
+                                    TextInput::make('identifier')
+                                        ->label(__('admin.common.identifier'))
+                                        ->required()
+                                        ->alphaDash()
+                                        ->maxLength(50)
+                                        ->placeholder('instagram')
+                                        ->helperText(__('admin.site_setting.social_identifier_hint')),
+                                    FileUpload::make('icon')
+                                        ->label(__('admin.common.icon'))
+                                        ->disk('public')
+                                        ->directory('settings/social-links')
+                                        ->visibility('public')
+                                        ->image(),
+                                    TextInput::make('label')
+                                        ->label(__('admin.common.label'))
+                                        ->required(fn ($livewire): bool => data_get($livewire, 'activeLocale') === Locales::default()),
+                                    TextInput::make('url')
+                                        ->label(__('admin.common.url'))
+                                        ->url()
+                                        ->required(fn ($livewire): bool => data_get($livewire, 'activeLocale') === Locales::default()),
+                                ])
+                                ->columns(4)
+                                ->columnSpanFull(),
+                        ]),
+                ])
+                    ->livewireSubmitHandler('save')
+                    ->footer([
+                        Actions::make([
+                            Action::make('save')
+                                ->label(__('admin.common.save'))
+                                ->submit('save')
+                                ->keyBindings(['mod+s']),
+                        ]),
+                    ]),
+            ])
+            ->record($this->getRecord())
+            ->statePath('data');
+    }
+
+    public function save(): void
+    {
+        $data = $this->form->getState();
+        $activeLocale = $this->resolveActiveLocale($data[static::ACTIVE_LOCALE_FIELD] ?? null);
+
+        $this->ensureUniqueIdentifiers($data['contacts'] ?? [], 'contacts');
+        $this->ensureUniqueIdentifiers($data['social_links'] ?? [], 'social_links');
+
+        $record = $this->getRecord() ?? new SiteSetting;
+        $record->fill($this->prepareRecordData($record, $data, $activeLocale));
+        $record->save();
+
+        if ($record->wasRecentlyCreated) {
+            $this->form->record($record)->saveRelationships();
+        }
+
+        $this->activeLocale = $activeLocale;
+        $this->form->fill($this->getFormState($record));
+
+        Notification::make()
+            ->success()
+            ->title(__('admin.site_setting.saved'))
+            ->send();
+    }
+
+    protected function getRecord(): ?SiteSetting
+    {
+        return SiteSetting::query()->first();
+    }
+
+    public function updatedActiveLocale(?string $locale): void
+    {
+        $this->activeLocale = in_array($locale, AdminLocales::supported(), true)
+            ? (string) $locale
+            : Locales::default();
+
+        data_set($this, 'data.'.static::ACTIVE_LOCALE_FIELD, $this->activeLocale);
+    }
+
+    protected function ensureUniqueIdentifiers(array $items, string $key): void
+    {
+        $duplicates = collect($items)
+            ->pluck('identifier')
+            ->filter()
+            ->map(fn (string $identifier): string => mb_strtolower(trim($identifier)))
+            ->duplicates()
+            ->unique()
+            ->values();
+
+        if ($duplicates->isEmpty()) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            "data.{$key}" => __('admin.site_setting.identifier_unique', [
+                'identifiers' => $duplicates->implode(', '),
+            ]),
+        ]);
+    }
+
+    protected function getFormState(?SiteSetting $record = null): array
+    {
+        $record ??= $this->getRecord();
+        $activeLocale = $this->resolveActiveLocale();
+
+        return [
+            static::ACTIVE_LOCALE_FIELD => $activeLocale,
+            'site_name' => $record?->getSiteNameForLocale($activeLocale, false),
+            'logo_path' => $record?->getLogoPathForLocale($activeLocale, false),
+            'footer_logo_path' => $record?->getFooterLogoPathForLocale($activeLocale, false),
+            'favicon_svg_path' => $record?->getRawOriginal('favicon_svg_path'),
+            'favicon_png_path' => $record?->getRawOriginal('favicon_png_path'),
+            'nova_poshta_api_key' => $record?->getAttribute('nova_poshta_api_key'),
+            'contacts' => $record?->getEditableContactsForLocale($activeLocale) ?? [],
+            'social_links' => $record?->getEditableSocialLinksForLocale($activeLocale) ?? [],
+        ];
+    }
+
+    protected function prepareRecordData(SiteSetting $record, array $data, string $activeLocale): array
+    {
+        $preparedData = [
+            'favicon_svg_path' => $this->normalizeTextValue($data['favicon_svg_path'] ?? null),
+            'favicon_png_path' => $this->normalizeTextValue($data['favicon_png_path'] ?? null),
+            'nova_poshta_api_key' => $data['nova_poshta_api_key'] ?? null,
+        ];
+
+        if (Locales::isDefault($activeLocale)) {
+            $preparedData['site_name'] = $this->normalizeTextValue($data['site_name'] ?? null);
+            $preparedData['logo_path'] = $this->normalizeTextValue($data['logo_path'] ?? null);
+            $preparedData['footer_logo_path'] = $this->normalizeTextValue($data['footer_logo_path'] ?? null);
+            $preparedData['contacts'] = $this->normalizeLocalizedItems($data['contacts'] ?? [], ['label', 'value']);
+            $preparedData['social_links'] = $this->normalizeLocalizedItems($data['social_links'] ?? [], ['label', 'url']);
+
+            return $preparedData;
+        }
+
+        $siteNameTranslations = $record->site_name_translations ?? [];
+        $logoPathTranslations = $record->logo_path_translations ?? [];
+        $footerLogoPathTranslations = $record->footer_logo_path_translations ?? [];
+        $contactsTranslations = $record->contacts_translations ?? [];
+        $socialLinksTranslations = $record->social_links_translations ?? [];
+
+        $siteNameTranslations[$activeLocale] = $this->normalizeTextValue($data['site_name'] ?? null);
+        $logoPathTranslations[$activeLocale] = $this->normalizeTextValue($data['logo_path'] ?? null);
+        $footerLogoPathTranslations[$activeLocale] = $this->normalizeTextValue($data['footer_logo_path'] ?? null);
+        $contactsTranslations[$activeLocale] = $this->normalizeLocalizedItems($data['contacts'] ?? [], ['label', 'value']);
+        $socialLinksTranslations[$activeLocale] = $this->normalizeLocalizedItems($data['social_links'] ?? [], ['label', 'url']);
+
+        $preparedData['site_name_translations'] = $this->filterEmptyTranslationValues($siteNameTranslations);
+        $preparedData['logo_path_translations'] = $this->filterEmptyTranslationValues($logoPathTranslations);
+        $preparedData['footer_logo_path_translations'] = $this->filterEmptyTranslationValues($footerLogoPathTranslations);
+        $preparedData['contacts_translations'] = $this->filterEmptyTranslationItemLists($contactsTranslations, ['label', 'value']);
+        $preparedData['social_links_translations'] = $this->filterEmptyTranslationItemLists($socialLinksTranslations, ['label', 'url']);
+
+        return $preparedData;
+    }
+
+    protected function filterEmptyTranslationValues(array $translations): array
+    {
+        return collect($translations)
+            ->map(fn (mixed $value): ?string => $this->normalizeTextValue($value))
+            ->filter(fn (mixed $value): bool => filled($value))
+            ->all();
+    }
+
+    protected function filterEmptyTranslationItemLists(array $translations, array $translatableFields): array
+    {
+        return collect($translations)
+            ->map(function (mixed $items) use ($translatableFields): array {
+                return collect($this->normalizeLocalizedItems((array) $items, $translatableFields))
+                    ->filter(function (array $item) use ($translatableFields): bool {
+                        foreach ($translatableFields as $field) {
+                            if (filled($item[$field] ?? null)) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    })
+                    ->values()
+                    ->all();
+            })
+            ->filter(fn (array $items): bool => $items !== [])
+            ->all();
+    }
+
+    protected function normalizeLocalizedItems(array $items, array $translatableFields): array
+    {
+        return collect($items)
+            ->map(function (mixed $item) use ($translatableFields): ?array {
+                if (! is_array($item)) {
+                    return null;
+                }
+
+                $identifier = $this->normalizeTextValue($item['identifier'] ?? null);
+
+                if (! filled($identifier)) {
+                    return null;
+                }
+
+                $normalized = [
+                    'identifier' => $identifier,
+                    'icon' => $this->normalizeTextValue($item['icon'] ?? null),
+                ];
+
+                foreach ($translatableFields as $field) {
+                    $normalized[$field] = $this->normalizeTextValue($item[$field] ?? null);
+                }
+
+                return $normalized;
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    protected function resolveActiveLocale(?string $locale = null): string
+    {
+        $locale = $locale
+            ?? data_get($this, 'data.'.static::ACTIVE_LOCALE_FIELD)
+            ?? request()->query('lang')
+            ?? $this->activeLocale;
+
+        if (! in_array($locale, AdminLocales::supported(), true)) {
+            $locale = Locales::default();
+        }
+
+        return $locale;
+    }
+
+    protected function normalizeTextValue(mixed $value): ?string
+    {
+        $value = is_string($value) ? trim($value) : null;
+
+        return filled($value) ? $value : null;
+    }
+}
