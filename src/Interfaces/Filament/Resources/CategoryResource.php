@@ -4,6 +4,7 @@ namespace Commero\Interfaces\Filament\Resources;
 
 use Commero\Interfaces\Filament\Resources\CategoryResource\Pages;
 use Commero\Models\Category;
+use Commero\Models\Link;
 use Commero\Support\Filament\AdminLocales;
 use Commero\Support\Filament\PageContentBlocks;
 use Commero\Support\Locales;
@@ -26,6 +27,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class CategoryResource extends Resource
 {
@@ -204,6 +206,18 @@ class CategoryResource extends Resource
                 TextInput::make("translations.{$locale}.name")
                     ->label(__('admin.common.name'))
                     ->required($locale === Locales::default())
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function ($state, $old, $get, $set, ?Category $record) use ($locale): void {
+                        $slugPath = "translations.{$locale}.slug";
+                        $currentSlug = $get($slugPath);
+                        $previousGeneratedSlug = static::generateUniqueSiteSlug((string) $old, $locale, $record);
+
+                        if (filled($currentSlug) && $currentSlug !== $previousGeneratedSlug) {
+                            return;
+                        }
+
+                        $set($slugPath, static::generateUniqueSiteSlug((string) $state, $locale, $record));
+                    })
                     ->columnSpanFull()
                     ->dehydratedWhenHidden(),
             ])
@@ -240,7 +254,27 @@ class CategoryResource extends Resource
             ->schema([
                 TextInput::make("translations.{$locale}.slug")
                     ->label(__('admin.common.slug'))
-                    ->required($locale === Locales::default())
+                    ->live(onBlur: true)
+                    ->afterStateHydrated(function ($state, $get, $set, ?Category $record) use ($locale): void {
+                        if (filled($state)) {
+                            return;
+                        }
+
+                        $set(
+                            "translations.{$locale}.slug",
+                            static::generateUniqueSiteSlug((string) $get("translations.{$locale}.name"), $locale, $record),
+                        );
+                    })
+                    ->afterStateUpdated(function ($state, $get, $set, ?Category $record) use ($locale): void {
+                        $source = filled($state)
+                            ? (string) $state
+                            : (string) $get("translations.{$locale}.name");
+
+                        $set(
+                            "translations.{$locale}.slug",
+                            static::generateUniqueSiteSlug($source, $locale, $record),
+                        );
+                    })
                     ->dehydratedWhenHidden(),
                 Select::make("translations.{$locale}.robots")
                     ->label(__('admin.content.seo.robots'))
@@ -267,5 +301,28 @@ class CategoryResource extends Resource
             ])
             ->columnSpanFull()
             ->hidden(fn ($livewire): bool => data_get($livewire, 'activeLocale') !== $locale), AdminLocales::supported());
+    }
+
+    public static function normalizeSlug(?string $value): string
+    {
+        return Str::slug((string) $value);
+    }
+
+    /**
+     * @param  array<int, string>  $reservedSlugs
+     */
+    public static function generateUniqueSiteSlug(
+        ?string $value,
+        string $locale,
+        ?Category $record = null,
+        array $reservedSlugs = [],
+    ): ?string {
+        return Link::generateUniqueSlug(
+            value: static::normalizeSlug($value),
+            locale: $locale,
+            entityType: Link::ENTITY_CATEGORY,
+            entityId: $record?->getKey(),
+            reservedSlugs: $reservedSlugs,
+        );
     }
 }

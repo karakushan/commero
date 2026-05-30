@@ -171,6 +171,7 @@ trait InteractsWithCityCategoryTranslations
 
             $slug = CityCategoryResource::generateUniqueSiteSlug(
                 is_string($slugSource) ? $slugSource : null,
+                $locale,
                 $cityCategory,
                 $assignedSlugs,
             );
@@ -254,10 +255,9 @@ trait InteractsWithCityCategoryTranslations
         $defaultLocale = Locales::default();
         $defaultTranslation = $translations[$defaultLocale] ?? [];
 
-        if (blank($defaultTranslation['name'] ?? null) || blank($defaultTranslation['slug'] ?? null)) {
+        if (blank($defaultTranslation['name'] ?? null)) {
             throw ValidationException::withMessages([
                 "translations.{$defaultLocale}.name" => __('admin.resources.city_category.default_locale_required', ['locale' => $defaultLocale]),
-                "translations.{$defaultLocale}.slug" => __('admin.resources.city_category.default_locale_required', ['locale' => $defaultLocale]),
             ]);
         }
     }

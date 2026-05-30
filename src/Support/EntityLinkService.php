@@ -110,6 +110,8 @@ class EntityLinkService
 
     private function sync(string $entityType, int|string $entityId, string $locale, ?string $slug): void
     {
+        $slug = Link::generateUniqueSlug($slug, $locale, $entityType, $entityId);
+
         if (blank($slug)) {
             $this->delete($entityType, $entityId, $locale);
 

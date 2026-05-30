@@ -29,7 +29,7 @@ class CreateCategory extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        return $this->prepareCategoryData($data);
+        return $this->mutatePathData($this->prepareCategoryData($data));
     }
 
     protected function handleRecordCreation(array $data): Model

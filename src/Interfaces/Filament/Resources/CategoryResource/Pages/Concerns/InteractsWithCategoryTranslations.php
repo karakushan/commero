@@ -2,10 +2,12 @@
 
 namespace Commero\Interfaces\Filament\Resources\CategoryResource\Pages\Concerns;
 
+use Commero\Interfaces\Filament\Resources\CategoryResource;
 use Commero\Models\Category;
 use Commero\Support\Filament\AdminLocales;
 use Commero\Support\Locales;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 trait InteractsWithCategoryTranslations
@@ -36,6 +38,7 @@ trait InteractsWithCategoryTranslations
     {
         $data[static::ACTIVE_LOCALE_FIELD] = $this->resolveActiveLocale($data[static::ACTIVE_LOCALE_FIELD] ?? null);
         $data['translations'] = $this->normalizeTranslations($data['translations'] ?? []);
+        $data['translations'] = $this->assignUniqueSlugs($data['translations']);
 
         $this->guardDefaultLocaleTranslation($data['translations']);
 
@@ -73,9 +76,9 @@ trait InteractsWithCategoryTranslations
         }
 
         $data[static::ACTIVE_LOCALE_FIELD] = $activeLocale;
-        $data['translations'] = $translations;
+        $data['translations'] = $this->assignUniqueSlugs($translations, $category);
 
-        $this->guardDefaultLocaleTranslation($translations);
+        $this->guardDefaultLocaleTranslation($data['translations']);
 
         return $data;
     }
@@ -185,16 +188,82 @@ trait InteractsWithCategoryTranslations
 
     /**
      * @param  array<string, array<string, mixed>>  $translations
+     * @return array<string, array<string, mixed>>
+     */
+    protected function assignUniqueSlugs(array $translations, ?Category $category = null): array
+    {
+        $defaultLocale = Locales::default();
+
+        foreach (AdminLocales::supported() as $locale) {
+            $translation = $translations[$locale] ?? null;
+
+            if (! is_array($translation)) {
+                continue;
+            }
+
+            $slugSource = $translation['slug'] ?: ($translation['name'] ?? null);
+
+            if (
+                blank($slugSource)
+                && $locale !== $defaultLocale
+                && $this->hasMeaningfulTranslationData($translation)
+                && filled($translations[$defaultLocale]['name'] ?? null)
+            ) {
+                $slugSource = "{$translations[$defaultLocale]['name']}-{$locale}";
+            }
+
+            $translations[$locale]['slug'] = CategoryResource::generateUniqueSiteSlug(
+                is_string($slugSource) ? $slugSource : null,
+                $locale,
+                $category,
+            );
+        }
+
+        return $translations;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    protected function mutatePathData(array $data, ?Category $category = null): array
+    {
+        $defaultLocale = Locales::default();
+        $parentId = filled($data['parent_id'] ?? null) ? (int) $data['parent_id'] : null;
+        $parent = $parentId ? Category::query()->find($parentId) : null;
+        $baseSlug = (string) data_get($data, "translations.{$defaultLocale}.slug", '');
+        $basePath = trim((string) Str::slug($baseSlug), '/');
+
+        if ($basePath === '') {
+            return $data;
+        }
+
+        $path = $parent ? trim($parent->path.'/'.$basePath, '/') : $basePath;
+        $originalPath = $path;
+        $suffix = 2;
+
+        while ($this->categoryPathExists($path, $category)) {
+            $path = $originalPath.'-'.$suffix;
+            $suffix++;
+        }
+
+        $data['path'] = $path;
+        $data['depth'] = $parent ? ((int) $parent->depth + 1) : 0;
+
+        return $data;
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $translations
      */
     protected function guardDefaultLocaleTranslation(array $translations): void
     {
         $defaultLocale = Locales::default();
         $defaultTranslation = $translations[$defaultLocale] ?? [];
 
-        if (blank($defaultTranslation['name'] ?? null) || blank($defaultTranslation['slug'] ?? null)) {
+        if (blank($defaultTranslation['name'] ?? null)) {
             throw ValidationException::withMessages([
                 "translations.{$defaultLocale}.name" => __('admin.resources.category.default_locale_required', ['locale' => $defaultLocale]),
-                "translations.{$defaultLocale}.slug" => __('admin.resources.category.default_locale_required', ['locale' => $defaultLocale]),
             ]);
         }
     }
@@ -257,5 +326,13 @@ trait InteractsWithCategoryTranslations
             'meta_description' => null,
             'robots' => 'index, follow',
         ];
+    }
+
+    private function categoryPathExists(string $path, ?Category $category = null): bool
+    {
+        return Category::query()
+            ->where('path', $path)
+            ->when($category?->getKey(), fn ($query, $categoryId) => $query->whereKeyNot($categoryId))
+            ->exists();
     }
 }

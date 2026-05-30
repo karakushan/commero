@@ -5,6 +5,7 @@ namespace Commero\Interfaces\Filament\Resources;
 use Commero\Interfaces\Filament\Resources\CurrencyResource\Pages;
 use Commero\Models\Currency;
 use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
@@ -86,6 +87,7 @@ class CurrencyResource extends Resource
             ])
             ->recordActions([
                 EditAction::make()->iconButton(),
+                DeleteAction::make()->iconButton(),
             ])
             ->toolbarActions([
                 CreateAction::make(),

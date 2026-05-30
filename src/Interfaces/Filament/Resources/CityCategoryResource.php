@@ -4,10 +4,8 @@ namespace Commero\Interfaces\Filament\Resources;
 
 use Commero\Interfaces\Filament\Resources\CityCategoryResource\Pages;
 use Commero\Models\Category;
-use Commero\Models\CategoryTranslation;
 use Commero\Models\CityCategory;
-use Commero\Models\CityCategoryTranslation;
-use Commero\Models\PageTranslation;
+use Commero\Models\Link;
 use Commero\Support\Filament\AdminLocales;
 use Commero\Support\Filament\PageContentBlocks;
 use Commero\Support\Locales;
@@ -219,13 +217,13 @@ class CityCategoryResource extends Resource
                     ->afterStateUpdated(function ($state, $old, $get, $set, ?CityCategory $record) use ($locale): void {
                         $slugPath = "translations.{$locale}.slug";
                         $currentSlug = $get($slugPath);
-                        $previousGeneratedSlug = static::generateUniqueSiteSlug((string) $old, $record);
+                        $previousGeneratedSlug = static::generateUniqueSiteSlug((string) $old, $locale, $record);
 
                         if (filled($currentSlug) && $currentSlug !== $previousGeneratedSlug) {
                             return;
                         }
 
-                        $set($slugPath, static::generateUniqueSiteSlug((string) $state, $record));
+                        $set($slugPath, static::generateUniqueSiteSlug((string) $state, $locale, $record));
                     })
                     ->columnSpanFull()
                     ->dehydratedWhenHidden(),
@@ -257,7 +255,6 @@ class CityCategoryResource extends Resource
             ->schema([
                 TextInput::make("translations.{$locale}.slug")
                     ->label(__('admin.common.slug'))
-                    ->required($locale === Locales::default())
                     ->live(onBlur: true)
                     ->afterStateHydrated(function ($state, $get, $set, ?CityCategory $record) use ($locale): void {
                         if (filled($state)) {
@@ -266,7 +263,7 @@ class CityCategoryResource extends Resource
 
                         $set(
                             "translations.{$locale}.slug",
-                            static::generateUniqueSiteSlug((string) $get("translations.{$locale}.name"), $record),
+                            static::generateUniqueSiteSlug((string) $get("translations.{$locale}.name"), $locale, $record),
                         );
                     })
                     ->afterStateUpdated(function ($state, $get, $set, ?CityCategory $record) use ($locale): void {
@@ -276,7 +273,7 @@ class CityCategoryResource extends Resource
 
                         $set(
                             "translations.{$locale}.slug",
-                            static::generateUniqueSiteSlug($source, $record),
+                            static::generateUniqueSiteSlug($source, $locale, $record),
                         );
                     })
                     ->dehydratedWhenHidden(),
@@ -315,66 +312,19 @@ class CityCategoryResource extends Resource
     /**
      * @param  array<int, string>  $reservedSlugs
      */
-    public static function generateUniqueSiteSlug(?string $value, ?CityCategory $record = null, array $reservedSlugs = []): ?string
+    public static function generateUniqueSiteSlug(
+        ?string $value,
+        string $locale,
+        ?CityCategory $record = null,
+        array $reservedSlugs = [],
+    ): ?string
     {
-        $baseSlug = static::normalizeSlug($value);
-
-        if ($baseSlug === '') {
-            return null;
-        }
-
-        $slug = $baseSlug;
-        $suffix = 2;
-
-        while (in_array($slug, $reservedSlugs, true) || static::siteSlugExists($slug, $record)) {
-            $slug = "{$baseSlug}-{$suffix}";
-            $suffix++;
-        }
-
-        return $slug;
-    }
-
-    protected static function siteSlugExists(string $slug, ?CityCategory $record = null): bool
-    {
-        $cityCategoryId = $record?->getKey();
-
-        return in_array($slug, static::reservedRootSlugs(), true)
-            || CityCategoryTranslation::query()
-                ->where('slug', $slug)
-                ->when($cityCategoryId, fn (Builder $query): Builder => $query->where('city_category_id', '!=', $cityCategoryId))
-                ->exists()
-            || CategoryTranslation::query()->where('slug', $slug)->exists()
-            || PageTranslation::query()->where('slug', $slug)->exists();
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    protected static function reservedRootSlugs(): array
-    {
-        return [
-            'admin',
-            'home',
-            'catalog',
-            'sale',
-            'special-offers',
-            'product',
-            'post',
-            'category',
-            'blog',
-            'contacts',
-            'search',
-            'cart',
-            'wishlist',
-            'checkout',
-            'thank-you',
-            'account',
-            'login',
-            'register',
-            'reset-password',
-            '404',
-            'politika-konfidencijnosti',
-            ...Locales::supported(),
-        ];
+        return Link::generateUniqueSlug(
+            value: static::normalizeSlug($value),
+            locale: $locale,
+            entityType: Link::ENTITY_CITY_CATEGORY,
+            entityId: $record?->getKey(),
+            reservedSlugs: $reservedSlugs,
+        );
     }
 }

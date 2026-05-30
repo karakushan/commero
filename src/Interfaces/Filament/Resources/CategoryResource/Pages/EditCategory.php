@@ -53,7 +53,7 @@ class EditCategory extends EditRecord
         /** @var Category $record */
         $record = $this->getRecord();
 
-        return $this->prepareCategoryDataForActiveLocale($data, $record);
+        return $this->mutatePathData($this->prepareCategoryDataForActiveLocale($data, $record), $record);
     }
 
     protected function handleRecordUpdate(Model $record, array $data): Model
