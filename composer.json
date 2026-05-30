@@ -1,6 +1,6 @@
 {
     "name": "karakushan/commero",
-    "description": "Laravel ecommerce, CMS, and admin core package extracted from the Shophats project.",
+    "description": "Reusable Laravel commerce, CMS, and Filament admin core for Laravel projects.",
     "type": "library",
     "license": "proprietary",
     "require": {
