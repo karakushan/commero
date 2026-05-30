@@ -3,7 +3,6 @@
 namespace Commero\Application\Catalog\Queries;
 
 use Commero\Application\Catalog\DTOs\CatalogProductCardData;
-use Commero\Application\Catalog\Support\LocaleCache;
 use Commero\Models\ProductAttribute;
 use Commero\Models\Product;
 use Commero\Models\ProductVariant;
@@ -14,37 +13,27 @@ use Illuminate\Support\Facades\Storage;
 
 class CatalogProductListQuery
 {
-    public function __construct(private readonly LocaleCache $cache) {}
-
     public function handle(string $locale, string $sort = 'popular_desc', array $filters = [], int $perPage = 12): LengthAwarePaginator
     {
-        $cacheKey = md5(json_encode([
-            'sort' => $sort,
-            'filters' => $filters,
-            'per_page' => $perPage,
-        ], JSON_THROW_ON_ERROR));
+        $query = Product::query()
+            ->where('products.status', 'published')
+            ->withTranslationsFor($locale)
+            ->with([
+                'brand:id,name',
+                'primaryImage:id,product_id,path,alt,is_primary,sort',
+                'images:id,product_id,path,alt,sort',
+                'categories' => fn ($query) => $query->withTranslationsFor($locale),
+                'attributeValues.attribute' => fn ($query) => $query->withTranslationsFor($locale),
+                'attributeValues.option' => fn ($query) => $query->withTranslationsFor($locale),
+                'variants' => fn ($query) => $query->orderBy('sort')->orderBy('id'),
+            ]);
 
-        return $this->cache->remember('product-list', $locale, $cacheKey, function () use ($locale, $sort, $filters, $perPage): LengthAwarePaginator {
-            $query = Product::query()
-                ->where('products.status', 'published')
-                ->withTranslationsFor($locale)
-                ->with([
-                    'brand:id,name',
-                    'primaryImage:id,product_id,path,alt,is_primary,sort',
-                    'images:id,product_id,path,alt,sort',
-                    'categories' => fn ($query) => $query->withTranslationsFor($locale),
-                    'attributeValues.attribute' => fn ($query) => $query->withTranslationsFor($locale),
-                    'attributeValues.option' => fn ($query) => $query->withTranslationsFor($locale),
-                    'variants' => fn ($query) => $query->orderBy('sort')->orderBy('id'),
-                ]);
+        $query = $this->applySorting($query, $sort);
+        $query = $this->applyFilters($query, $filters);
 
-            $query = $this->applySorting($query, $sort);
-            $query = $this->applyFilters($query, $filters);
-
-            return $query
-                ->paginate($perPage)
-                ->through(fn (Product $product) => $this->toData($product, $locale));
-        });
+        return $query
+            ->paginate($perPage)
+            ->through(fn (Product $product) => $this->toData($product, $locale));
     }
 
     public function count(string $locale, array $filters = []): int

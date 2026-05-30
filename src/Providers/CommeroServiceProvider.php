@@ -8,6 +8,7 @@ use Commero\Domain\Catalog\Domain\Contracts\ProductRepositoryInterface;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentAttributeRepository;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentCategoryRepository;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentProductRepository;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class CommeroServiceProvider extends ServiceProvider
@@ -25,7 +26,10 @@ class CommeroServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadRoutesFrom($this->packagePath('routes/web.php'));
+        if (! $this->app->routesAreCached()) {
+            Route::middleware('web')->group($this->packagePath('routes/web.php'));
+        }
+
         $this->loadViewsFrom(config('commero.theme_view_path', resource_path('views/shophats')), 'shophats');
         $this->loadMigrationsFrom($this->packagePath('database/migrations'));
         $this->loadTranslationsFrom($this->packagePath('lang'), 'commero');
