@@ -9,6 +9,7 @@ use Commero\Domain\Catalog\Domain\Contracts\ProductRepositoryInterface;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentAttributeRepository;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentCategoryRepository;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentProductRepository;
+use Commero\Models\User as CommeroUser;
 use Commero\Providers\Filament\AdminPanelProvider;
 use Commero\Support\Locales;
 use Illuminate\Database\Schema\Blueprint;
@@ -24,6 +25,7 @@ class CommeroServiceProvider extends ServiceProvider
 
         $this->loadTranslationsFrom($this->packagePath('lang'), 'commero');
         $this->mergePackageConfig();
+        $this->synchronizeAuthModel();
         $this->synchronizeApplicationLocales();
         $this->registerFilamentPanelProvider();
         $this->registerConsoleCommands();
@@ -93,6 +95,17 @@ class CommeroServiceProvider extends ServiceProvider
             'app.fallback_locale' => Locales::fallback(),
             'app.supported_locales' => Locales::supported(),
         ]);
+    }
+
+    private function synchronizeAuthModel(): void
+    {
+        $configuredModel = config('auth.providers.users.model');
+
+        if (! is_string($configuredModel) || $configuredModel === '' || $configuredModel === 'App\\Models\\User') {
+            config([
+                'auth.providers.users.model' => CommeroUser::class,
+            ]);
+        }
     }
 
     private function hostApplicationHasPanelProvider(): bool

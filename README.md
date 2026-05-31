@@ -21,7 +21,9 @@ Commero\Providers\CommeroServiceProvider::class,
 
 ## Basic Setup
 
-The `commero:install` command configures `AUTH_MODEL=Commero\Models\User`, publishes the package config, generates Filament assets, runs migrations, generates Filament Shield permissions, seeds the package roles and permissions, and interactively offers to create an admin user in the host application.
+The package uses `Commero\Models\User` automatically when the host app still uses the default `App\Models\User`. If the host app explicitly configures another auth user model, Commero respects that override.
+
+The `commero:install` command publishes the package config, generates Filament assets, runs migrations, generates Filament Shield permissions, seeds the package roles and permissions, and interactively offers to create an admin user in the host application.
 
 Useful flags:
 
