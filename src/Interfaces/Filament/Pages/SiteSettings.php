@@ -29,7 +29,7 @@ class SiteSettings extends Page
 
     protected static ?int $navigationSort = 1;
 
-    protected string $view = 'filament.pages.site-settings';
+    protected string $view = 'commero::filament.pages.site-settings';
 
     public ?array $data = [];
     public string $activeLocale = '';
