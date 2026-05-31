@@ -27,7 +27,7 @@ class SiteSettings extends Page
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
 
-    protected static ?int $navigationSort = 9999;
+    protected static ?int $navigationSort = 1;
 
     protected string $view = 'filament.pages.site-settings';
 
