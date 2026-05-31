@@ -6,24 +6,26 @@ class Locales
 {
     public static function supported(): array
     {
-        return config('app.supported_locales', [config('app.locale')]);
+        return array_values(array_filter(
+            config('commero.locales.supported', ['uk'])
+        ));
     }
 
     public static function fallback(): string
     {
-        return config('app.fallback_locale', 'en');
+        return (string) config('commero.locales.fallback', self::default());
     }
 
     public static function default(): string
     {
-        return self::supported()[0] ?? config('app.locale', 'uk');
+        return (string) config('commero.locales.default', self::supported()[0] ?? 'uk');
     }
 
     public static function additional(): array
     {
         return array_values(array_filter(
             self::supported(),
-            fn (string $locale): bool => ! self::isDefault($locale),
+            fn (string $locale): bool => $locale !== self::default(),
         ));
     }
 
