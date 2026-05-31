@@ -10,6 +10,8 @@ Require the package in your Laravel app:
 composer require karakushan/commero:dev-main
 ```
 
+This package requires Filament and Filament Shield in the host application. On a clean Laravel app, it registers a ready-to-use `admin` Filament panel automatically. If the host app already has any panel provider in `app/Providers/Filament/*PanelProvider.php`, Commero does not register a second panel and will use the host panel setup instead.
+
 If Composer auto-discovery is disabled, register the service provider manually:
 
 ```php
@@ -45,7 +47,8 @@ You can change that path in `config/commero.php`.
 - storefront routes
 - catalog, cart, wishlist, checkout, and account flows
 - CMS pages and blog
-- Filament admin resources and pages
+- ready-to-use Filament admin panel on clean installs
+- Filament admin resources and pages for custom host panels
 - package migrations, translations, and config
 
 ## Development

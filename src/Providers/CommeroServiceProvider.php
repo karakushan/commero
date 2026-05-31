@@ -8,7 +8,9 @@ use Commero\Domain\Catalog\Domain\Contracts\ProductRepositoryInterface;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentAttributeRepository;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentCategoryRepository;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentProductRepository;
+use Commero\Providers\Filament\AdminPanelProvider;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -18,7 +20,8 @@ class CommeroServiceProvider extends ServiceProvider
     {
         require_once $this->packagePath('src/Support/helpers.php');
 
-        $this->mergeConfigFrom($this->packagePath('config/commero.php'), 'commero');
+        $this->mergePackageConfig();
+        $this->registerFilamentPanelProvider();
 
         $this->app->bind(ProductRepositoryInterface::class, EloquentProductRepository::class);
         $this->app->bind(CategoryRepositoryInterface::class, EloquentCategoryRepository::class);
@@ -33,6 +36,7 @@ class CommeroServiceProvider extends ServiceProvider
             Route::middleware('web')->group($this->packagePath('routes/web.php'));
         }
 
+        $this->loadViewsFrom($this->packagePath('resources/views'), 'commero');
         $this->loadViewsFrom(config('commero.theme_view_path', resource_path('views/shophats')), 'shophats');
         $this->loadMigrationsFrom($this->packagePath('database/migrations'));
         $this->loadTranslationsFrom($this->packagePath('lang'), 'commero');
@@ -57,5 +61,35 @@ class CommeroServiceProvider extends ServiceProvider
             /** @var Blueprint $this */
             $this->unique($columns, $name);
         });
+    }
+
+    private function registerFilamentPanelProvider(): void
+    {
+        if ($this->hostApplicationHasPanelProvider()) {
+            return;
+        }
+
+        $this->app->register(AdminPanelProvider::class);
+    }
+
+    private function mergePackageConfig(): void
+    {
+        $defaults = require $this->packagePath('config/commero.php');
+        $overrides = (array) config('commero', []);
+
+        config([
+            'commero' => array_replace_recursive($defaults, $overrides),
+        ]);
+    }
+
+    private function hostApplicationHasPanelProvider(): bool
+    {
+        $filamentProvidersPath = app_path('Providers/Filament');
+
+        if (! is_dir($filamentProvidersPath)) {
+            return false;
+        }
+
+        return File::glob($filamentProvidersPath.'/*PanelProvider.php') !== [];
     }
 }
