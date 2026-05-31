@@ -31,22 +31,22 @@ class OrderStatusResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('admin.resources.order_status.navigation');
+        return __('commero::admin.resources.order_status.navigation');
     }
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return __('admin.navigation.orders');
+        return __('commero::admin.navigation.orders');
     }
 
     public static function getModelLabel(): string
     {
-        return __('admin.resources.order_status.singular');
+        return __('commero::admin.resources.order_status.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('admin.resources.order_status.plural');
+        return __('commero::admin.resources.order_status.plural');
     }
 
     public static function form(Schema $schema): Schema
@@ -54,22 +54,22 @@ class OrderStatusResource extends Resource
         return $schema->components([
             Hidden::make('active_locale_context')
                 ->dehydrated(),
-            TextInput::make('code')->label(__('admin.common.code'))->required()->unique(ignoreRecord: true)->maxLength(50),
+            TextInput::make('code')->label(__('commero::admin.common.code'))->required()->unique(ignoreRecord: true)->maxLength(50),
             ...static::mainTranslationSections(),
-            ColorPicker::make('color')->label(__('admin.resources.order_status.badge_background_color'))->default('#6b7280'),
-            ColorPicker::make('text_color')->label(__('admin.resources.order_status.text_color'))->default('#ffffff'),
+            ColorPicker::make('color')->label(__('commero::admin.resources.order_status.badge_background_color'))->default('#6b7280'),
+            ColorPicker::make('text_color')->label(__('commero::admin.resources.order_status.text_color'))->default('#ffffff'),
             FileUpload::make('icon')
-                ->label(__('admin.common.icon'))
+                ->label(__('commero::admin.common.icon'))
                 ->disk('public')
                 ->directory('order-statuses')
                 ->visibility('public')
                 ->image(),
-            TextInput::make('sort')->label(__('admin.common.sort'))->numeric()->default(0)->required(),
-            Toggle::make('is_active')->label(__('admin.common.is_active'))->default(true),
+            TextInput::make('sort')->label(__('commero::admin.common.sort'))->numeric()->default(0)->required(),
+            Toggle::make('is_active')->label(__('commero::admin.common.is_active'))->default(true),
             Toggle::make('is_default_for_new_order')
-                ->label(__('admin.resources.order_status.is_default_for_new_order'))
+                ->label(__('commero::admin.resources.order_status.is_default_for_new_order'))
                 ->default(false)
-                ->helperText(__('admin.resources.order_status.is_default_for_new_order_hint')),
+                ->helperText(__('commero::admin.resources.order_status.is_default_for_new_order_hint')),
         ])->columns(2);
     }
 
@@ -79,9 +79,9 @@ class OrderStatusResource extends Resource
             ->reorderable('sort')
             ->defaultSort('sort')
             ->columns([
-                TextColumn::make('code')->label(__('admin.common.code'))->searchable()->sortable(),
+                TextColumn::make('code')->label(__('commero::admin.common.code'))->searchable()->sortable(),
                 TextColumn::make('translation_name')
-                    ->label(__('admin.common.name'))
+                    ->label(__('commero::admin.common.name'))
                     ->state(fn (OrderStatus $record): ?string => $record->translation(app()->getLocale())?->name ?? $record->getRawOriginal('name'))
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->where(function (Builder $nestedQuery) use ($search): void {
@@ -90,14 +90,14 @@ class OrderStatusResource extends Resource
                                 ->orWhereHas('translations', fn (Builder $translationsQuery): Builder => $translationsQuery->where('name', 'like', "%{$search}%"));
                         });
                     }),
-                ColorColumn::make('color')->label(__('admin.resources.order_status.badge_background_color')),
-                IconColumn::make('is_active')->label(__('admin.common.is_active'))->boolean(),
-                IconColumn::make('is_default_for_new_order')->label(__('admin.resources.order_status.is_default_for_new_order'))->boolean(),
+                ColorColumn::make('color')->label(__('commero::admin.resources.order_status.badge_background_color')),
+                IconColumn::make('is_active')->label(__('commero::admin.common.is_active'))->boolean(),
+                IconColumn::make('is_default_for_new_order')->label(__('commero::admin.resources.order_status.is_default_for_new_order'))->boolean(),
             ])
             ->recordActions([
                 EditAction::make()->iconButton(),
                 DeleteAction::make()->iconButton()
-                    ->modalHeading(__('admin.resources.order_status.delete_confirm')),
+                    ->modalHeading(__('commero::admin.resources.order_status.delete_confirm')),
             ])
             ->toolbarActions([
                 CreateAction::make(),
@@ -125,7 +125,7 @@ class OrderStatusResource extends Resource
     protected static function mainTranslationSections(): array
     {
         return array_map(fn (string $locale): TextInput => TextInput::make("translations.{$locale}.name")
-            ->label(__('admin.common.name'))
+            ->label(__('commero::admin.common.name'))
             ->required($locale === Locales::default())
             ->dehydratedWhenHidden()
             ->maxLength(255)

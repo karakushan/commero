@@ -36,22 +36,22 @@ class ProductReviewResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('admin.resources.product_review.navigation');
+        return __('commero::admin.resources.product_review.navigation');
     }
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return __('admin.navigation.catalog');
+        return __('commero::admin.navigation.catalog');
     }
 
     public static function getModelLabel(): string
     {
-        return __('admin.resources.product_review.singular');
+        return __('commero::admin.resources.product_review.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('admin.resources.product_review.plural');
+        return __('commero::admin.resources.product_review.plural');
     }
 
     public static function getNavigationBadge(): ?string
@@ -73,81 +73,81 @@ class ProductReviewResource extends Resource
     {
         return $schema->components([
             Select::make('product_id')
-                ->label(__('admin.order.product'))
+                ->label(__('commero::admin.order.product'))
                 ->relationship('product', 'id')
                 ->getOptionLabelFromRecordUsing(fn (Product $record): string => $record->translation(app()->getLocale())?->name ?? $record->sku)
                 ->searchable()
                 ->preload()
                 ->required(),
             Placeholder::make('product_edit_link')
-                ->label(__('admin.product_review.product_link'))
+                ->label(__('commero::admin.product_review.product_link'))
                 ->content(fn (?ProductReview $record): HtmlString => static::getProductEditLink($record)),
             Select::make('user_id')
-                ->label(__('admin.order.user'))
+                ->label(__('commero::admin.order.user'))
                 ->relationship('user', 'email')
                 ->searchable()
                 ->preload(),
             Select::make('locale')
-                ->label(__('admin.common.locale'))
-                ->options(collect(Locales::supported())->mapWithKeys(fn (string $locale): array => [$locale => __('admin.locale_names.'.$locale)])->all())
+                ->label(__('commero::admin.common.locale'))
+                ->options(collect(Locales::supported())->mapWithKeys(fn (string $locale): array => [$locale => __('commero::admin.locale_names.'.$locale)])->all())
                 ->default(app()->getLocale())
                 ->required(),
             Select::make('author_type')
-                ->label(__('admin.product_review.author_type'))
+                ->label(__('commero::admin.product_review.author_type'))
                 ->options([
-                    'guest' => __('admin.product_review.author_types.guest'),
-                    'user' => __('admin.product_review.author_types.user'),
-                    'admin' => __('admin.product_review.author_types.admin'),
+                    'guest' => __('commero::admin.product_review.author_types.guest'),
+                    'user' => __('commero::admin.product_review.author_types.user'),
+                    'admin' => __('commero::admin.product_review.author_types.admin'),
                 ])
                 ->default('guest')
                 ->required(),
             TextInput::make('display_name')
-                ->label(__('admin.product_review.display_name'))
+                ->label(__('commero::admin.product_review.display_name'))
                 ->required()
                 ->maxLength(255),
             TextInput::make('email')
-                ->label(__('admin.order.customer_email'))
+                ->label(__('commero::admin.order.customer_email'))
                 ->email()
                 ->maxLength(255),
             TextInput::make('rating')
-                ->label(__('admin.product_review.rating'))
+                ->label(__('commero::admin.product_review.rating'))
                 ->numeric()
                 ->minValue(1)
                 ->maxValue(5)
                 ->required(),
             TextInput::make('title')
-                ->label(__('admin.common.title'))
+                ->label(__('commero::admin.common.title'))
                 ->maxLength(255),
             Textarea::make('comment')
-                ->label(__('admin.order.comment'))
+                ->label(__('commero::admin.order.comment'))
                 ->required()
                 ->rows(6)
                 ->columnSpanFull(),
             Select::make('status')
-                ->label(__('admin.common.status'))
+                ->label(__('commero::admin.common.status'))
                 ->options([
-                    'pending' => __('admin.product_review.status.pending'),
-                    'approved' => __('admin.product_review.status.approved'),
-                    'rejected' => __('admin.product_review.status.rejected'),
+                    'pending' => __('commero::admin.product_review.status.pending'),
+                    'approved' => __('commero::admin.product_review.status.approved'),
+                    'rejected' => __('commero::admin.product_review.status.rejected'),
                 ])
                 ->default('pending')
                 ->required(),
             Repeater::make('images')
-                ->label(__('admin.product_review.photos'))
+                ->label(__('commero::admin.product_review.photos'))
                 ->relationship()
                 ->schema([
                     FileUpload::make('path')
-                        ->label(__('admin.product_review.photo'))
+                        ->label(__('commero::admin.product_review.photo'))
                         ->disk('public')
                         ->directory('reviews/photos')
                         ->visibility('public')
                         ->image()
                         ->required(),
                     TextInput::make('alt')
-                        ->label(__('admin.product_review.photo_alt'))
+                        ->label(__('commero::admin.product_review.photo_alt'))
                         ->maxLength(255),
                     TextInput::make('sort')
-                        ->label(__('admin.common.sort'))
+                        ->label(__('commero::admin.common.sort'))
                         ->numeric()
                         ->default(0)
                         ->required(),
@@ -171,9 +171,9 @@ class ProductReviewResource extends Resource
                     ->when(filled($requestedProductId), fn (Builder $query): Builder => $query->where('product_id', $requestedProductId));
             })
             ->columns([
-                TextColumn::make('id')->label(__('admin.common.id'))->sortable(),
+                TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
                 TextColumn::make('product_name')
-                    ->label(__('admin.order.product'))
+                    ->label(__('commero::admin.order.product'))
                     ->state(fn (ProductReview $record): string => $record->product?->translation(app()->getLocale())?->name ?? ($record->product?->sku ?? '-'))
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         $search = trim($search);
@@ -189,24 +189,24 @@ class ProductReviewResource extends Resource
                                 });
                         });
                     }),
-                TextColumn::make('display_name')->label(__('admin.product_review.display_name'))->searchable(),
-                TextColumn::make('rating')->label(__('admin.product_review.rating'))->sortable(),
+                TextColumn::make('display_name')->label(__('commero::admin.product_review.display_name'))->searchable(),
+                TextColumn::make('rating')->label(__('commero::admin.product_review.rating'))->sortable(),
                 TextColumn::make('status')
-                    ->label(__('admin.common.status'))
+                    ->label(__('commero::admin.common.status'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => __('admin.product_review.status.'.$state)),
-                TextColumn::make('created_at')->label(__('admin.product_review.created_at'))->dateTime()->sortable(),
+                    ->formatStateUsing(fn (string $state): string => __('commero::admin.product_review.status.'.$state)),
+                TextColumn::make('created_at')->label(__('commero::admin.product_review.created_at'))->dateTime()->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label(__('admin.common.status'))
+                    ->label(__('commero::admin.common.status'))
                     ->options([
-                        'pending' => __('admin.product_review.status.pending'),
-                        'approved' => __('admin.product_review.status.approved'),
-                        'rejected' => __('admin.product_review.status.rejected'),
+                        'pending' => __('commero::admin.product_review.status.pending'),
+                        'approved' => __('commero::admin.product_review.status.approved'),
+                        'rejected' => __('commero::admin.product_review.status.rejected'),
                     ]),
                 SelectFilter::make('product_id')
-                    ->label(__('admin.order.product'))
+                    ->label(__('commero::admin.order.product'))
                     ->options(fn (): array => Product::query()
                         ->withTranslationsFor(app()->getLocale())
                         ->orderBy('id')
@@ -227,10 +227,10 @@ class ProductReviewResource extends Resource
                         return $query->where('product_id', $productId);
                     }),
                 SelectFilter::make('locale')
-                    ->label(__('admin.common.locale'))
-                    ->options(collect(Locales::supported())->mapWithKeys(fn (string $locale): array => [$locale => __('admin.locale_names.'.$locale)])->all()),
+                    ->label(__('commero::admin.common.locale'))
+                    ->options(collect(Locales::supported())->mapWithKeys(fn (string $locale): array => [$locale => __('commero::admin.locale_names.'.$locale)])->all()),
                 SelectFilter::make('rating')
-                    ->label(__('admin.product_review.rating'))
+                    ->label(__('commero::admin.product_review.rating'))
                     ->options([
                         '5' => '5',
                         '4' => '4',
@@ -239,19 +239,19 @@ class ProductReviewResource extends Resource
                         '1' => '1',
                     ]),
                 SelectFilter::make('author_type')
-                    ->label(__('admin.product_review.author_type'))
+                    ->label(__('commero::admin.product_review.author_type'))
                     ->options([
-                        'guest' => __('admin.product_review.author_types.guest'),
-                        'user' => __('admin.product_review.author_types.user'),
-                        'admin' => __('admin.product_review.author_types.admin'),
+                        'guest' => __('commero::admin.product_review.author_types.guest'),
+                        'user' => __('commero::admin.product_review.author_types.user'),
+                        'admin' => __('commero::admin.product_review.author_types.admin'),
                     ]),
             ])
             ->recordActions([
                 EditAction::make()->iconButton(),
                 Action::make('reply')
                     ->label(fn (ProductReview $record): string => $record->children()->exists()
-                        ? __('admin.product_review.edit_reply')
-                        : __('admin.product_review.add_reply'))
+                        ? __('commero::admin.product_review.edit_reply')
+                        : __('commero::admin.product_review.add_reply'))
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->fillForm(function (ProductReview $record): array {
                         $reply = $record->children()->first();
@@ -264,19 +264,19 @@ class ProductReviewResource extends Resource
                     })
                     ->schema([
                         TextInput::make('display_name')
-                            ->label(__('admin.product_review.display_name'))
+                            ->label(__('commero::admin.product_review.display_name'))
                             ->required()
                             ->maxLength(255),
                         Textarea::make('comment')
-                            ->label(__('admin.order.comment'))
+                            ->label(__('commero::admin.order.comment'))
                             ->required()
                             ->rows(5),
                         Select::make('status')
-                            ->label(__('admin.common.status'))
+                            ->label(__('commero::admin.common.status'))
                             ->options([
-                                'pending' => __('admin.product_review.status.pending'),
-                                'approved' => __('admin.product_review.status.approved'),
-                                'rejected' => __('admin.product_review.status.rejected'),
+                                'pending' => __('commero::admin.product_review.status.pending'),
+                                'approved' => __('commero::admin.product_review.status.approved'),
+                                'rejected' => __('commero::admin.product_review.status.rejected'),
                             ])
                             ->default('approved')
                             ->required(),
@@ -302,12 +302,12 @@ class ProductReviewResource extends Resource
                         }
                     }),
                 Action::make('approve')
-                    ->label(__('admin.product_review.actions.approve'))
+                    ->label(__('commero::admin.product_review.actions.approve'))
                     ->color('success')
                     ->icon('heroicon-o-check')
                     ->action(fn (ProductReview $record) => $record->update(['status' => 'approved'])),
                 Action::make('reject')
-                    ->label(__('admin.product_review.actions.reject'))
+                    ->label(__('commero::admin.product_review.actions.reject'))
                     ->color('danger')
                     ->icon('heroicon-o-x-mark')
                     ->action(fn (ProductReview $record) => $record->update(['status' => 'rejected'])),
@@ -318,11 +318,11 @@ class ProductReviewResource extends Resource
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     \Filament\Actions\BulkAction::make('approveSelected')
-                        ->label(__('admin.product_review.actions.approve_selected'))
+                        ->label(__('commero::admin.product_review.actions.approve_selected'))
                         ->icon('heroicon-o-check')
                         ->action(fn ($records) => $records->each->update(['status' => 'approved'])),
                     \Filament\Actions\BulkAction::make('rejectSelected')
-                        ->label(__('admin.product_review.actions.reject_selected'))
+                        ->label(__('commero::admin.product_review.actions.reject_selected'))
                         ->icon('heroicon-o-x-mark')
                         ->action(fn ($records) => $records->each->update(['status' => 'rejected'])),
                 ]),

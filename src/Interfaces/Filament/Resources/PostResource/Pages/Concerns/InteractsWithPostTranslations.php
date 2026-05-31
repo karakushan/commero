@@ -256,7 +256,7 @@ trait InteractsWithPostTranslations
 
         if (blank($defaultTranslation['title'] ?? null)) {
             throw ValidationException::withMessages([
-                "translations.{$defaultLocale}.title" => __('admin.resources.post.default_locale_required', ['locale' => $defaultLocale]),
+                "translations.{$defaultLocale}.title" => __('commero::admin.resources.post.default_locale_required', ['locale' => $defaultLocale]),
             ]);
         }
     }

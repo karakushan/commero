@@ -141,7 +141,7 @@ trait InteractsWithMenuTranslations
         }
 
         throw ValidationException::withMessages([
-            'items' => __('admin.menu.default_locale_required', [
+            'items' => __('commero::admin.menu.default_locale_required', [
                 'locale' => $defaultLocale,
                 'items' => $invalidItems->implode(', '),
             ]),

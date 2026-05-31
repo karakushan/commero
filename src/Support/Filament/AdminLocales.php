@@ -26,7 +26,7 @@ class AdminLocales
 
     public static function optionLabel(string $locale): string
     {
-        return trim(static::flag($locale).' '.__('admin.locale_names.'.$locale));
+        return trim(static::flag($locale).' '.__('commero::admin.locale_names.'.$locale));
     }
 
     public static function flag(string $locale): string

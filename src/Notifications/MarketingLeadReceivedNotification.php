@@ -101,7 +101,7 @@ class MarketingLeadReceivedNotification extends Notification
 
     private function leadTypeLabel(): string
     {
-        return __('admin.marketing_lead.types.'.$this->lead->type);
+        return __('commero::admin.marketing_lead.types.'.$this->lead->type);
     }
 
     private function leadSummary(): string

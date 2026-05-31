@@ -27,7 +27,7 @@ class EditPage extends EditRecord
     {
         return [
             Action::make('viewPage')
-                ->label(__('admin.page.actions.view_on_site'))
+                ->label(__('commero::admin.page.actions.view_on_site'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
                 ->url(fn (): string => $this->getFrontendPageUrl())
                 ->openUrlInNewTab(),

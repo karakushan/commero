@@ -24,50 +24,50 @@ class CurrencyResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('admin.resources.currency.navigation');
+        return __('commero::admin.resources.currency.navigation');
     }
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return __('admin.navigation.system');
+        return __('commero::admin.navigation.system');
     }
 
     public static function getModelLabel(): string
     {
-        return __('admin.resources.currency.singular');
+        return __('commero::admin.resources.currency.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('admin.resources.currency.plural');
+        return __('commero::admin.resources.currency.plural');
     }
 
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
             TextInput::make('code')
-                ->label(__('admin.common.code'))
+                ->label(__('commero::admin.common.code'))
                 ->maxLength(3)
                 ->required()
                 ->unique(ignoreRecord: true),
             TextInput::make('name')
-                ->label(__('admin.common.name'))
+                ->label(__('commero::admin.common.name'))
                 ->required(),
             TextInput::make('symbol')
-                ->label(__('admin.currency.symbol'))
+                ->label(__('commero::admin.currency.symbol'))
                 ->maxLength(10)
                 ->required(),
             Toggle::make('is_base')
-                ->label(__('admin.currency.is_base'))
+                ->label(__('commero::admin.currency.is_base'))
                 ->default(false),
             TextInput::make('rate')
-                ->label(__('admin.currency.rate'))
+                ->label(__('commero::admin.currency.rate'))
                 ->numeric()
                 ->minValue(0)
                 ->default(1)
                 ->required(),
             TextInput::make('sort')
-                ->label(__('admin.common.sort'))
+                ->label(__('commero::admin.common.sort'))
                 ->numeric()
                 ->default(0)
                 ->required(),
@@ -78,12 +78,12 @@ class CurrencyResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('code')->label(__('admin.common.code'))->searchable()->sortable(),
-                TextColumn::make('name')->label(__('admin.common.name'))->searchable(),
-                TextColumn::make('symbol')->label(__('admin.currency.symbol')),
-                IconColumn::make('is_base')->label(__('admin.currency.is_base'))->boolean(),
-                TextColumn::make('rate')->label(__('admin.currency.rate'))->numeric(decimalPlaces: 6),
-                TextColumn::make('sort')->label(__('admin.common.sort'))->sortable(),
+                TextColumn::make('code')->label(__('commero::admin.common.code'))->searchable()->sortable(),
+                TextColumn::make('name')->label(__('commero::admin.common.name'))->searchable(),
+                TextColumn::make('symbol')->label(__('commero::admin.currency.symbol')),
+                IconColumn::make('is_base')->label(__('commero::admin.currency.is_base'))->boolean(),
+                TextColumn::make('rate')->label(__('commero::admin.currency.rate'))->numeric(decimalPlaces: 6),
+                TextColumn::make('sort')->label(__('commero::admin.common.sort'))->sortable(),
             ])
             ->recordActions([
                 EditAction::make()->iconButton(),

@@ -161,7 +161,7 @@ trait InteractsWithShippingMethodTranslations
 
         if (blank($defaultTranslation['name'] ?? null)) {
             throw ValidationException::withMessages([
-                "translations.{$defaultLocale}.name" => __('admin.resources.shipping_method.default_locale_required', ['locale' => $defaultLocale]),
+                "translations.{$defaultLocale}.name" => __('commero::admin.resources.shipping_method.default_locale_required', ['locale' => $defaultLocale]),
             ]);
         }
     }

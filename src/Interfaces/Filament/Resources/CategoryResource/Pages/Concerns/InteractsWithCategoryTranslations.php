@@ -263,7 +263,7 @@ trait InteractsWithCategoryTranslations
 
         if (blank($defaultTranslation['name'] ?? null)) {
             throw ValidationException::withMessages([
-                "translations.{$defaultLocale}.name" => __('admin.resources.category.default_locale_required', ['locale' => $defaultLocale]),
+                "translations.{$defaultLocale}.name" => __('commero::admin.resources.category.default_locale_required', ['locale' => $defaultLocale]),
             ]);
         }
     }

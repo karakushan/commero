@@ -56,22 +56,22 @@ class ProductResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('admin.resources.product.navigation');
+        return __('commero::admin.resources.product.navigation');
     }
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return __('admin.navigation.catalog');
+        return __('commero::admin.navigation.catalog');
     }
 
     public static function getModelLabel(): string
     {
-        return __('admin.resources.product.singular');
+        return __('commero::admin.resources.product.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('admin.resources.product.plural');
+        return __('commero::admin.resources.product.plural');
     }
 
     public static function form(Schema $schema): Schema
@@ -82,43 +82,43 @@ class ProductResource extends Resource
             Tabs::make('Product Tabs')
                 ->columnSpanFull()
                 ->tabs([
-                    Tabs\Tab::make(__('admin.product.tabs.main'))
+                    Tabs\Tab::make(__('commero::admin.product.tabs.main'))
                         ->icon('heroicon-o-information-circle')
                         ->schema([
                             ...static::mainTranslationSections(),
                             Select::make('brand_id')
-                                ->label(__('admin.product.brand_id'))
+                                ->label(__('commero::admin.product.brand_id'))
                                 ->relationship('brand', 'name')
                                 ->searchable()
                                 ->preload()
                                 ->columnSpan(1),
                             Select::make('status')
                                 ->options([
-                                    'draft' => __('admin.product.status.draft'),
-                                    'published' => __('admin.product.status.published'),
+                                    'draft' => __('commero::admin.product.status.draft'),
+                                    'published' => __('commero::admin.product.status.published'),
                                 ])
-                                ->label(__('admin.common.status'))
+                                ->label(__('commero::admin.common.status'))
                                 ->required()
                                 ->default('draft')
                                 ->columnSpan(1),
                             Select::make('type')
                                 ->options([
-                                    'simple' => __('admin.product.type.simple'),
-                                    'variant' => __('admin.product.type.variant'),
+                                    'simple' => __('commero::admin.product.type.simple'),
+                                    'variant' => __('commero::admin.product.type.variant'),
                                 ])
-                                ->label(__('admin.common.type'))
+                                ->label(__('commero::admin.common.type'))
                                 ->required()
                                 ->default('simple')
                                 ->live()
                                 ->columnSpan(1),
                             TextInput::make('sku')
-                                ->label(__('admin.common.sku'))
+                                ->label(__('commero::admin.common.sku'))
                                 ->required()
                                 ->unique(ignoreRecord: true)
                                 ->visible(fn (callable $get): bool => $get('type') === 'simple')
                                 ->columnSpan(1),
                             TextInput::make('price')
-                                ->label(__('admin.common.price'))
+                                ->label(__('commero::admin.common.price'))
                                 ->numeric()
                                 ->inputMode('decimal')
                                 ->minValue(0)
@@ -126,24 +126,24 @@ class ProductResource extends Resource
                                 ->visible(fn (callable $get): bool => $get('type') === 'simple')
                                 ->columnSpan(1),
                             TextInput::make('old_price')
-                                ->label(__('admin.product.variants.old_price'))
+                                ->label(__('commero::admin.product.variants.old_price'))
                                 ->numeric()
                                 ->inputMode('decimal')
                                 ->minValue(0)
                                 ->visible(fn (callable $get): bool => $get('type') === 'simple')
                                 ->columnSpan(1),
                             Select::make('stock_status')
-                                ->label(__('admin.common.availability'))
+                                ->label(__('commero::admin.common.availability'))
                                 ->options([
-                                    'in_stock' => __('admin.product.stock_status.in_stock'),
-                                    'out_of_stock' => __('admin.product.stock_status.out_of_stock'),
-                                    'preorder' => __('admin.product.stock_status.preorder'),
+                                    'in_stock' => __('commero::admin.product.stock_status.in_stock'),
+                                    'out_of_stock' => __('commero::admin.product.stock_status.out_of_stock'),
+                                    'preorder' => __('commero::admin.product.stock_status.preorder'),
                                 ])
                                 ->default('in_stock')
                                 ->required()
                                 ->columnSpan(1),
                             Select::make('category_ids')
-                                ->label(__('admin.product.category_ids'))
+                                ->label(__('commero::admin.product.category_ids'))
                                 ->relationship(
                                     'categories',
                                     'id',
@@ -157,12 +157,12 @@ class ProductResource extends Resource
                                 ->searchable()
                                 ->columnSpanFull(),
                         ])->columns(3),
-                    Tabs\Tab::make(__('admin.product.tabs.gallery'))
+                    Tabs\Tab::make(__('commero::admin.product.tabs.gallery'))
                         ->icon('heroicon-o-photo')
                         ->schema([
                             FileUpload::make('gallery_uploads')
-                                ->label(__('admin.product.gallery.bulk_upload'))
-                                ->helperText(__('admin.product.gallery.bulk_upload_hint'))
+                                ->label(__('commero::admin.product.gallery.bulk_upload'))
+                                ->helperText(__('commero::admin.product.gallery.bulk_upload_hint'))
                                 ->disk('public')
                                 ->directory('catalog/products/manual')
                                 ->visibility('public')
@@ -187,16 +187,16 @@ class ProductResource extends Resource
                                 ->columns(2)
                                 ->columnSpanFull(),
                         ]),
-                    Tabs\Tab::make(__('admin.product.tabs.characteristics'))
+                    Tabs\Tab::make(__('commero::admin.product.tabs.characteristics'))
                         ->icon('heroicon-o-list-bullet')
                         ->schema([
-                            Section::make(__('admin.product.characteristics.section_title'))
+                            Section::make(__('commero::admin.product.characteristics.section_title'))
                                 ->schema([
                                     Repeater::make('attribute_values')
-                                        ->label(__('admin.product.characteristics.label'))
+                                        ->label(__('commero::admin.product.characteristics.label'))
                                         ->schema([
                                             Select::make('attribute_id')
-                                                ->label(__('admin.product.characteristics.attribute'))
+                                                ->label(__('commero::admin.product.characteristics.attribute'))
                                                 ->options(fn (): array => static::getAttributeSelectOptions())
                                                 ->searchable()
                                                 ->preload()
@@ -205,10 +205,10 @@ class ProductResource extends Resource
                                                 ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                                                 ->columnSpan(1),
                                             Checkbox::make('is_priority')
-                                                ->label(__('admin.product.characteristics.is_priority'))
+                                                ->label(__('commero::admin.product.characteristics.is_priority'))
                                                 ->columnSpan(1),
                                             Select::make('value_option_id')
-                                                ->label(__('admin.common.value'))
+                                                ->label(__('commero::admin.common.value'))
                                                 ->options(fn (callable $get): array => static::getAttributeOptionSelectOptions($get('attribute_id')))
                                                 ->searchable()
                                                 ->preload()
@@ -216,26 +216,26 @@ class ProductResource extends Resource
                                                 ->visible(fn (callable $get): bool => in_array(static::getAttributeValueType($get('attribute_id')), ['select', 'option'], true))
                                                 ->columnSpan(1),
                                             Textarea::make('value_string')
-                                                ->label(__('admin.common.value'))
+                                                ->label(__('commero::admin.common.value'))
                                                 ->rows(3)
                                                 ->required(fn (callable $get): bool => in_array(static::getAttributeValueType($get('attribute_id')), ['string', 'text'], true))
                                                 ->visible(fn (callable $get): bool => in_array(static::getAttributeValueType($get('attribute_id')), ['string', 'text'], true))
                                                 ->columnSpan(1),
                                             TextInput::make('value_integer')
-                                                ->label(__('admin.common.value'))
+                                                ->label(__('commero::admin.common.value'))
                                                 ->numeric()
                                                 ->required(fn (callable $get): bool => static::getAttributeValueType($get('attribute_id')) === 'integer')
                                                 ->visible(fn (callable $get): bool => static::getAttributeValueType($get('attribute_id')) === 'integer')
                                                 ->columnSpan(1),
                                             TextInput::make('value_numeric')
-                                                ->label(__('admin.common.value'))
+                                                ->label(__('commero::admin.common.value'))
                                                 ->numeric()
                                                 ->inputMode('decimal')
                                                 ->required(fn (callable $get): bool => static::getAttributeValueType($get('attribute_id')) === 'numeric')
                                                 ->visible(fn (callable $get): bool => static::getAttributeValueType($get('attribute_id')) === 'numeric')
                                                 ->columnSpan(1),
                                             Toggle::make('value_boolean')
-                                                ->label(__('admin.common.value'))
+                                                ->label(__('commero::admin.common.value'))
                                                 ->visible(fn (callable $get): bool => static::getAttributeValueType($get('attribute_id')) === 'boolean')
                                                 ->columnSpan(1),
                                             Hidden::make('sort'),
@@ -247,43 +247,43 @@ class ProductResource extends Resource
                                 ])
                                 ->columnSpanFull(),
                         ]),
-                    Tabs\Tab::make(__('admin.product.tabs.variants'))
+                    Tabs\Tab::make(__('commero::admin.product.tabs.variants'))
                         ->icon('heroicon-o-queue-list')
                         ->visible(fn (callable $get): bool => $get('type') === 'variant')
                         ->schema([
-                            Section::make(__('admin.product.variants.section_title'))
+                            Section::make(__('commero::admin.product.variants.section_title'))
                                 ->schema([
                                     Repeater::make('variants')
-                                        ->label(__('admin.product.variants.label'))
+                                        ->label(__('commero::admin.product.variants.label'))
                                         ->schema([
                                             TextInput::make('name')
-                                                ->label(__('admin.common.name'))
+                                                ->label(__('commero::admin.common.name'))
                                                 ->required(),
                                             TextInput::make('sku')
-                                                ->label(__('admin.common.sku'))
+                                                ->label(__('commero::admin.common.sku'))
                                                 ->required(),
                                             TextInput::make('price')
-                                                ->label(__('admin.common.price'))
+                                                ->label(__('commero::admin.common.price'))
                                                 ->numeric()
                                                 ->inputMode('decimal')
                                                 ->minValue(0)
                                                 ->required(),
                                             TextInput::make('old_price')
-                                                ->label(__('admin.product.variants.old_price'))
+                                                ->label(__('commero::admin.product.variants.old_price'))
                                                 ->numeric()
                                                 ->inputMode('decimal')
                                                 ->minValue(0),
                                             Select::make('status')
-                                                ->label(__('admin.common.availability'))
+                                                ->label(__('commero::admin.common.availability'))
                                                 ->options([
-                                                    'in_stock' => __('admin.product.stock_status.in_stock'),
-                                                    'out_of_stock' => __('admin.product.stock_status.out_of_stock'),
-                                                    'preorder' => __('admin.product.stock_status.preorder'),
+                                                    'in_stock' => __('commero::admin.product.stock_status.in_stock'),
+                                                    'out_of_stock' => __('commero::admin.product.stock_status.out_of_stock'),
+                                                    'preorder' => __('commero::admin.product.stock_status.preorder'),
                                                 ])
                                                 ->default('in_stock')
                                                 ->required(),
                                             Select::make('attribute_option_ids')
-                                                ->label(__('admin.product.variants.attributes'))
+                                                ->label(__('commero::admin.product.variants.attributes'))
                                                 ->multiple()
                                                 ->searchable()
                                                 ->preload()
@@ -318,29 +318,29 @@ class ProductResource extends Resource
                                 ->visible(fn (callable $get): bool => $get('type') === 'variant')
                                 ->columnSpanFull(),
                         ]),
-                    Tabs\Tab::make(__('admin.product.tabs.faq'))
+                    Tabs\Tab::make(__('commero::admin.product.tabs.faq'))
                         ->icon('heroicon-o-question-mark-circle')
                         ->schema([
-                            Section::make(__('admin.product.faq.section_title'))
+                            Section::make(__('commero::admin.product.faq.section_title'))
                                 ->schema([
                                     Repeater::make('faqs')
-                                        ->label(__('admin.product.faq.label'))
+                                        ->label(__('commero::admin.product.faq.label'))
                                         ->schema([
                                             Select::make('locale')
-                                                ->label(__('admin.common.locale'))
-                                                ->options(collect(Locales::supported())->mapWithKeys(fn (string $locale): array => [$locale => __('admin.locale_names.'.$locale)])->all())
+                                                ->label(__('commero::admin.common.locale'))
+                                                ->options(collect(Locales::supported())->mapWithKeys(fn (string $locale): array => [$locale => __('commero::admin.locale_names.'.$locale)])->all())
                                                 ->required(),
                                             TextInput::make('question')
-                                                ->label(__('admin.product.faq.question'))
+                                                ->label(__('commero::admin.product.faq.question'))
                                                 ->required()
                                                 ->columnSpanFull(),
                                             Textarea::make('answer')
-                                                ->label(__('admin.product.faq.answer'))
+                                                ->label(__('commero::admin.product.faq.answer'))
                                                 ->rows(4)
                                                 ->required()
                                                 ->columnSpanFull(),
                                             TextInput::make('sort')
-                                                ->label(__('admin.common.sort'))
+                                                ->label(__('commero::admin.common.sort'))
                                                 ->numeric()
                                                 ->default(0)
                                                 ->required(),
@@ -352,22 +352,22 @@ class ProductResource extends Resource
                                 ])
                                 ->columnSpanFull(),
                         ]),
-                    Tabs\Tab::make(__('admin.product.tabs.relations'))
+                    Tabs\Tab::make(__('commero::admin.product.tabs.relations'))
                         ->icon('heroicon-o-link')
                         ->schema([
-                            Section::make(__('admin.product.relations.section_title'))
+                            Section::make(__('commero::admin.product.relations.section_title'))
                                 ->schema([
                                     Select::make('color_related_product_ids')
-                                        ->label(__('admin.product.relations.color_related_product_ids'))
-                                        ->helperText(__('admin.product.relations.color_related_product_ids_hint'))
+                                        ->label(__('commero::admin.product.relations.color_related_product_ids'))
+                                        ->helperText(__('commero::admin.product.relations.color_related_product_ids_hint'))
                                         ->multiple()
                                         ->searchable()
                                         ->preload()
                                         ->options(fn (?Product $record = null): array => static::getProductRelationOptions($record))
                                         ->columnSpanFull(),
                                     Select::make('bought_together_product_ids')
-                                        ->label(__('admin.product.relations.bought_together_product_ids'))
-                                        ->helperText(__('admin.product.relations.bought_together_product_ids_hint'))
+                                        ->label(__('commero::admin.product.relations.bought_together_product_ids'))
+                                        ->helperText(__('commero::admin.product.relations.bought_together_product_ids_hint'))
                                         ->multiple()
                                         ->searchable()
                                         ->preload()
@@ -376,24 +376,24 @@ class ProductResource extends Resource
                                 ])
                                 ->columnSpanFull(),
                         ]),
-                    Tabs\Tab::make(__('admin.product.tabs.seo'))
+                    Tabs\Tab::make(__('commero::admin.product.tabs.seo'))
                         ->icon('heroicon-o-magnifying-glass')
                         ->schema([
                             ...static::seoTranslationSections(),
                         ]),
-                    Tabs\Tab::make(__('admin.product.tabs.additional'))
+                    Tabs\Tab::make(__('commero::admin.product.tabs.additional'))
                         ->icon('heroicon-o-adjustments-horizontal')
                         ->schema([
                             Toggle::make('is_hit_sales')
-                                ->label(__('admin.product.badges.is_hit_sales'))
+                                ->label(__('commero::admin.product.badges.is_hit_sales'))
                                 ->default(false)
                                 ->inline(false),
                             Toggle::make('is_on_sale')
-                                ->label(__('admin.product.badges.is_on_sale'))
+                                ->label(__('commero::admin.product.badges.is_on_sale'))
                                 ->default(false)
                                 ->inline(false),
                             Toggle::make('is_new')
-                                ->label(__('admin.product.badges.is_new'))
+                                ->label(__('commero::admin.product.badges.is_new'))
                                 ->default(false)
                                 ->inline(false),
                         ])
@@ -406,7 +406,7 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->label(__('admin.common.id'))->searchable()->sortable(),
+                TextColumn::make('id')->label(__('commero::admin.common.id'))->searchable()->sortable(),
                 ImageColumn::make('primaryImage.path')
                     ->label('')
                     ->disk('public')
@@ -414,7 +414,7 @@ class ProductResource extends Resource
                     ->square()
                     ->defaultImageUrl(fn (): string => asset('images/shophats/placeholders/image-placeholder.svg')),
                 TextColumn::make('translation_name')
-                    ->label(__('admin.common.name'))
+                    ->label(__('commero::admin.common.name'))
                     ->state(fn (Product $record): ?string => $record->translation(app()->getLocale())?->name)
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         $search = trim($search);
@@ -430,16 +430,16 @@ class ProductResource extends Resource
                                 });
                         });
                     }),
-                TextColumn::make('sku')->label(__('admin.common.sku'))->searchable(),
-                TextColumn::make('min_price')->label(__('admin.common.price'))
+                TextColumn::make('sku')->label(__('commero::admin.common.sku'))->searchable(),
+                TextColumn::make('min_price')->label(__('commero::admin.common.price'))
                     ->state(fn (Product $record): ?string => $record->variants->min('price'))
                     ->numeric(decimalPlaces: 2)
                     ->suffix(' '.Currency::getBaseSymbol())
                     ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('variants_min_price', $direction)),
-                TextColumn::make('stock_status')->label(__('admin.common.availability'))
+                TextColumn::make('stock_status')->label(__('commero::admin.common.availability'))
                     ->badge()
                     ->sortable()
-                    ->formatStateUsing(fn (string $state): string => __('admin.product.stock_status.'.$state))
+                    ->formatStateUsing(fn (string $state): string => __('commero::admin.product.stock_status.'.$state))
                     ->color(fn (string $state): string => match ($state) {
                         'in_stock' => 'success',
                         'out_of_stock' => 'danger',
@@ -453,7 +453,7 @@ class ProductResource extends Resource
                         default => 'heroicon-o-question-mark-circle',
                     }),
                 TextColumn::make('categories')
-                    ->label(__('admin.common.categories'))
+                    ->label(__('commero::admin.common.categories'))
                     ->html()
                     ->state(fn (Product $record): string => $record->categories
                         ->map(fn ($category): ?string => $category->translation(app()->getLocale())?->name)
@@ -462,14 +462,14 @@ class ProductResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('stock_status')
-                    ->label(__('admin.common.availability'))
+                    ->label(__('commero::admin.common.availability'))
                     ->options([
-                        'in_stock' => __('admin.product.stock_status.in_stock'),
-                        'out_of_stock' => __('admin.product.stock_status.out_of_stock'),
-                        'preorder' => __('admin.product.stock_status.preorder'),
+                        'in_stock' => __('commero::admin.product.stock_status.in_stock'),
+                        'out_of_stock' => __('commero::admin.product.stock_status.out_of_stock'),
+                        'preorder' => __('commero::admin.product.stock_status.preorder'),
                     ]),
                 SelectFilter::make('categories')
-                    ->label(__('admin.common.categories'))
+                    ->label(__('commero::admin.common.categories'))
                     ->relationship(
                         'categories',
                         'id',
@@ -482,7 +482,7 @@ class ProductResource extends Resource
             ])
             ->recordActions([
                 Action::make('reviews')
-                    ->label(__('admin.product_review.actions.view_reviews'))
+                    ->label(__('commero::admin.product_review.actions.view_reviews'))
                     ->icon('heroicon-o-chat-bubble-left-right')
                     ->url(fn (Product $record): string => ProductReviewResource::getUrl('index', [
                         'filters' => [
@@ -607,7 +607,7 @@ class ProductResource extends Resource
         return array_map(fn (string $locale): Grid => Grid::make(2)
             ->schema([
                 TextInput::make("translations.{$locale}.name")
-                    ->label(__('admin.common.name'))
+                    ->label(__('commero::admin.common.name'))
                     ->required($locale === Locales::default())
                     ->live(onBlur: true)
                     ->afterStateUpdated(function ($state, $old, $get, $set, ?Product $record) use ($locale): void {
@@ -624,12 +624,12 @@ class ProductResource extends Resource
                     ->columnSpanFull()
                     ->dehydratedWhenHidden(),
                 Textarea::make("translations.{$locale}.description")
-                    ->label(__('admin.common.description'))
+                    ->label(__('commero::admin.common.description'))
                     ->rows(4)
                     ->columnSpanFull()
                     ->dehydratedWhenHidden(),
                 RichEditor::make("translations.{$locale}.full_description")
-                    ->label(__('admin.common.full_description'))
+                    ->label(__('commero::admin.common.full_description'))
                     ->json()
                     ->registerActions([
                         RichEditorCustomBlockAction::make(),
@@ -642,7 +642,7 @@ class ProductResource extends Resource
                     ])
                     ->tools([
                         RichEditorTool::make('videoEmbed')
-                            ->label(__('admin.resources.post.editor.video_embed.label'))
+                            ->label(__('commero::admin.resources.post.editor.video_embed.label'))
                             ->action(
                                 action: 'customBlock',
                                 arguments: "{ id: 'video-embed', mode: 'insert' }",
@@ -674,7 +674,7 @@ class ProductResource extends Resource
         return array_map(fn (string $locale): Grid => Grid::make(2)
             ->schema([
                 TextInput::make("translations.{$locale}.slug")
-                    ->label(__('admin.common.slug'))
+                    ->label(__('commero::admin.common.slug'))
                     ->live(onBlur: true)
                     ->afterStateHydrated(function ($state, $get, $set, ?Product $record) use ($locale): void {
                         if (filled($state)) {
@@ -699,24 +699,24 @@ class ProductResource extends Resource
                     ->columnSpanFull()
                     ->dehydratedWhenHidden(),
                 Select::make("translations.{$locale}.robots")
-                    ->label(__('admin.product.seo.robots'))
+                    ->label(__('commero::admin.product.seo.robots'))
                     ->options([
-                        'index, follow' => __('admin.product.seo.robots_options.index_follow'),
-                        'noindex, follow' => __('admin.product.seo.robots_options.noindex_follow'),
-                        'index, nofollow' => __('admin.product.seo.robots_options.index_nofollow'),
-                        'noindex, nofollow' => __('admin.product.seo.robots_options.noindex_nofollow'),
+                        'index, follow' => __('commero::admin.product.seo.robots_options.index_follow'),
+                        'noindex, follow' => __('commero::admin.product.seo.robots_options.noindex_follow'),
+                        'index, nofollow' => __('commero::admin.product.seo.robots_options.index_nofollow'),
+                        'noindex, nofollow' => __('commero::admin.product.seo.robots_options.noindex_nofollow'),
                     ])
                     ->default('index, follow')
                     ->columnSpan(1)
                     ->dehydratedWhenHidden(),
                 Textarea::make("translations.{$locale}.meta_title")
-                    ->label(__('admin.product.seo.meta_title'))
+                    ->label(__('commero::admin.product.seo.meta_title'))
                     ->rows(2)
                     ->maxLength(255)
                     ->columnSpan(1)
                     ->dehydratedWhenHidden(),
                 Textarea::make("translations.{$locale}.meta_description")
-                    ->label(__('admin.product.seo.meta_description'))
+                    ->label(__('commero::admin.product.seo.meta_description'))
                     ->rows(2)
                     ->maxLength(500)
                     ->columnSpan(1)

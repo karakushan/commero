@@ -24,41 +24,41 @@ class UserResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('admin.resources.user.navigation');
+        return __('commero::admin.resources.user.navigation');
     }
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return __('admin.navigation.access');
+        return __('commero::admin.navigation.access');
     }
 
     public static function getModelLabel(): string
     {
-        return __('admin.resources.user.singular');
+        return __('commero::admin.resources.user.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('admin.resources.user.plural');
+        return __('commero::admin.resources.user.plural');
     }
 
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('first_name')->label(__('admin.resources.user.first_name'))->required()->maxLength(255),
-            TextInput::make('last_name')->label(__('admin.resources.user.last_name'))->maxLength(255),
+            TextInput::make('first_name')->label(__('commero::admin.resources.user.first_name'))->required()->maxLength(255),
+            TextInput::make('last_name')->label(__('commero::admin.resources.user.last_name'))->maxLength(255),
             TextInput::make('phone')
-                ->label(__('admin.resources.user.phone'))
+                ->label(__('commero::admin.resources.user.phone'))
                 ->maxLength(255)
                 ->dehydrateStateUsing(fn (?string $state): ?string => Phone::normalize($state)),
             TextInput::make('email')->label('Email')->email()->required()->unique(ignoreRecord: true),
-            TextInput::make('password')->label(__('admin.resources.user.password'))
+            TextInput::make('password')->label(__('commero::admin.resources.user.password'))
                 ->password()
                 ->required(fn (string $context): bool => $context === 'create')
                 ->dehydrated(fn ($state) => filled($state))
                 ->maxLength(255),
             Select::make('roles')
-                ->label(__('admin.resources.user.roles'))
+                ->label(__('commero::admin.resources.user.roles'))
                 ->relationship('roles', 'name')
                 ->multiple()
                 ->preload()
@@ -71,14 +71,14 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->label(__('admin.common.id'))->sortable(),
-                TextColumn::make('name')->label(__('admin.common.name'))->searchable(),
-                TextColumn::make('phone')->label(__('admin.resources.user.phone'))->searchable(),
+                TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
+                TextColumn::make('name')->label(__('commero::admin.common.name'))->searchable(),
+                TextColumn::make('phone')->label(__('commero::admin.resources.user.phone'))->searchable(),
                 TextColumn::make('email')->label('Email')->searchable(),
                 TextColumn::make('roles.name')
-                    ->label(__('admin.resources.user.roles'))
+                    ->label(__('commero::admin.resources.user.roles'))
                     ->badge(),
-                TextColumn::make('email_verified_at')->label(__('admin.resources.user.email_verified_at'))->dateTime()->sortable(),
+                TextColumn::make('email_verified_at')->label(__('commero::admin.resources.user.email_verified_at'))->dateTime()->sortable(),
             ])
             ->recordActions([
                 EditAction::make()->iconButton(),

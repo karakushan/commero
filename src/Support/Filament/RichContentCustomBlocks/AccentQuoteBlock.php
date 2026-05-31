@@ -16,20 +16,20 @@ class AccentQuoteBlock extends RichContentCustomBlock
 
     public static function getLabel(): string
     {
-        return __('admin.resources.post.editor.accent_quote.label');
+        return __('commero::admin.resources.post.editor.accent_quote.label');
     }
 
     public static function configureEditorAction(Action $action): Action
     {
         return $action
-            ->modalHeading(__('admin.resources.post.editor.accent_quote.modal_heading'))
+            ->modalHeading(__('commero::admin.resources.post.editor.accent_quote.modal_heading'))
             ->schema([
                 TextInput::make('accent_text')
-                    ->label(__('admin.resources.post.editor.accent_quote.accent_text'))
+                    ->label(__('commero::admin.resources.post.editor.accent_quote.accent_text'))
                     ->required()
                     ->maxLength(255),
                 Textarea::make('body_text')
-                    ->label(__('admin.resources.post.editor.accent_quote.body_text'))
+                    ->label(__('commero::admin.resources.post.editor.accent_quote.body_text'))
                     ->required()
                     ->rows(4),
             ]);
@@ -46,7 +46,7 @@ class AccentQuoteBlock extends RichContentCustomBlock
             return static::getLabel();
         }
 
-        return __('admin.resources.post.editor.accent_quote.preview_label', [
+        return __('commero::admin.resources.post.editor.accent_quote.preview_label', [
             'text' => mb_strimwidth($accentText, 0, 60, '...'),
         ]);
     }

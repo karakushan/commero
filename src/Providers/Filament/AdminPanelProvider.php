@@ -57,12 +57,12 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->login()
             ->navigationGroups([
-                __('admin.navigation.catalog'),
-                __('admin.navigation.marketing'),
-                __('admin.navigation.orders'),
-                __('admin.navigation.content'),
-                __('admin.navigation.access'),
-                __('admin.navigation.system'),
+                __('commero::admin.navigation.catalog'),
+                __('commero::admin.navigation.marketing'),
+                __('commero::admin.navigation.orders'),
+                __('commero::admin.navigation.content'),
+                __('commero::admin.navigation.access'),
+                __('commero::admin.navigation.system'),
             ])
             ->discoverResources(
                 in: dirname(__DIR__, 2).'/Interfaces/Filament/Resources',
@@ -122,11 +122,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 FilamentShieldPlugin::make()
-                    ->navigationGroup(__('admin.navigation.access'))
+                    ->navigationGroup(__('commero::admin.navigation.access'))
                     ->navigationSort(9998)
-                    ->navigationLabel(__('admin.resources.role.navigation'))
-                    ->modelLabel(__('admin.resources.role.singular'))
-                    ->pluralModelLabel(__('admin.resources.role.plural'))
+                    ->navigationLabel(__('commero::admin.resources.role.navigation'))
+                    ->modelLabel(__('commero::admin.resources.role.singular'))
+                    ->pluralModelLabel(__('commero::admin.resources.role.plural'))
                     ->localizePermissionLabels(),
             ])
             ->authMiddleware([
@@ -164,6 +164,6 @@ class AdminPanelProvider extends PanelProvider
     protected static function getBrandName(): string
     {
         return static::getSetting()?->site_name
-            ?? config('app.name', 'ShopHats');
+            ?? config('commero::app.name', 'ShopHats');
     }
 }

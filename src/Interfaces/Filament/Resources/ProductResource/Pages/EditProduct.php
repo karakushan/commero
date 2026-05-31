@@ -30,12 +30,12 @@ class EditProduct extends EditRecord
     {
         return [
             Action::make('viewProduct')
-                ->label(__('admin.product.actions.view_on_site'))
+                ->label(__('commero::admin.product.actions.view_on_site'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
                 ->url(fn (): string => $this->getFrontendProductUrl())
                 ->openUrlInNewTab(),
             Action::make('reviews')
-                ->label(__('admin.product_review.actions.view_reviews'))
+                ->label(__('commero::admin.product_review.actions.view_reviews'))
                 ->icon('heroicon-o-chat-bubble-left-right')
                 ->url(fn (): string => ProductReviewResource::getUrl('index', [
                     'filters' => [

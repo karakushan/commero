@@ -39,22 +39,22 @@ class CategoryResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('admin.resources.category.navigation');
+        return __('commero::admin.resources.category.navigation');
     }
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return __('admin.navigation.catalog');
+        return __('commero::admin.navigation.catalog');
     }
 
     public static function getModelLabel(): string
     {
-        return __('admin.resources.category.singular');
+        return __('commero::admin.resources.category.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('admin.resources.category.plural');
+        return __('commero::admin.resources.category.plural');
     }
 
     public static function form(Schema $schema): Schema
@@ -65,21 +65,21 @@ class CategoryResource extends Resource
             Tabs::make('Category Tabs')
                 ->columnSpanFull()
                 ->tabs([
-                    Tabs\Tab::make(__('admin.category.tabs.main'))
+                    Tabs\Tab::make(__('commero::admin.category.tabs.main'))
                         ->icon('heroicon-o-information-circle')
                         ->schema([
                             ...static::mainTranslationSections(),
-                            Select::make('parent_id')->label(__('admin.common.parent_category'))->relationship('parent', 'id')->getOptionLabelFromRecordUsing(fn (Category $record) => $record->translation(app()->getLocale())?->name ?? $record->id)->searchable()->preload(),
-                            TextInput::make('depth')->label(__('admin.common.depth'))->numeric()->default(0)->required(),
-                            TextInput::make('sort')->label(__('admin.common.sort'))->numeric()->default(0)->required(),
+                            Select::make('parent_id')->label(__('commero::admin.common.parent_category'))->relationship('parent', 'id')->getOptionLabelFromRecordUsing(fn (Category $record) => $record->translation(app()->getLocale())?->name ?? $record->id)->searchable()->preload(),
+                            TextInput::make('depth')->label(__('commero::admin.common.depth'))->numeric()->default(0)->required(),
+                            TextInput::make('sort')->label(__('commero::admin.common.sort'))->numeric()->default(0)->required(),
                             FileUpload::make('icon_path')
-                                ->label(__('admin.common.icon'))
+                                ->label(__('commero::admin.common.icon'))
                                 ->disk('public')
                                 ->directory('categories/icons')
                                 ->visibility('public')
                                 ->image(),
                             FileUpload::make('thumbnail_path')
-                                ->label(__('admin.common.thumbnail'))
+                                ->label(__('commero::admin.common.thumbnail'))
                                 ->disk('public')
                                 ->directory('categories/thumbnails')
                                 ->visibility('public')
@@ -87,12 +87,12 @@ class CategoryResource extends Resource
                                 ->columnSpanFull(),
                         ])
                         ->columns(2),
-                    Tabs\Tab::make(__('admin.category.tabs.content'))
+                    Tabs\Tab::make(__('commero::admin.category.tabs.content'))
                         ->icon('heroicon-o-rectangle-group')
                         ->schema([
                             ...static::contentTranslationSections(),
                         ]),
-                    Tabs\Tab::make(__('admin.category.tabs.seo'))
+                    Tabs\Tab::make(__('commero::admin.category.tabs.seo'))
                         ->icon('heroicon-o-magnifying-glass')
                         ->schema([
                             ...static::seoTranslationSections(),
@@ -107,12 +107,12 @@ class CategoryResource extends Resource
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable(),
                 ImageColumn::make('icon_path')
-                    ->label(__('admin.common.icon'))
+                    ->label(__('commero::admin.common.icon'))
                     ->disk('public')
                     ->square()
                     ->defaultImageUrl(fn (): string => asset('images/shophats/placeholders/image-placeholder.svg')),
                 TextColumn::make('translation_name')
-                    ->label(__('admin.common.name'))
+                    ->label(__('commero::admin.common.name'))
                     ->html()
                     ->state(function (Category $record): string {
                         $name = e($record->translation(app()->getLocale())?->name ?? '');
@@ -139,22 +139,22 @@ class CategoryResource extends Resource
                         });
                     }),
                 TextColumn::make('parent_name')
-                    ->label(__('admin.common.parent_category'))
+                    ->label(__('commero::admin.common.parent_category'))
                     ->state(fn (Category $record): ?string => $record->parent?->translation(app()->getLocale())?->name),
                 TextColumn::make('products_count')
-                    ->label(__('admin.resources.product.plural'))
+                    ->label(__('commero::admin.resources.product.plural'))
                     ->counts('products'),
             ])
             ->recordActions([
                 Action::make('viewCategory')
-                    ->label(__('admin.category.actions.view_on_site'))
+                    ->label(__('commero::admin.category.actions.view_on_site'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->url(fn (Category $record): ?string => static::getFrontendCategoryUrl($record))
                     ->openUrlInNewTab()
                     ->iconButton()
                     ->hidden(fn (Category $record): bool => blank(static::getFrontendCategoryUrl($record))),
                 Action::make('products')
-                    ->label(__('admin.resources.product.plural'))
+                    ->label(__('commero::admin.resources.product.plural'))
                     ->icon('heroicon-o-shopping-bag')
                     ->url(fn (Category $record): string => ProductResource::getUrl('index', [
                         'tableFilters' => [
@@ -204,7 +204,7 @@ class CategoryResource extends Resource
         return array_map(fn (string $locale): Grid => Grid::make(2)
             ->schema([
                 TextInput::make("translations.{$locale}.name")
-                    ->label(__('admin.common.name'))
+                    ->label(__('commero::admin.common.name'))
                     ->required($locale === Locales::default())
                     ->live(onBlur: true)
                     ->afterStateUpdated(function ($state, $old, $get, $set, ?Category $record) use ($locale): void {
@@ -231,14 +231,14 @@ class CategoryResource extends Resource
     protected static function contentTranslationSections(): array
     {
         return array_map(fn (string $locale): FormBuilder => FormBuilder::make("translations.{$locale}.blocks")
-            ->label(__('admin.common.content'))
+            ->label(__('commero::admin.common.content'))
             ->default([])
             ->blocks(PageContentBlocks::forPages())
             ->blockIcons()
             ->collapsible()
             ->collapsed()
             ->reorderableWithButtons()
-            ->addActionLabel(__('admin.content.add_block'))
+            ->addActionLabel(__('commero::admin.content.add_block'))
             ->blockPickerColumns(2)
             ->blockPickerWidth('xl')
             ->columnSpanFull()
@@ -253,7 +253,7 @@ class CategoryResource extends Resource
         return array_map(fn (string $locale): Grid => Grid::make(3)
             ->schema([
                 TextInput::make("translations.{$locale}.slug")
-                    ->label(__('admin.common.slug'))
+                    ->label(__('commero::admin.common.slug'))
                     ->live(onBlur: true)
                     ->afterStateHydrated(function ($state, $get, $set, ?Category $record) use ($locale): void {
                         if (filled($state)) {
@@ -277,24 +277,24 @@ class CategoryResource extends Resource
                     })
                     ->dehydratedWhenHidden(),
                 Select::make("translations.{$locale}.robots")
-                    ->label(__('admin.content.seo.robots'))
+                    ->label(__('commero::admin.content.seo.robots'))
                     ->options([
-                        'index, follow' => __('admin.content.seo.robots_options.index_follow'),
-                        'noindex, follow' => __('admin.content.seo.robots_options.noindex_follow'),
-                        'index, nofollow' => __('admin.content.seo.robots_options.index_nofollow'),
-                        'noindex, nofollow' => __('admin.content.seo.robots_options.noindex_nofollow'),
+                        'index, follow' => __('commero::admin.content.seo.robots_options.index_follow'),
+                        'noindex, follow' => __('commero::admin.content.seo.robots_options.noindex_follow'),
+                        'index, nofollow' => __('commero::admin.content.seo.robots_options.index_nofollow'),
+                        'noindex, nofollow' => __('commero::admin.content.seo.robots_options.noindex_nofollow'),
                     ])
                     ->default('index, follow')
-                    ->placeholder(__('admin.resources.page.robots_default'))
+                    ->placeholder(__('commero::admin.resources.page.robots_default'))
                     ->dehydratedWhenHidden(),
                 Textarea::make("translations.{$locale}.meta_title")
-                    ->label(__('admin.content.seo.meta_title'))
+                    ->label(__('commero::admin.content.seo.meta_title'))
                     ->rows(2)
                     ->maxLength(255)
                     ->columnSpanFull()
                     ->dehydratedWhenHidden(),
                 Textarea::make("translations.{$locale}.meta_description")
-                    ->label(__('admin.content.seo.meta_description'))
+                    ->label(__('commero::admin.content.seo.meta_description'))
                     ->rows(3)
                     ->columnSpanFull()
                     ->dehydratedWhenHidden(),

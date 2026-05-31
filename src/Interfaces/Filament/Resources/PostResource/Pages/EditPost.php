@@ -26,7 +26,7 @@ class EditPost extends EditRecord
     {
         return [
             Action::make('viewPost')
-                ->label(__('admin.post.actions.view_on_site'))
+                ->label(__('commero::admin.post.actions.view_on_site'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
                 ->url(fn (): string => $this->getFrontendPostUrl())
                 ->openUrlInNewTab(),

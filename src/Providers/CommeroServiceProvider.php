@@ -21,6 +21,7 @@ class CommeroServiceProvider extends ServiceProvider
     {
         require_once $this->packagePath('src/Support/helpers.php');
 
+        $this->loadTranslationsFrom($this->packagePath('lang'), 'commero');
         $this->mergePackageConfig();
         $this->registerFilamentPanelProvider();
         $this->registerConsoleCommands();
@@ -41,8 +42,6 @@ class CommeroServiceProvider extends ServiceProvider
         $this->loadViewsFrom($this->packagePath('resources/views'), 'commero');
         $this->loadViewsFrom(config('commero.theme_view_path', resource_path('views/shophats')), 'shophats');
         $this->loadMigrationsFrom($this->packagePath('database/migrations'));
-        $this->loadTranslationsFrom($this->packagePath('lang'), 'commero');
-
         $this->publishes([
             $this->packagePath('config/commero.php') => config_path('commero.php'),
         ], 'commero-config');

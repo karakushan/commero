@@ -26,7 +26,7 @@ class EditCityCategory extends EditRecord
     {
         return [
             Action::make('viewCategory')
-                ->label(__('admin.category.actions.view_on_site'))
+                ->label(__('commero::admin.category.actions.view_on_site'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
                 ->url(fn (): ?string => CityCategoryResource::getFrontendCategoryUrl($this->getRecord(), $this->resolveActiveLocale()))
                 ->openUrlInNewTab()

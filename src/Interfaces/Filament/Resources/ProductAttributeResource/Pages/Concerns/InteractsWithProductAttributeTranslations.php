@@ -343,7 +343,7 @@ trait InteractsWithProductAttributeTranslations
 
         if (blank($defaultTranslation['name'] ?? null)) {
             throw ValidationException::withMessages([
-                "translations.{$defaultLocale}.name" => __('admin.resources.product_attribute.default_locale_required', ['locale' => $defaultLocale]),
+                "translations.{$defaultLocale}.name" => __('commero::admin.resources.product_attribute.default_locale_required', ['locale' => $defaultLocale]),
             ]);
         }
     }

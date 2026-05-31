@@ -28,22 +28,22 @@ class MarketingLeadResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('admin.resources.marketing_lead.navigation');
+        return __('commero::admin.resources.marketing_lead.navigation');
     }
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return __('admin.navigation.marketing');
+        return __('commero::admin.navigation.marketing');
     }
 
     public static function getModelLabel(): string
     {
-        return __('admin.resources.marketing_lead.singular');
+        return __('commero::admin.resources.marketing_lead.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('admin.resources.marketing_lead.plural');
+        return __('commero::admin.resources.marketing_lead.plural');
     }
 
     public static function getNavigationBadge(): ?string
@@ -62,14 +62,14 @@ class MarketingLeadResource extends Resource
     {
         return $schema->components([
             Select::make('status')
-                ->label(__('admin.common.status'))
+                ->label(__('commero::admin.common.status'))
                 ->options(static::getStatusOptions())
                 ->required(),
             DateTimePicker::make('processed_at')
-                ->label(__('admin.marketing_lead.processed_at'))
+                ->label(__('commero::admin.marketing_lead.processed_at'))
                 ->seconds(false),
             Textarea::make('internal_note')
-                ->label(__('admin.marketing_lead.internal_note'))
+                ->label(__('commero::admin.marketing_lead.internal_note'))
                 ->rows(6)
                 ->columnSpanFull(),
         ])->columns(2);
@@ -81,39 +81,39 @@ class MarketingLeadResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('product.translations'))
             ->columns([
-                TextColumn::make('id')->label(__('admin.common.id'))->sortable(),
+                TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
                 TextColumn::make('type')
-                    ->label(__('admin.marketing_lead.type'))
+                    ->label(__('commero::admin.marketing_lead.type'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => __('admin.marketing_lead.types.'.$state)),
+                    ->formatStateUsing(fn (string $state): string => __('commero::admin.marketing_lead.types.'.$state)),
                 TextColumn::make('subject')
-                    ->label(__('admin.marketing_lead.subject'))
+                    ->label(__('commero::admin.marketing_lead.subject'))
                     ->searchable()
                     ->limit(40),
                 TextColumn::make('name')
-                    ->label(__('admin.marketing_lead.name'))
+                    ->label(__('commero::admin.marketing_lead.name'))
                     ->searchable(),
                 TextColumn::make('phone')
-                    ->label(__('admin.common.phone'))
+                    ->label(__('commero::admin.common.phone'))
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label(__('admin.common.email'))
+                    ->label(__('commero::admin.common.email'))
                     ->searchable(),
                 TextColumn::make('status')
-                    ->label(__('admin.common.status'))
+                    ->label(__('commero::admin.common.status'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => __('admin.marketing_lead.statuses.'.$state)),
+                    ->formatStateUsing(fn (string $state): string => __('commero::admin.marketing_lead.statuses.'.$state)),
                 TextColumn::make('created_at')
-                    ->label(__('admin.common.created_at'))
+                    ->label(__('commero::admin.common.created_at'))
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('type')
-                    ->label(__('admin.marketing_lead.type'))
+                    ->label(__('commero::admin.marketing_lead.type'))
                     ->options(static::getTypeOptions()),
                 SelectFilter::make('status')
-                    ->label(__('admin.common.status'))
+                    ->label(__('commero::admin.common.status'))
                     ->options(static::getStatusOptions()),
             ])
             ->recordActions([
@@ -126,32 +126,32 @@ class MarketingLeadResource extends Resource
     {
         return $schema->components([
             TextEntry::make('type')
-                ->label(__('admin.marketing_lead.type'))
+                ->label(__('commero::admin.marketing_lead.type'))
                 ->badge()
-                ->formatStateUsing(fn (string $state): string => __('admin.marketing_lead.types.'.$state)),
+                ->formatStateUsing(fn (string $state): string => __('commero::admin.marketing_lead.types.'.$state)),
             TextEntry::make('status')
-                ->label(__('admin.common.status'))
+                ->label(__('commero::admin.common.status'))
                 ->badge()
-                ->formatStateUsing(fn (string $state): string => __('admin.marketing_lead.statuses.'.$state)),
-            TextEntry::make('subject')->label(__('admin.marketing_lead.subject'))->default('—'),
-            TextEntry::make('name')->label(__('admin.marketing_lead.name'))->default('—'),
-            TextEntry::make('phone')->label(__('admin.common.phone'))->default('—'),
-            TextEntry::make('email')->label(__('admin.common.email'))->default('—'),
-            TextEntry::make('locale')->label(__('admin.common.locale'))->default('—'),
+                ->formatStateUsing(fn (string $state): string => __('commero::admin.marketing_lead.statuses.'.$state)),
+            TextEntry::make('subject')->label(__('commero::admin.marketing_lead.subject'))->default('—'),
+            TextEntry::make('name')->label(__('commero::admin.marketing_lead.name'))->default('—'),
+            TextEntry::make('phone')->label(__('commero::admin.common.phone'))->default('—'),
+            TextEntry::make('email')->label(__('commero::admin.common.email'))->default('—'),
+            TextEntry::make('locale')->label(__('commero::admin.common.locale'))->default('—'),
             TextEntry::make('source_url')
-                ->label(__('admin.marketing_lead.source_url'))
+                ->label(__('commero::admin.marketing_lead.source_url'))
                 ->default('—')
                 ->url(fn (MarketingLead $record): ?string => $record->source_url),
             TextEntry::make('product_name')
-                ->label(__('admin.order.product'))
+                ->label(__('commero::admin.order.product'))
                 ->state(fn (MarketingLead $record): string => $record->product?->translation(app()->getLocale())?->name
                     ?? $record->product?->sku
                     ?? '—'),
             TextEntry::make('message')
-                ->label(__('admin.common.message'))
+                ->label(__('commero::admin.common.message'))
                 ->default('—')
                 ->columnSpanFull(),
-            Section::make(__('admin.marketing_lead.form_data'))
+            Section::make(__('commero::admin.marketing_lead.form_data'))
                 ->schema([
                     TextEntry::make('form_data')
                         ->hiddenLabel()
@@ -160,7 +160,7 @@ class MarketingLeadResource extends Resource
                         ->columnSpanFull(),
                 ])
                 ->columnSpanFull(),
-            Section::make(__('admin.marketing_lead.client_meta'))
+            Section::make(__('commero::admin.marketing_lead.client_meta'))
                 ->schema([
                     TextEntry::make('client_meta')
                         ->hiddenLabel()
@@ -170,17 +170,17 @@ class MarketingLeadResource extends Resource
                 ])
                 ->columnSpanFull(),
             TextEntry::make('internal_note')
-                ->label(__('admin.marketing_lead.internal_note'))
+                ->label(__('commero::admin.marketing_lead.internal_note'))
                 ->default('—')
                 ->columnSpanFull(),
             TextEntry::make('processed_at')
-                ->label(__('admin.marketing_lead.processed_at'))
+                ->label(__('commero::admin.marketing_lead.processed_at'))
                 ->dateTime(),
             TextEntry::make('created_at')
-                ->label(__('admin.common.created_at'))
+                ->label(__('commero::admin.common.created_at'))
                 ->dateTime(),
             TextEntry::make('updated_at')
-                ->label(__('admin.common.updated_at'))
+                ->label(__('commero::admin.common.updated_at'))
                 ->dateTime(),
         ])->columns(2);
     }
@@ -205,9 +205,9 @@ class MarketingLeadResource extends Resource
     protected static function getTypeOptions(): array
     {
         return [
-            'callback' => __('admin.marketing_lead.types.callback'),
-            'contact_form' => __('admin.marketing_lead.types.contact_form'),
-            'product_waitlist' => __('admin.marketing_lead.types.product_waitlist'),
+            'callback' => __('commero::admin.marketing_lead.types.callback'),
+            'contact_form' => __('commero::admin.marketing_lead.types.contact_form'),
+            'product_waitlist' => __('commero::admin.marketing_lead.types.product_waitlist'),
         ];
     }
 
@@ -217,8 +217,8 @@ class MarketingLeadResource extends Resource
     protected static function getStatusOptions(): array
     {
         return [
-            'new' => __('admin.marketing_lead.statuses.new'),
-            'processed' => __('admin.marketing_lead.statuses.processed'),
+            'new' => __('commero::admin.marketing_lead.statuses.new'),
+            'processed' => __('commero::admin.marketing_lead.statuses.processed'),
         ];
     }
 

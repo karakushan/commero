@@ -35,22 +35,22 @@ class PostCategoryResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('admin.resources.post_category.navigation');
+        return __('commero::admin.resources.post_category.navigation');
     }
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return __('admin.navigation.content');
+        return __('commero::admin.navigation.content');
     }
 
     public static function getModelLabel(): string
     {
-        return __('admin.resources.post_category.singular');
+        return __('commero::admin.resources.post_category.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('admin.resources.post_category.plural');
+        return __('commero::admin.resources.post_category.plural');
     }
 
     public static function form(Schema $schema): Schema
@@ -61,12 +61,12 @@ class PostCategoryResource extends Resource
             Tabs::make('Post Category Tabs')
                 ->columnSpanFull()
                 ->tabs([
-                    Tabs\Tab::make(__('admin.content.tabs.main'))
+                    Tabs\Tab::make(__('commero::admin.content.tabs.main'))
                         ->icon('heroicon-o-information-circle')
                         ->schema([
                             ...static::mainTranslationSections(),
                             Select::make('parent_id')
-                                ->label(__('admin.common.parent_category'))
+                                ->label(__('commero::admin.common.parent_category'))
                                 ->relationship(
                                     'parent',
                                     'id',
@@ -75,11 +75,11 @@ class PostCategoryResource extends Resource
                                 ->getOptionLabelFromRecordUsing(fn (PostCategory $record): string => $record->translation(app()->getLocale())?->name ?? (string) $record->id)
                                 ->searchable()
                                 ->preload(),
-                            TextInput::make('depth')->label(__('admin.common.depth'))->numeric()->default(0)->required(),
-                            TextInput::make('sort')->label(__('admin.common.sort'))->numeric()->default(0)->required(),
+                            TextInput::make('depth')->label(__('commero::admin.common.depth'))->numeric()->default(0)->required(),
+                            TextInput::make('sort')->label(__('commero::admin.common.sort'))->numeric()->default(0)->required(),
                         ])
                         ->columns(2),
-                    Tabs\Tab::make(__('admin.content.tabs.seo'))
+                    Tabs\Tab::make(__('commero::admin.content.tabs.seo'))
                         ->icon('heroicon-o-magnifying-glass')
                         ->schema([
                             ...static::seoTranslationSections(),
@@ -92,17 +92,17 @@ class PostCategoryResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->label(__('admin.common.id'))->sortable(),
-                TextColumn::make('path')->label(__('admin.common.path'))->searchable(),
+                TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
+                TextColumn::make('path')->label(__('commero::admin.common.path'))->searchable(),
                 TextColumn::make('translation_name')
-                    ->label(__('admin.common.name'))
+                    ->label(__('commero::admin.common.name'))
                     ->state(fn (PostCategory $record): ?string => $record->translation(app()->getLocale())?->name),
-                TextColumn::make('depth')->label(__('admin.common.depth'))->sortable(),
-                TextColumn::make('updated_at')->label(__('admin.common.updated_at'))->dateTime()->sortable(),
+                TextColumn::make('depth')->label(__('commero::admin.common.depth'))->sortable(),
+                TextColumn::make('updated_at')->label(__('commero::admin.common.updated_at'))->dateTime()->sortable(),
             ])
             ->recordActions([
                 Action::make('viewCategory')
-                    ->label(__('admin.category.actions.view_on_site'))
+                    ->label(__('commero::admin.category.actions.view_on_site'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->url(fn (PostCategory $record): ?string => static::getFrontendCategoryUrl($record))
                     ->openUrlInNewTab()
@@ -141,7 +141,7 @@ class PostCategoryResource extends Resource
         return array_map(fn (string $locale): Grid => Grid::make(2)
             ->schema([
                 TextInput::make("translations.{$locale}.name")
-                    ->label(__('admin.common.name'))
+                    ->label(__('commero::admin.common.name'))
                     ->required($locale === Locales::default())
                     ->live(onBlur: true)
                     ->afterStateUpdated(function ($state, $old, $get, $set, ?PostCategory $record) use ($locale): void {
@@ -170,7 +170,7 @@ class PostCategoryResource extends Resource
         return array_map(fn (string $locale): Grid => Grid::make(3)
             ->schema([
                 TextInput::make("translations.{$locale}.slug")
-                    ->label(__('admin.common.slug'))
+                    ->label(__('commero::admin.common.slug'))
                     ->live(onBlur: true)
                     ->afterStateHydrated(function ($state, $get, $set, ?PostCategory $record) use ($locale): void {
                         if (filled($state)) {
@@ -194,24 +194,24 @@ class PostCategoryResource extends Resource
                     })
                     ->dehydratedWhenHidden(),
                 Select::make("translations.{$locale}.robots")
-                    ->label(__('admin.content.seo.robots'))
+                    ->label(__('commero::admin.content.seo.robots'))
                     ->options([
-                        'index, follow' => __('admin.content.seo.robots_options.index_follow'),
-                        'noindex, follow' => __('admin.content.seo.robots_options.noindex_follow'),
-                        'index, nofollow' => __('admin.content.seo.robots_options.index_nofollow'),
-                        'noindex, nofollow' => __('admin.content.seo.robots_options.noindex_nofollow'),
+                        'index, follow' => __('commero::admin.content.seo.robots_options.index_follow'),
+                        'noindex, follow' => __('commero::admin.content.seo.robots_options.noindex_follow'),
+                        'index, nofollow' => __('commero::admin.content.seo.robots_options.index_nofollow'),
+                        'noindex, nofollow' => __('commero::admin.content.seo.robots_options.noindex_nofollow'),
                     ])
                     ->default('index, follow')
-                    ->placeholder(__('admin.resources.page.robots_default'))
+                    ->placeholder(__('commero::admin.resources.page.robots_default'))
                     ->dehydratedWhenHidden(),
                 Textarea::make("translations.{$locale}.meta_title")
-                    ->label(__('admin.content.seo.meta_title'))
+                    ->label(__('commero::admin.content.seo.meta_title'))
                     ->rows(2)
                     ->maxLength(255)
                     ->columnSpanFull()
                     ->dehydratedWhenHidden(),
                 Textarea::make("translations.{$locale}.meta_description")
-                    ->label(__('admin.content.seo.meta_description'))
+                    ->label(__('commero::admin.content.seo.meta_description'))
                     ->rows(3)
                     ->columnSpanFull()
                     ->dehydratedWhenHidden(),

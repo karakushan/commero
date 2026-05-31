@@ -240,7 +240,7 @@ trait InteractsWithPageTranslations
 
         if (blank($defaultTranslation['title'] ?? null)) {
             throw ValidationException::withMessages([
-                "translations.{$defaultLocale}.title" => __('admin.resources.page.default_locale_required', ['locale' => $defaultLocale]),
+                "translations.{$defaultLocale}.title" => __('commero::admin.resources.page.default_locale_required', ['locale' => $defaultLocale]),
             ]);
         }
     }

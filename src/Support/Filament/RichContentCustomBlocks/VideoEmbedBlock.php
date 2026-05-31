@@ -15,28 +15,28 @@ class VideoEmbedBlock extends RichContentCustomBlock
 
     public static function getLabel(): string
     {
-        return __('admin.resources.post.editor.video_embed.label');
+        return __('commero::admin.resources.post.editor.video_embed.label');
     }
 
     public static function configureEditorAction(Action $action): Action
     {
         return $action
-            ->modalHeading(__('admin.resources.post.editor.video_embed.modal_heading'))
+            ->modalHeading(__('commero::admin.resources.post.editor.video_embed.modal_heading'))
             ->schema([
                 TextInput::make('url')
-                    ->label(__('admin.resources.post.editor.video_embed.url'))
+                    ->label(__('commero::admin.resources.post.editor.video_embed.url'))
                     ->placeholder('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
-                    ->helperText(__('admin.resources.post.editor.video_embed.helper_text'))
+                    ->helperText(__('commero::admin.resources.post.editor.video_embed.helper_text'))
                     ->required()
                     ->url()
                     ->rule(static fn (): \Closure => function (string $attribute, mixed $value, \Closure $fail): void {
                         if (! is_string($value) || ! static::getEmbedData($value)) {
-                            $fail(__('admin.resources.post.editor.video_embed.validation'));
+                            $fail(__('commero::admin.resources.post.editor.video_embed.validation'));
                         }
                     }),
                 TextInput::make('width')
-                    ->label(__('admin.resources.post.editor.video_embed.width'))
-                    ->helperText(__('admin.resources.post.editor.video_embed.width_helper_text'))
+                    ->label(__('commero::admin.resources.post.editor.video_embed.width'))
+                    ->helperText(__('commero::admin.resources.post.editor.video_embed.width_helper_text'))
                     ->numeric()
                     ->integer()
                     ->minValue(200)
@@ -56,7 +56,7 @@ class VideoEmbedBlock extends RichContentCustomBlock
             return static::getLabel();
         }
 
-        return __('admin.resources.post.editor.video_embed.preview_label', [
+        return __('commero::admin.resources.post.editor.video_embed.preview_label', [
             'provider' => $embedData['provider_label'],
         ]);
     }
@@ -92,7 +92,7 @@ class VideoEmbedBlock extends RichContentCustomBlock
         $src = e($embedData['embed_url']);
         $width = static::sanitizeWidth($config['width'] ?? null);
         $wrapperWidthStyle = $width !== null ? "max-width: {$width}px; " : '';
-        $title = e(__('admin.resources.post.editor.video_embed.iframe_title', [
+        $title = e(__('commero::admin.resources.post.editor.video_embed.iframe_title', [
             'provider' => $embedData['provider_label'],
         ]));
 

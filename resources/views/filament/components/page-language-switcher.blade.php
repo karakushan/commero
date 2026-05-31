@@ -32,7 +32,7 @@
 
     $activeLocale = Locales::resolve($baseQuery['lang'] ?? request()->query('lang'));
     $locales = AdminLocales::supported();
-    $activeLocaleLabel = __('admin.locale_names.' . $activeLocale);
+    $activeLocaleLabel = __('commero::admin.locale_names.' . $activeLocale);
     $activeLocaleFlag = AdminLocales::flag($activeLocale);
 @endphp
 
@@ -55,7 +55,7 @@
     <x-filament::dropdown.list>
         @foreach ($locales as $locale)
             @php
-                $localeLabel = __('admin.locale_names.' . $locale);
+                $localeLabel = __('commero::admin.locale_names.' . $locale);
                 $localeFlag = AdminLocales::flag($locale);
             @endphp
 

@@ -42,17 +42,17 @@ class SiteSettings extends Page
 
     public static function getNavigationLabel(): string
     {
-        return __('admin.resources.site_setting.navigation');
+        return __('commero::admin.resources.site_setting.navigation');
     }
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return __('admin.navigation.system');
+        return __('commero::admin.navigation.system');
     }
 
     public function getTitle(): string
     {
-        return __('admin.resources.site_setting.navigation');
+        return __('commero::admin.resources.site_setting.navigation');
     }
 
     public function form(Schema $schema): Schema
@@ -62,99 +62,99 @@ class SiteSettings extends Page
                 Form::make([
                     Hidden::make(static::ACTIVE_LOCALE_FIELD)
                         ->dehydrated(),
-                    Section::make(__('admin.site_setting.general_section'))
+                    Section::make(__('commero::admin.site_setting.general_section'))
                         ->schema([
-                            TextInput::make('site_name')->label(__('admin.site_setting.site_name'))->maxLength(255),
+                            TextInput::make('site_name')->label(__('commero::admin.site_setting.site_name'))->maxLength(255),
                             FileUpload::make('logo_path')
-                                ->label(__('admin.site_setting.logo_path'))
+                                ->label(__('commero::admin.site_setting.logo_path'))
                                 ->disk('public')
                                 ->directory('settings')
                                 ->visibility('public')
                                 ->image(),
                             FileUpload::make('footer_logo_path')
-                                ->label(__('admin.site_setting.footer_logo_path'))
+                                ->label(__('commero::admin.site_setting.footer_logo_path'))
                                 ->disk('public')
                                 ->directory('settings')
                                 ->visibility('public')
                                 ->image(),
                             FileUpload::make('favicon_svg_path')
-                                ->label(__('admin.site_setting.favicon_svg_path'))
+                                ->label(__('commero::admin.site_setting.favicon_svg_path'))
                                 ->disk('public')
                                 ->directory('settings/favicons')
                                 ->visibility('public')
                                 ->acceptedFileTypes(['image/svg+xml'])
-                                ->helperText(__('admin.site_setting.favicon_svg_path_hint')),
+                                ->helperText(__('commero::admin.site_setting.favicon_svg_path_hint')),
                             FileUpload::make('favicon_png_path')
-                                ->label(__('admin.site_setting.favicon_png_path'))
+                                ->label(__('commero::admin.site_setting.favicon_png_path'))
                                 ->disk('public')
                                 ->directory('settings/favicons')
                                 ->visibility('public')
                                 ->acceptedFileTypes(['image/png'])
                                 ->image()
-                                ->helperText(__('admin.site_setting.favicon_png_path_hint')),
+                                ->helperText(__('commero::admin.site_setting.favicon_png_path_hint')),
                         ])
                         ->columns(2),
-                    Section::make(__('admin.site_setting.delivery_section'))
+                    Section::make(__('commero::admin.site_setting.delivery_section'))
                         ->schema([
                             TextInput::make('nova_poshta_api_key')
-                                ->label(__('admin.site_setting.nova_poshta_api_key'))
+                                ->label(__('commero::admin.site_setting.nova_poshta_api_key'))
                                 ->password()
                                 ->revealable()
                                 ->autocomplete('off')
-                                ->helperText(__('admin.site_setting.nova_poshta_api_key_hint'))
+                                ->helperText(__('commero::admin.site_setting.nova_poshta_api_key_hint'))
                                 ->maxLength(255),
                         ]),
-                    Section::make(__('admin.site_setting.contacts'))
+                    Section::make(__('commero::admin.site_setting.contacts'))
                         ->schema([
                             Repeater::make('contacts')
-                                ->label(__('admin.site_setting.contacts'))
+                                ->label(__('commero::admin.site_setting.contacts'))
                                 ->schema([
                                     TextInput::make('identifier')
-                                        ->label(__('admin.common.identifier'))
+                                        ->label(__('commero::admin.common.identifier'))
                                         ->required()
                                         ->alphaDash()
                                         ->maxLength(50)
                                         ->placeholder('phone')
-                                        ->helperText(__('admin.site_setting.contact_identifier_hint')),
+                                        ->helperText(__('commero::admin.site_setting.contact_identifier_hint')),
                                     FileUpload::make('icon')
-                                        ->label(__('admin.common.icon'))
+                                        ->label(__('commero::admin.common.icon'))
                                         ->disk('public')
                                         ->directory('settings/contacts')
                                         ->visibility('public')
                                         ->image(),
                                     TextInput::make('label')
-                                        ->label(__('admin.common.label'))
+                                        ->label(__('commero::admin.common.label'))
                                         ->required(fn ($livewire): bool => data_get($livewire, 'activeLocale') === Locales::default()),
                                     TextInput::make('value')
-                                        ->label(__('admin.common.value'))
+                                        ->label(__('commero::admin.common.value'))
                                         ->required(fn ($livewire): bool => data_get($livewire, 'activeLocale') === Locales::default()),
                                 ])
                                 ->columns(4)
                                 ->columnSpanFull(),
                         ]),
-                    Section::make(__('admin.site_setting.social_links'))
+                    Section::make(__('commero::admin.site_setting.social_links'))
                         ->schema([
                             Repeater::make('social_links')
-                                ->label(__('admin.site_setting.social_links'))
+                                ->label(__('commero::admin.site_setting.social_links'))
                                 ->schema([
                                     TextInput::make('identifier')
-                                        ->label(__('admin.common.identifier'))
+                                        ->label(__('commero::admin.common.identifier'))
                                         ->required()
                                         ->alphaDash()
                                         ->maxLength(50)
                                         ->placeholder('instagram')
-                                        ->helperText(__('admin.site_setting.social_identifier_hint')),
+                                        ->helperText(__('commero::admin.site_setting.social_identifier_hint')),
                                     FileUpload::make('icon')
-                                        ->label(__('admin.common.icon'))
+                                        ->label(__('commero::admin.common.icon'))
                                         ->disk('public')
                                         ->directory('settings/social-links')
                                         ->visibility('public')
                                         ->image(),
                                     TextInput::make('label')
-                                        ->label(__('admin.common.label'))
+                                        ->label(__('commero::admin.common.label'))
                                         ->required(fn ($livewire): bool => data_get($livewire, 'activeLocale') === Locales::default()),
                                     TextInput::make('url')
-                                        ->label(__('admin.common.url'))
+                                        ->label(__('commero::admin.common.url'))
                                         ->url()
                                         ->required(fn ($livewire): bool => data_get($livewire, 'activeLocale') === Locales::default()),
                                 ])
@@ -166,7 +166,7 @@ class SiteSettings extends Page
                     ->footer([
                         Actions::make([
                             Action::make('save')
-                                ->label(__('admin.common.save'))
+                                ->label(__('commero::admin.common.save'))
                                 ->submit('save')
                                 ->keyBindings(['mod+s']),
                         ]),
@@ -197,7 +197,7 @@ class SiteSettings extends Page
 
         Notification::make()
             ->success()
-            ->title(__('admin.site_setting.saved'))
+            ->title(__('commero::admin.site_setting.saved'))
             ->send();
     }
 
@@ -230,7 +230,7 @@ class SiteSettings extends Page
         }
 
         throw ValidationException::withMessages([
-            "data.{$key}" => __('admin.site_setting.identifier_unique', [
+            "data.{$key}" => __('commero::admin.site_setting.identifier_unique', [
                 'identifiers' => $duplicates->implode(', '),
             ]),
         ]);

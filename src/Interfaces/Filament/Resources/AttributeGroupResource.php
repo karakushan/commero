@@ -23,30 +23,30 @@ class AttributeGroupResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('admin.resources.attribute_group.navigation');
+        return __('commero::admin.resources.attribute_group.navigation');
     }
 
     public static function getNavigationGroup(): string|\UnitEnum|null
     {
-        return __('admin.navigation.catalog');
+        return __('commero::admin.navigation.catalog');
     }
 
     public static function getModelLabel(): string
     {
-        return __('admin.resources.attribute_group.singular');
+        return __('commero::admin.resources.attribute_group.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('admin.resources.attribute_group.plural');
+        return __('commero::admin.resources.attribute_group.plural');
     }
 
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('code')->label(__('admin.common.code'))->required()->unique(ignoreRecord: true),
-            TextInput::make('name')->label(__('admin.common.name'))->required(),
-            TextInput::make('sort')->label(__('admin.common.sort'))->numeric()->default(0)->required(),
+            TextInput::make('code')->label(__('commero::admin.common.code'))->required()->unique(ignoreRecord: true),
+            TextInput::make('name')->label(__('commero::admin.common.name'))->required(),
+            TextInput::make('sort')->label(__('commero::admin.common.sort'))->numeric()->default(0)->required(),
         ]);
     }
 
@@ -54,9 +54,9 @@ class AttributeGroupResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('code')->label(__('admin.common.code'))->searchable(),
-                TextColumn::make('name')->label(__('admin.common.name'))->searchable(),
-                TextColumn::make('sort')->label(__('admin.common.sort'))->sortable(),
+                TextColumn::make('code')->label(__('commero::admin.common.code'))->searchable(),
+                TextColumn::make('name')->label(__('commero::admin.common.name'))->searchable(),
+                TextColumn::make('sort')->label(__('commero::admin.common.sort'))->sortable(),
             ])
             ->recordActions([
                 EditAction::make(),

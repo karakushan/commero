@@ -190,7 +190,7 @@ trait InteractsWithPaymentMethodTranslations
 
         if (blank($defaultTranslation['name'] ?? null)) {
             throw ValidationException::withMessages([
-                "translations.{$defaultLocale}.name" => __('admin.resources.payment_method.default_locale_required', ['locale' => $defaultLocale]),
+                "translations.{$defaultLocale}.name" => __('commero::admin.resources.payment_method.default_locale_required', ['locale' => $defaultLocale]),
             ]);
         }
     }
