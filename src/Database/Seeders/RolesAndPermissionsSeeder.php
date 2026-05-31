@@ -2,7 +2,9 @@
 
 namespace Commero\Database\Seeders;
 
+use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -54,9 +56,7 @@ class RolesAndPermissionsSeeder extends Seeder
     /**
      * @var array<int, string>
      */
-    protected array $pages = [
-        'page_SiteSettings',
-    ];
+    protected array $pages = [];
 
     public function run(): void
     {
@@ -128,7 +128,7 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         $permissions = [
             ...$this->permissionNamesForResources($this->resources, $this->resourceActions),
-            ...$this->pages,
+            ...$this->pagePermissionNames(),
         ];
 
         foreach (array_unique($permissions) as $permission) {
@@ -149,5 +149,21 @@ class RolesAndPermissionsSeeder extends Seeder
                 ->all())
             ->values()
             ->all();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function pagePermissionNames(): array
+    {
+        $pages = FilamentShield::getPages() ?? [];
+
+        $resolved = collect($pages)
+            ->filter(fn (array $page): bool => Str::startsWith((string) ($page['pageFqcn'] ?? ''), 'Commero\\'))
+            ->flatMap(fn (array $page): array => array_keys((array) ($page['permissions'] ?? [])))
+            ->values()
+            ->all();
+
+        return $resolved !== [] ? $resolved : $this->pages;
     }
 }
