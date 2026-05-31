@@ -2,9 +2,9 @@
 
 namespace Commero\Services;
 
-use App\Models\User;
-use App\Notifications\MarketingLeadReceivedNotification;
 use Commero\Models\MarketingLead;
+use Commero\Models\User;
+use Commero\Notifications\MarketingLeadReceivedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 

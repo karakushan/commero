@@ -4,7 +4,7 @@ namespace Commero\Application\Catalog\Services;
 
 use Commero\Application\Catalog\Support\LocaleCache;
 use Commero\Domain\Catalog\Domain\Contracts\ProductRepositoryInterface;
-use App\Jobs\SendProductBackInStockNotifications;
+use Commero\Jobs\SendProductBackInStockNotifications;
 use Commero\Models\AttributeOption;
 use Commero\Models\Product;
 use Commero\Models\ProductAttribute;

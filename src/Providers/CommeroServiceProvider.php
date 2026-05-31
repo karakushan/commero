@@ -8,6 +8,7 @@ use Commero\Domain\Catalog\Domain\Contracts\ProductRepositoryInterface;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentAttributeRepository;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentCategoryRepository;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentProductRepository;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,6 +27,8 @@ class CommeroServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->registerSchemaMacros();
+
         if (! $this->app->routesAreCached()) {
             Route::middleware('web')->group($this->packagePath('routes/web.php'));
         }
@@ -46,5 +49,13 @@ class CommeroServiceProvider extends ServiceProvider
     private function packagePath(string $path = ''): string
     {
         return dirname(__DIR__, 2).'/'.ltrim($path, '/');
+    }
+
+    private function registerSchemaMacros(): void
+    {
+        Blueprint::macro('localizedSlugConstraint', function (array $columns = ['locale', 'slug'], ?string $name = null): void {
+            /** @var Blueprint $this */
+            $this->unique($columns, $name);
+        });
     }
 }
