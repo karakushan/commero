@@ -2,6 +2,7 @@
 
 namespace Commero\Providers;
 
+use Commero\Commands\InstallCommand;
 use Commero\Domain\Catalog\Domain\Contracts\AttributeRepositoryInterface;
 use Commero\Domain\Catalog\Domain\Contracts\CategoryRepositoryInterface;
 use Commero\Domain\Catalog\Domain\Contracts\ProductRepositoryInterface;
@@ -22,6 +23,7 @@ class CommeroServiceProvider extends ServiceProvider
 
         $this->mergePackageConfig();
         $this->registerFilamentPanelProvider();
+        $this->registerConsoleCommands();
 
         $this->app->bind(ProductRepositoryInterface::class, EloquentProductRepository::class);
         $this->app->bind(CategoryRepositoryInterface::class, EloquentCategoryRepository::class);
@@ -91,5 +93,16 @@ class CommeroServiceProvider extends ServiceProvider
         }
 
         return File::glob($filamentProvidersPath.'/*PanelProvider.php') !== [];
+    }
+
+    private function registerConsoleCommands(): void
+    {
+        if (! $this->app->runningInConsole()) {
+            return;
+        }
+
+        $this->commands([
+            InstallCommand::class,
+        ]);
     }
 }

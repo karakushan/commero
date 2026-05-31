@@ -8,6 +8,7 @@ Require the package in your Laravel app:
 
 ```bash
 composer require karakushan/commero:dev-main
+php artisan commero:install
 ```
 
 This package requires Filament and Filament Shield in the host application. On a clean Laravel app, it registers a ready-to-use `admin` Filament panel automatically. If the host app already has any panel provider in `app/Providers/Filament/*PanelProvider.php`, Commero does not register a second panel and will use the host panel setup instead.
@@ -20,16 +21,15 @@ Commero\Providers\CommeroServiceProvider::class,
 
 ## Basic Setup
 
-Publish the package config if you want to override defaults:
+The `commero:install` command publishes the package config, generates Filament assets, runs migrations, and interactively offers to create an admin user in the host application.
+
+Useful flags:
 
 ```bash
-php artisan vendor:publish --tag=commero-config
-```
-
-Run migrations:
-
-```bash
-php artisan migrate
+php artisan commero:install --no-assets
+php artisan commero:install --no-migrate
+php artisan commero:install --no-admin
+php artisan commero:install --force
 ```
 
 ## Theme Integration
