@@ -6,6 +6,7 @@ use Commero\Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
+use Throwable;
 
 class InstallCommand extends Command
 {
@@ -153,16 +154,14 @@ class InstallCommand extends Command
 
     protected function seedRolesAndPermissions(): void
     {
-        if (! $this->laravel->bound('command.shield.generate')) {
-            $this->components->warn('Filament Shield generate command is not available. Skipping permission bootstrap.');
-
-            return;
+        try {
+            $this->call('shield:generate', [
+                '--all' => true,
+                '--option' => 'permissions',
+            ]);
+        } catch (Throwable) {
+            $this->components->warn('Filament Shield permission generation is unavailable. Seeding package roles and permissions directly.');
         }
-
-        $this->call('shield:generate', [
-            '--all' => true,
-            '--option' => 'permissions',
-        ]);
 
         $this->call('db:seed', [
             '--class' => RolesAndPermissionsSeeder::class,
