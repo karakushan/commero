@@ -2,6 +2,7 @@
 
 namespace Commero\Http\Requests;
 
+use Commero\Support\Locales;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -26,7 +27,7 @@ class StoreProductReviewRequest extends FormRequest
             'photos.*' => ['image', 'max:5120'],
             'photo_alts' => ['nullable', 'array'],
             'photo_alts.*' => ['nullable', 'string', 'max:255'],
-            'locale' => ['nullable', 'string', Rule::in(config('app.supported_locales', [config('app.locale')]))],
+            'locale' => ['nullable', 'string', Rule::in(Locales::supported())],
         ];
     }
 }

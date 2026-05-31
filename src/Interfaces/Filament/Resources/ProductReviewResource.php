@@ -5,6 +5,7 @@ namespace Commero\Interfaces\Filament\Resources;
 use Commero\Interfaces\Filament\Resources\ProductReviewResource\Pages;
 use Commero\Models\Product;
 use Commero\Models\ProductReview;
+use Commero\Support\Locales;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -88,7 +89,7 @@ class ProductReviewResource extends Resource
                 ->preload(),
             Select::make('locale')
                 ->label(__('admin.common.locale'))
-                ->options(collect(config('app.supported_locales'))->mapWithKeys(fn (string $locale): array => [$locale => __('admin.locale_names.'.$locale)])->all())
+                ->options(collect(Locales::supported())->mapWithKeys(fn (string $locale): array => [$locale => __('admin.locale_names.'.$locale)])->all())
                 ->default(app()->getLocale())
                 ->required(),
             Select::make('author_type')
@@ -227,7 +228,7 @@ class ProductReviewResource extends Resource
                     }),
                 SelectFilter::make('locale')
                     ->label(__('admin.common.locale'))
-                    ->options(collect(config('app.supported_locales'))->mapWithKeys(fn (string $locale): array => [$locale => __('admin.locale_names.'.$locale)])->all()),
+                    ->options(collect(Locales::supported())->mapWithKeys(fn (string $locale): array => [$locale => __('admin.locale_names.'.$locale)])->all()),
                 SelectFilter::make('rating')
                     ->label(__('admin.product_review.rating'))
                     ->options([

@@ -328,7 +328,7 @@ class ProductResource extends Resource
                                         ->schema([
                                             Select::make('locale')
                                                 ->label(__('admin.common.locale'))
-                                                ->options(collect(config('app.supported_locales'))->mapWithKeys(fn (string $locale): array => [$locale => __('admin.locale_names.'.$locale)])->all())
+                                                ->options(collect(Locales::supported())->mapWithKeys(fn (string $locale): array => [$locale => __('admin.locale_names.'.$locale)])->all())
                                                 ->required(),
                                             TextInput::make('question')
                                                 ->label(__('admin.product.faq.question'))
