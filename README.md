@@ -42,6 +42,14 @@ resources/views/shophats
 
 You can change that path in `config/commero.php`.
 
+## Localization
+
+Commero uses `config/commero.php` as the source of truth for locales:
+
+- `locales.default` sets the application and Filament admin locale
+- `locales.fallback` sets the Laravel fallback locale
+- `locales.supported` sets the supported locale list used by the package
+
 ## What the Package Provides
 
 - storefront routes

@@ -10,6 +10,7 @@ use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentAttributeReposito
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentCategoryRepository;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentProductRepository;
 use Commero\Providers\Filament\AdminPanelProvider;
+use Commero\Support\Locales;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,7 @@ class CommeroServiceProvider extends ServiceProvider
 
         $this->loadTranslationsFrom($this->packagePath('lang'), 'commero');
         $this->mergePackageConfig();
+        $this->synchronizeApplicationLocales();
         $this->registerFilamentPanelProvider();
         $this->registerConsoleCommands();
 
@@ -33,6 +35,7 @@ class CommeroServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->app->setLocale(Locales::default());
         $this->registerSchemaMacros();
 
         if (! $this->app->routesAreCached()) {
@@ -80,6 +83,15 @@ class CommeroServiceProvider extends ServiceProvider
 
         config([
             'commero' => array_replace_recursive($defaults, $overrides),
+        ]);
+    }
+
+    private function synchronizeApplicationLocales(): void
+    {
+        config([
+            'app.locale' => Locales::default(),
+            'app.fallback_locale' => Locales::fallback(),
+            'app.supported_locales' => Locales::supported(),
         ]);
     }
 
