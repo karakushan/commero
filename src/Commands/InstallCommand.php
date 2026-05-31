@@ -2,11 +2,10 @@
 
 namespace Commero\Commands;
 
+use Commero\Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 class InstallCommand extends Command
 {
@@ -37,7 +36,7 @@ class InstallCommand extends Command
             ]));
         }
 
-        $this->ensureAdminRoleHasAllPermissions();
+        $this->seedRolesAndPermissions();
         $this->createAdminUser();
 
         $this->newLine();
@@ -111,7 +110,6 @@ class InstallCommand extends Command
         $user->save();
 
         if (method_exists($user, 'assignRole')) {
-            $this->ensureAdminRoleHasAllPermissions();
             $user->assignRole('admin');
             $this->components->info("Admin user [{$email}] created and assigned the [admin] role.");
 
@@ -153,7 +151,7 @@ class InstallCommand extends Command
         }
     }
 
-    protected function ensureAdminRoleHasAllPermissions(): void
+    protected function seedRolesAndPermissions(): void
     {
         if (! $this->laravel->bound('command.shield.generate')) {
             $this->components->warn('Filament Shield generate command is not available. Skipping permission bootstrap.');
@@ -166,14 +164,9 @@ class InstallCommand extends Command
             '--option' => 'permissions',
         ]);
 
-        $adminRole = Role::findOrCreate('admin', 'web');
-        $permissions = Permission::query()->where('guard_name', 'web')->get();
-
-        $adminRole->syncPermissions($permissions);
-
-        $this->components->info(sprintf(
-            'Role [admin] synced with [%d] web permissions.',
-            $permissions->count(),
-        ));
+        $this->call('db:seed', [
+            '--class' => RolesAndPermissionsSeeder::class,
+            '--force' => true,
+        ]);
     }
 }

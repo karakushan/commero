@@ -21,7 +21,7 @@ Commero\Providers\CommeroServiceProvider::class,
 
 ## Basic Setup
 
-The `commero:install` command publishes the package config, generates Filament assets, runs migrations, generates Filament Shield permissions, syncs them to the `admin` role, and interactively offers to create an admin user in the host application.
+The `commero:install` command publishes the package config, generates Filament assets, runs migrations, generates Filament Shield permissions, seeds the package roles and permissions, and interactively offers to create an admin user in the host application.
 
 Useful flags:
 
