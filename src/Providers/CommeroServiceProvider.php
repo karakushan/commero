@@ -15,11 +15,11 @@ use Commero\Models\User as CommeroUser;
 use Commero\Providers\Filament\AdminPanelProvider;
 use Commero\Support\Locales;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Permission\Models\Role;
 
 class CommeroServiceProvider extends ServiceProvider
 {
@@ -44,7 +44,7 @@ class CommeroServiceProvider extends ServiceProvider
     {
         $this->app->setLocale(Locales::default());
         $this->registerSchemaMacros();
-        $this->registerPolicyDiscovery();
+        $this->registerPolicies();
 
         if (! $this->app->routesAreCached()) {
             Route::middleware('web')->group($this->packagePath('routes/web.php'));
@@ -164,23 +164,35 @@ class CommeroServiceProvider extends ServiceProvider
         ));
     }
 
-    private function registerPolicyDiscovery(): void
+    private function registerPolicies(): void
     {
-        Gate::guessPolicyNamesUsing(function (string $modelClass): array {
-            $policyBaseName = class_basename($modelClass).'Policy';
-            $classDirname = str_replace('/', '\\', dirname(str_replace('\\', '/', $modelClass)));
+        $policyDir = $this->packagePath('src/Policies');
 
-            $candidates = [
-                'App\\Policies\\'.$policyBaseName,
-                $classDirname.'\\Policies\\'.$policyBaseName,
-            ];
+        foreach (File::glob($policyDir.'/*Policy.php') as $policyFile) {
+            $policyBaseName = pathinfo($policyFile, PATHINFO_FILENAME);
+            $modelBaseName = str_replace('Policy', '', $policyBaseName);
+            $packagePolicyClass = 'Commero\\Policies\\'.$policyBaseName;
+            $appPolicyClass = 'App\\Policies\\'.$policyBaseName;
+            $policyClass = is_file(app_path('Policies/'.$policyBaseName.'.php')) && class_exists($appPolicyClass)
+                ? $appPolicyClass
+                : $packagePolicyClass;
 
-            if (str_contains($classDirname, '\\Models\\')) {
-                $candidates[] = str_replace('\\Models\\', '\\Policies\\', $classDirname).'\\'.$policyBaseName;
-                $candidates[] = str_replace('\\Models\\', '\\Models\\Policies\\', $classDirname).'\\'.$policyBaseName;
+            if ($modelBaseName === 'Role') {
+                Gate::policy(Role::class, $policyClass);
+
+                continue;
             }
 
-            return array_values(array_unique(Arr::where($candidates, static fn (string $candidate): bool => class_exists($candidate))));
-        });
+            $packageModelClass = 'Commero\\Models\\'.$modelBaseName;
+            $appModelClass = 'App\\Models\\'.$modelBaseName;
+
+            if (class_exists($packageModelClass)) {
+                Gate::policy($packageModelClass, $policyClass);
+            }
+
+            if (class_exists($appModelClass)) {
+                Gate::policy($appModelClass, $policyClass);
+            }
+        }
     }
 }

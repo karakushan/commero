@@ -26,7 +26,10 @@ abstract class AdminResource extends Resource
             return;
         }
 
-        $policyClass = 'App\\Policies\\'.class_basename($modelClass).'Policy';
+        $policyBaseName = class_basename($modelClass).'Policy';
+        $policyClass = is_file(app_path('Policies/'.$policyBaseName.'.php')) && class_exists('App\\Policies\\'.$policyBaseName)
+            ? 'App\\Policies\\'.$policyBaseName
+            : 'Commero\\Policies\\'.$policyBaseName;
 
         if (! class_exists($policyClass)) {
             return;
