@@ -98,8 +98,11 @@ class AuthModal extends Component
             'remember' => ['boolean'],
         ]);
 
+        $email = mb_strtolower(trim($credentials['email']));
+        $this->email = $email;
+
         if (! Auth::attempt([
-            'email' => $credentials['email'],
+            'email' => $email,
             'password' => $credentials['password'],
         ], $credentials['remember'])) {
             throw ValidationException::withMessages([

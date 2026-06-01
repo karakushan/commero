@@ -6,9 +6,10 @@ class Locales
 {
     public static function supported(): array
     {
-        return array_values(array_filter(
+        return array_values(array_unique(array_filter(array_map(
+            static fn (mixed $locale): string => trim((string) $locale),
             config('commero.locales.supported', ['uk'])
-        ));
+        ))));
     }
 
     public static function fallback(): string

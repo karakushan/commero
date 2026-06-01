@@ -2,11 +2,11 @@
 
 namespace Commero\Interfaces\Filament\Resources;
 
+use Commero\Contracts\ContentBlockRegistry;
 use Commero\Interfaces\Filament\Resources\CategoryResource\Pages;
 use Commero\Models\Category;
 use Commero\Models\Link;
 use Commero\Support\Filament\AdminLocales;
-use Commero\Support\Filament\PageContentBlocks;
 use Commero\Support\Locales;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -233,7 +233,7 @@ class CategoryResource extends Resource
         return array_map(fn (string $locale): FormBuilder => FormBuilder::make("translations.{$locale}.blocks")
             ->label(__('commero::admin.common.content'))
             ->default([])
-            ->blocks(PageContentBlocks::forPages())
+            ->blocks(app(ContentBlockRegistry::class)->builderBlocks())
             ->blockIcons()
             ->collapsible()
             ->collapsed()

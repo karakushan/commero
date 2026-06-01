@@ -1,10 +1,10 @@
 <?php
 
-namespace Commero\Support;
+namespace Commero\Support\ContentBlocks;
 
 use Commero\Contracts\ContentBlockHydrator;
 
-class HomePageBlockHydrator implements ContentBlockHydrator
+class NullContentBlockHydrator implements ContentBlockHydrator
 {
     public function hydrate(array $blocks, string $locale): array
     {

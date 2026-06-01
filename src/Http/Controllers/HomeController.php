@@ -3,7 +3,6 @@
 namespace Commero\Http\Controllers;
 
 use Commero\Models\Page;
-use Commero\Support\HomePageBlockHydrator;
 use Commero\Support\Locales;
 use Commero\Support\Seo\LocalizedSeoResolver;
 use Illuminate\Support\Facades\App;
@@ -13,7 +12,7 @@ use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function index(LocalizedSeoResolver $seoResolver, HomePageBlockHydrator $blockHydrator): View|Response
+    public function index(LocalizedSeoResolver $seoResolver): View|Response
     {
         $locale = Locales::resolve(request()->route('locale') ?? app()->getLocale());
         App::setLocale($locale);
@@ -61,7 +60,7 @@ class HomeController extends Controller
             'page' => $page,
             'pageTranslation' => $localizedTranslation ?? $renderableTranslation,
             'pageContentTranslation' => $renderableTranslation,
-            'pageBlocks' => $blockHydrator->hydrate($renderableTranslation?->blocks ?? [], $locale),
+            'pageBlocks' => $renderableTranslation?->blocks ?? [],
             'seo' => $seo,
         ]);
     }

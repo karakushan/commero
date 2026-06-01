@@ -44,6 +44,8 @@ resources/views/shophats
 
 You can change that path in `config/commero.php`.
 
+Content block implementation is also expected on the host project side. The package only provides the contracts and default empty infrastructure.
+
 ## Localization
 
 Commero uses `config/commero.php` as the source of truth for locales:
@@ -65,5 +67,6 @@ Commero uses `config/commero.php` as the source of truth for locales:
 
 See:
 
+- `docs/content-blocks.md`
 - `docs/development-workflow.md`
 - `docs/release-process.md`

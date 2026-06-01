@@ -3,6 +3,8 @@
 namespace Commero\Providers;
 
 use Commero\Commands\InstallCommand;
+use Commero\Contracts\ContentBlockHydrator;
+use Commero\Contracts\ContentBlockRegistry;
 use Commero\Domain\Catalog\Domain\Contracts\AttributeRepositoryInterface;
 use Commero\Domain\Catalog\Domain\Contracts\CategoryRepositoryInterface;
 use Commero\Domain\Catalog\Domain\Contracts\ProductRepositoryInterface;
@@ -27,6 +29,7 @@ class CommeroServiceProvider extends ServiceProvider
         $this->mergePackageConfig();
         $this->synchronizeAuthModel();
         $this->synchronizeApplicationLocales();
+        $this->registerContentBlockInfrastructure();
         $this->registerFilamentPanelProvider();
         $this->registerConsoleCommands();
 
@@ -128,5 +131,31 @@ class CommeroServiceProvider extends ServiceProvider
         $this->commands([
             InstallCommand::class,
         ]);
+    }
+
+    protected function resolveConfiguredClass(string $configKey, string $fallback): string
+    {
+        $configured = config($configKey, $fallback);
+
+        return is_string($configured) && class_exists($configured)
+            ? $configured
+            : $fallback;
+    }
+
+    private function registerContentBlockInfrastructure(): void
+    {
+        $this->app->bind(ContentBlockRegistry::class, fn () => $this->app->make(
+            $this->resolveConfiguredClass(
+                'commero.content_blocks.registry',
+                \Commero\Support\ContentBlocks\EmptyContentBlockRegistry::class,
+            )
+        ));
+
+        $this->app->bind(ContentBlockHydrator::class, fn () => $this->app->make(
+            $this->resolveConfiguredClass(
+                'commero.content_blocks.hydrator',
+                \Commero\Support\ContentBlocks\NullContentBlockHydrator::class,
+            )
+        ));
     }
 }
