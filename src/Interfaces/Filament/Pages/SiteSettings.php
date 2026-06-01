@@ -3,6 +3,7 @@
 namespace Commero\Interfaces\Filament\Pages;
 
 use Commero\Models\SiteSetting;
+use Commero\Rules\FlexibleUrl;
 use Commero\Support\Filament\AdminLocales;
 use Commero\Support\Locales;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
@@ -155,7 +156,11 @@ class SiteSettings extends Page
                                         ->required(fn ($livewire): bool => data_get($livewire, 'activeLocale') === Locales::default()),
                                     TextInput::make('url')
                                         ->label(__('commero::admin.common.url'))
-                                        ->url()
+                                        ->rule(new FlexibleUrl)
+                                        ->validationAttribute(__('commero::admin.common.url'))
+                                        ->validationMessages([
+                                            'required' => __('commero::validation.required', ['attribute' => __('commero::admin.common.url')]),
+                                        ])
                                         ->required(fn ($livewire): bool => data_get($livewire, 'activeLocale') === Locales::default()),
                                 ])
                                 ->columns(4)
