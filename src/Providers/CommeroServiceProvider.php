@@ -15,7 +15,9 @@ use Commero\Models\User as CommeroUser;
 use Commero\Providers\Filament\AdminPanelProvider;
 use Commero\Support\Locales;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -42,6 +44,7 @@ class CommeroServiceProvider extends ServiceProvider
     {
         $this->app->setLocale(Locales::default());
         $this->registerSchemaMacros();
+        $this->registerPolicyDiscovery();
 
         if (! $this->app->routesAreCached()) {
             Route::middleware('web')->group($this->packagePath('routes/web.php'));
@@ -104,11 +107,13 @@ class CommeroServiceProvider extends ServiceProvider
     {
         $configuredModel = config('auth.providers.users.model');
 
-        if (! is_string($configuredModel) || $configuredModel === '' || $configuredModel === 'App\\Models\\User') {
-            config([
-                'auth.providers.users.model' => CommeroUser::class,
-            ]);
+        if (is_string($configuredModel) && $configuredModel !== '' && class_exists($configuredModel)) {
+            return;
         }
+
+        config([
+            'auth.providers.users.model' => CommeroUser::class,
+        ]);
     }
 
     private function hostApplicationHasPanelProvider(): bool
@@ -157,5 +162,25 @@ class CommeroServiceProvider extends ServiceProvider
                 \Commero\Support\ContentBlocks\NullContentBlockHydrator::class,
             )
         ));
+    }
+
+    private function registerPolicyDiscovery(): void
+    {
+        Gate::guessPolicyNamesUsing(function (string $modelClass): array {
+            $policyBaseName = class_basename($modelClass).'Policy';
+            $classDirname = str_replace('/', '\\', dirname(str_replace('\\', '/', $modelClass)));
+
+            $candidates = [
+                'App\\Policies\\'.$policyBaseName,
+                $classDirname.'\\Policies\\'.$policyBaseName,
+            ];
+
+            if (str_contains($classDirname, '\\Models\\')) {
+                $candidates[] = str_replace('\\Models\\', '\\Policies\\', $classDirname).'\\'.$policyBaseName;
+                $candidates[] = str_replace('\\Models\\', '\\Models\\Policies\\', $classDirname).'\\'.$policyBaseName;
+            }
+
+            return array_values(array_unique(Arr::where($candidates, static fn (string $candidate): bool => class_exists($candidate))));
+        });
     }
 }

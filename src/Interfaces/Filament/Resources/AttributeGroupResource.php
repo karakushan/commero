@@ -8,12 +8,11 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class AttributeGroupResource extends Resource
+class AttributeGroupResource extends AdminResource
 {
     protected static ?string $model = AttributeGroup::class;
 
