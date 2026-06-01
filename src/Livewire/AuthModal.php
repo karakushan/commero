@@ -53,15 +53,15 @@ class AuthModal extends Component
 
     public function mount(): void
     {
-        $this->redirectTo = request()->fullUrl();
+        $this->redirectTo = $this->resolveRedirectUrl();
     }
 
-    public function open(string $tab = 'login'): void
+    public function open(string $tab = 'login', ?string $redirectTo = null): void
     {
         $this->modalView = 'auth';
         $this->activeTab = $tab;
         $this->isOpen = true;
-        $this->redirectTo = request()->fullUrl();
+        $this->redirectTo = $this->resolveRedirectUrl($redirectTo);
         $this->resetValidation();
         $this->resetErrorBag();
         $this->recoveryLinkSent = false;
@@ -115,7 +115,7 @@ class AuthModal extends Component
 
         $this->close();
 
-        $this->redirect($this->redirectTo ?: request()->fullUrl(), navigate: true);
+        $this->redirect($this->resolveRedirectUrl($this->redirectTo), navigate: true);
     }
 
     public function sendPasswordResetLink(): void
@@ -184,7 +184,7 @@ class AuthModal extends Component
 
         $this->close();
 
-        $this->redirect($this->redirectTo ?: request()->fullUrl(), navigate: true);
+        $this->redirect($this->resolveRedirectUrl($this->redirectTo), navigate: true);
     }
 
     public function render(): View
@@ -224,6 +224,31 @@ class AuthModal extends Component
             ->whereNotNull('phone')
             ->get(['id', 'phone'])
             ->contains(fn (User $user): bool => Phone::normalize((string) $user->phone) === $normalizedPhone);
+    }
+
+    private function resolveRedirectUrl(?string $candidate = null): string
+    {
+        $urls = [
+            $candidate,
+            request()->headers->get('referer'),
+            $this->redirectTo,
+            request()->fullUrl(),
+            url('/'),
+        ];
+
+        foreach ($urls as $url) {
+            if (! is_string($url) || $url === '') {
+                continue;
+            }
+
+            if (str_contains($url, '/livewire') && str_contains($url, '/update')) {
+                continue;
+            }
+
+            return $url;
+        }
+
+        return url('/');
     }
 
     protected WishlistService $wishlistService;
