@@ -24,7 +24,10 @@ use Commero\Support\Locales;
 
 $reservedRootSlugs = implode('|', array_map(
     static fn (string $slug): string => preg_quote($slug, '/'),
-    array_merge(['admin', 'home'], Locales::supported()),
+    array_merge(
+        (array) config('commero.routing.reserved_root_slugs', ['admin', 'home']),
+        Locales::supported(),
+    ),
 ));
 $additionalLocales = Locales::additional();
 
@@ -179,7 +182,7 @@ if ($additionalLocales !== []) {
                 ->name('localized.privacy.policy');
 
             Route::get('/{slug}', EntityLinkController::class)
-                ->where('slug', '^(?!(?:admin|home)$)[A-Za-z0-9\-_]+$')
+                ->where('slug', '^(?!(?:'.$reservedRootSlugs.')$)[A-Za-z0-9\-_]+$')
                 ->name('localized.entity-links.show');
         });
 }

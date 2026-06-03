@@ -13,4 +13,17 @@ return [
         'fallback' => 'uk',
         'default' => 'uk',
     ],
+
+    'routing' => [
+        'reserved_root_slugs' => [
+            'admin',
+            'home',
+            'login',
+            'register',
+            'logout',
+            'account',
+            'lostpassword',
+            'reset-password',
+        ],
+    ],
 ];
