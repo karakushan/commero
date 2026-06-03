@@ -111,7 +111,7 @@ Route::get('/{slug}', EntityLinkController::class)
 if ($additionalLocales !== []) {
     Route::prefix('{locale}')
         ->whereIn('locale', $additionalLocales)
-        ->group(function (): void {
+        ->group(function () use ($reservedRootSlugs): void {
             Route::get('/', [HomeController::class, 'index'])->name('localized.home');
             Route::get('/catalog', CatalogPage::class)->name('localized.catalog.index');
             Route::get('/catalog/filter-preview', CatalogFilterPreviewController::class)->name('localized.catalog.preview-count');
