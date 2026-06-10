@@ -35,6 +35,8 @@ class AdminLocales
             'uk' => '🇺🇦',
             'en' => '🇬🇧',
             'ru' => '🇷🇺',
+            'es' => '🇪🇸',
+            'pl' => '🇵🇱',
             default => '🏳️',
         };
     }

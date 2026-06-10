@@ -1,6 +1,7 @@
 <?php
 
 use Commero\Models\Category;
+use Commero\Models\Currency;
 use Commero\Models\Page;
 use Commero\Support\EntityLinkService;
 use Commero\Support\MenuManager;
@@ -54,5 +55,38 @@ if (! function_exists('page_url')) {
     function page_url(Page|int|string $page, ?string $locale = null): ?string
     {
         return app(EntityLinkService::class)->pageUrl($page, $locale ?? app()->getLocale());
+    }
+}
+
+if (! function_exists('current_country')) {
+    function current_country(): ?string
+    {
+        return app()->bound('current_country') ? app('current_country') : null;
+    }
+}
+
+if (! function_exists('current_currency')) {
+    function current_currency(): ?Currency
+    {
+        $country = current_country();
+
+        if ($country === null) {
+            return Currency::getBase();
+        }
+
+        return Currency::findByCountry($country) ?? Currency::getBase();
+    }
+}
+
+if (! function_exists('convert_price')) {
+    function convert_price(float $basePrice): float
+    {
+        $currency = current_currency();
+
+        if ($currency === null || $currency->is_base) {
+            return $basePrice;
+        }
+
+        return $currency->convertFromBase($basePrice);
     }
 }

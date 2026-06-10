@@ -24,6 +24,8 @@ class SiteSetting extends Model
         'contacts_translations',
         'social_links',
         'social_links_translations',
+        'multi_currency_enabled',
+        'country_source',
     ];
 
     protected $casts = [
@@ -35,6 +37,7 @@ class SiteSetting extends Model
         'social_links' => 'array',
         'social_links_translations' => 'array',
         'site_name_translations' => 'array',
+        'multi_currency_enabled' => 'boolean',
     ];
 
     public function getSiteNameAttribute(mixed $value): ?string
@@ -60,6 +63,16 @@ class SiteSetting extends Model
     public function getFooterLogoPathAttribute(mixed $value): ?string
     {
         return $this->getFooterLogoPathForLocale(app()->getLocale());
+    }
+
+    public function isMultiCurrencyEnabled(): bool
+    {
+        return (bool) $this->getRawOriginal('multi_currency_enabled');
+    }
+
+    public function getCountrySource(): ?string
+    {
+        return $this->country_source;
     }
 
     public function getSiteNameForLocale(?string $locale = null, bool $useFallback = true): ?string

@@ -5,6 +5,7 @@ namespace Commero\Interfaces\Filament\Resources;
 use Commero\Interfaces\Filament\Resources\ProductResource\Pages;
 use Commero\Models\AttributeOption;
 use Commero\Models\Category;
+use Commero\Models\CategoryTranslation;
 use Commero\Models\Currency;
 use Commero\Models\PageTranslation;
 use Commero\Models\PostCategoryTranslation;
@@ -12,11 +13,11 @@ use Commero\Models\PostTranslation;
 use Commero\Models\Product;
 use Commero\Models\ProductAttribute;
 use Commero\Models\ProductTranslation;
-use Commero\Models\CategoryTranslation;
+use Commero\Models\SiteSetting;
 use Commero\Support\Filament\AdminLocales;
-use Commero\Support\Filament\RichEditorDocumentNormalizer;
-use Commero\Support\Filament\RichEditorCustomBlockAction;
 use Commero\Support\Filament\RichContentCustomBlocks\VideoEmbedBlock;
+use Commero\Support\Filament\RichEditorCustomBlockAction;
+use Commero\Support\Filament\RichEditorDocumentNormalizer;
 use Commero\Support\Locales;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -123,6 +124,7 @@ class ProductResource extends AdminResource
                                 ->minValue(0)
                                 ->required()
                                 ->visible(fn (callable $get): bool => $get('type') === 'simple')
+                                ->hidden(fn ($livewire): bool => (bool) data_get($livewire, 'data.multi_currency_code') && data_get($livewire, 'data.multi_currency_code') !== Currency::getBaseCode())
                                 ->columnSpan(1),
                             TextInput::make('old_price')
                                 ->label(__('commero::admin.product.variants.old_price'))
@@ -130,6 +132,7 @@ class ProductResource extends AdminResource
                                 ->inputMode('decimal')
                                 ->minValue(0)
                                 ->visible(fn (callable $get): bool => $get('type') === 'simple')
+                                ->hidden(fn ($livewire): bool => (bool) data_get($livewire, 'data.multi_currency_code') && data_get($livewire, 'data.multi_currency_code') !== Currency::getBaseCode())
                                 ->columnSpan(1),
                             Select::make('stock_status')
                                 ->label(__('commero::admin.common.availability'))
@@ -155,6 +158,37 @@ class ProductResource extends AdminResource
                                 ->preload()
                                 ->searchable()
                                 ->columnSpanFull(),
+                            Select::make('multi_currency_code')
+                                ->label(__('commero::admin.product.multi_currency.select_currency'))
+                                ->options(function (): array {
+                                    return Currency::orderBy('sort')
+                                        ->get()
+                                        ->mapWithKeys(fn (Currency $currency): array => [$currency->code => "{$currency->code} ({$currency->symbol})"])
+                                        ->all();
+                                })
+                                ->live()
+                                ->visible(function (): bool {
+                                    return SiteSetting::query()->first()?->isMultiCurrencyEnabled() ?? false;
+                                })
+                                ->columnSpan(1),
+                            TextInput::make('multi_currency_price')
+                                ->label(fn ($livewire): string => __('commero::admin.product.multi_currency.price_in', [
+                                    'currency' => data_get($livewire, 'data.multi_currency_code', ''),
+                                ]))
+                                ->numeric()
+                                ->inputMode('decimal')
+                                ->minValue(0)
+                                ->visible(fn (callable $get): bool => filled($get('multi_currency_code')) && $get('multi_currency_code') !== Currency::getBaseCode())
+                                ->columnSpan(1),
+                            TextInput::make('multi_currency_old_price')
+                                ->label(fn ($livewire): string => __('commero::admin.product.multi_currency.old_price_in', [
+                                    'currency' => data_get($livewire, 'data.multi_currency_code', ''),
+                                ]))
+                                ->numeric()
+                                ->inputMode('decimal')
+                                ->minValue(0)
+                                ->visible(fn (callable $get): bool => filled($get('multi_currency_code')) && $get('multi_currency_code') !== Currency::getBaseCode())
+                                ->columnSpan(1),
                         ])->columns(3),
                     Tabs\Tab::make(__('commero::admin.product.tabs.gallery'))
                         ->icon('heroicon-o-photo')
@@ -266,12 +300,30 @@ class ProductResource extends AdminResource
                                                 ->numeric()
                                                 ->inputMode('decimal')
                                                 ->minValue(0)
-                                                ->required(),
+                                                ->required()
+                                                ->hidden(fn ($livewire): bool => (bool) data_get($livewire, 'data.multi_currency_code') && data_get($livewire, 'data.multi_currency_code') !== Currency::getBaseCode()),
                                             TextInput::make('old_price')
                                                 ->label(__('commero::admin.product.variants.old_price'))
                                                 ->numeric()
                                                 ->inputMode('decimal')
-                                                ->minValue(0),
+                                                ->minValue(0)
+                                                ->hidden(fn ($livewire): bool => (bool) data_get($livewire, 'data.multi_currency_code') && data_get($livewire, 'data.multi_currency_code') !== Currency::getBaseCode()),
+                                            TextInput::make('multi_currency_price')
+                                                ->label(fn ($livewire): string => __('commero::admin.product.multi_currency.price_in', [
+                                                    'currency' => data_get($livewire, 'data.multi_currency_code', ''),
+                                                ]))
+                                                ->numeric()
+                                                ->inputMode('decimal')
+                                                ->minValue(0)
+                                                ->visible(fn ($livewire): bool => (bool) data_get($livewire, 'data.multi_currency_code') && data_get($livewire, 'data.multi_currency_code') !== Currency::getBaseCode()),
+                                            TextInput::make('multi_currency_old_price')
+                                                ->label(fn ($livewire): string => __('commero::admin.product.multi_currency.old_price_in', [
+                                                    'currency' => data_get($livewire, 'data.multi_currency_code', ''),
+                                                ]))
+                                                ->numeric()
+                                                ->inputMode('decimal')
+                                                ->minValue(0)
+                                                ->visible(fn ($livewire): bool => (bool) data_get($livewire, 'data.multi_currency_code') && data_get($livewire, 'data.multi_currency_code') !== Currency::getBaseCode()),
                                             Select::make('status')
                                                 ->label(__('commero::admin.common.availability'))
                                                 ->options([

@@ -2,16 +2,18 @@
 
 namespace Commero\Interfaces\Filament\Pages;
 
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Commero\Models\SiteSetting;
 use Commero\Rules\FlexibleUrl;
 use Commero\Support\Filament\AdminLocales;
 use Commero\Support\Locales;
-use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -33,6 +35,7 @@ class SiteSettings extends Page
     protected string $view = 'commero::filament.pages.site-settings';
 
     public ?array $data = [];
+
     public string $activeLocale = '';
 
     public function mount(): void
@@ -105,6 +108,20 @@ class SiteSettings extends Page
                                 ->helperText(__('commero::admin.site_setting.nova_poshta_api_key_hint'))
                                 ->maxLength(255),
                         ]),
+                    Section::make(__('commero::admin.site_setting.currency_section'))
+                        ->schema([
+                            Toggle::make('multi_currency_enabled')
+                                ->label(__('commero::admin.site_setting.multi_currency_enabled'))
+                                ->live(),
+                            Select::make('country_source')
+                                ->label(__('commero::admin.site_setting.country_source'))
+                                ->options([
+                                    'cookie' => __('commero::admin.site_setting.country_source_cookie'),
+                                    'url' => __('commero::admin.site_setting.country_source_url'),
+                                ])
+                                ->visible(fn (callable $get): bool => (bool) $get('multi_currency_enabled')),
+                        ])
+                        ->columns(2),
                     Section::make(__('commero::admin.site_setting.contacts'))
                         ->schema([
                             Repeater::make('contacts')
@@ -256,6 +273,8 @@ class SiteSettings extends Page
             'nova_poshta_api_key' => $record?->getAttribute('nova_poshta_api_key'),
             'contacts' => $record?->getEditableContactsForLocale($activeLocale) ?? [],
             'social_links' => $record?->getEditableSocialLinksForLocale($activeLocale) ?? [],
+            'multi_currency_enabled' => (bool) $record?->getRawOriginal('multi_currency_enabled'),
+            'country_source' => $record?->country_source,
         ];
     }
 
@@ -265,6 +284,8 @@ class SiteSettings extends Page
             'favicon_svg_path' => $this->normalizeTextValue($data['favicon_svg_path'] ?? null),
             'favicon_png_path' => $this->normalizeTextValue($data['favicon_png_path'] ?? null),
             'nova_poshta_api_key' => $data['nova_poshta_api_key'] ?? null,
+            'multi_currency_enabled' => (bool) ($data['multi_currency_enabled'] ?? false),
+            'country_source' => $data['multi_currency_enabled'] ? ($data['country_source'] ?? null) : null,
         ];
 
         if (Locales::isDefault($activeLocale)) {

@@ -11,8 +11,11 @@ use Commero\Domain\Catalog\Domain\Contracts\ProductRepositoryInterface;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentAttributeRepository;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentCategoryRepository;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentProductRepository;
+use Commero\Http\Middleware\SetCountryFromUrl;
 use Commero\Models\User as CommeroUser;
 use Commero\Providers\Filament\AdminPanelProvider;
+use Commero\Support\ContentBlocks\EmptyContentBlockRegistry;
+use Commero\Support\ContentBlocks\NullContentBlockHydrator;
 use Commero\Support\Locales;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\File;
@@ -45,6 +48,7 @@ class CommeroServiceProvider extends ServiceProvider
         $this->app->setLocale(Locales::default());
         $this->registerSchemaMacros();
         $this->registerPolicies();
+        $this->registerMiddleware();
 
         if (! $this->app->routesAreCached()) {
             Route::middleware('web')->group($this->packagePath('routes/web.php'));
@@ -152,14 +156,14 @@ class CommeroServiceProvider extends ServiceProvider
         $this->app->bind(ContentBlockRegistry::class, fn () => $this->app->make(
             $this->resolveConfiguredClass(
                 'commero.content_blocks.registry',
-                \Commero\Support\ContentBlocks\EmptyContentBlockRegistry::class,
+                EmptyContentBlockRegistry::class,
             )
         ));
 
         $this->app->bind(ContentBlockHydrator::class, fn () => $this->app->make(
             $this->resolveConfiguredClass(
                 'commero.content_blocks.hydrator',
-                \Commero\Support\ContentBlocks\NullContentBlockHydrator::class,
+                NullContentBlockHydrator::class,
             )
         ));
     }
@@ -194,5 +198,10 @@ class CommeroServiceProvider extends ServiceProvider
                 Gate::policy($appModelClass, $policyClass);
             }
         }
+    }
+
+    private function registerMiddleware(): void
+    {
+        $this->app['router']->pushMiddlewareToGroup('web', SetCountryFromUrl::class);
     }
 }

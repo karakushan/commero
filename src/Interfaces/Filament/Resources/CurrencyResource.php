@@ -4,10 +4,12 @@ namespace Commero\Interfaces\Filament\Resources;
 
 use Commero\Interfaces\Filament\Resources\CurrencyResource\Pages;
 use Commero\Models\Currency;
+use Commero\Support\Countries;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
@@ -56,6 +58,13 @@ class CurrencyResource extends AdminResource
                 ->label(__('commero::admin.currency.symbol'))
                 ->maxLength(10)
                 ->required(),
+            Select::make('country_codes')
+                ->label(__('commero::admin.currency.country_codes'))
+                ->options(Countries::list())
+                ->multiple()
+                ->searchable()
+                ->preload()
+                ->helperText(__('commero::admin.currency.country_codes_hint')),
             Toggle::make('is_base')
                 ->label(__('commero::admin.currency.is_base'))
                 ->default(false),
@@ -80,6 +89,9 @@ class CurrencyResource extends AdminResource
                 TextColumn::make('code')->label(__('commero::admin.common.code'))->searchable()->sortable(),
                 TextColumn::make('name')->label(__('commero::admin.common.name'))->searchable(),
                 TextColumn::make('symbol')->label(__('commero::admin.currency.symbol')),
+                TextColumn::make('country_codes')
+                    ->label(__('commero::admin.currency.country_codes'))
+                    ->formatStateUsing(fn ($state): string => is_array($state) ? implode(', ', $state) : (string) ($state ?? '')),
                 IconColumn::make('is_base')->label(__('commero::admin.currency.is_base'))->boolean(),
                 TextColumn::make('rate')->label(__('commero::admin.currency.rate'))->numeric(decimalPlaces: 6),
                 TextColumn::make('sort')->label(__('commero::admin.common.sort'))->sortable(),

@@ -7,6 +7,7 @@ use Commero\Interfaces\Filament\Resources\ProductResource;
 use Commero\Interfaces\Filament\Resources\ProductResource\Pages\Concerns\InteractsWithProductTranslations;
 use Commero\Interfaces\Filament\Resources\ProductReviewResource;
 use Commero\Models\AttributeOption;
+use Commero\Models\Currency;
 use Commero\Models\Product;
 use Commero\Support\Locales;
 use Filament\Actions\Action;
@@ -19,7 +20,7 @@ class EditProduct extends EditRecord
 
     protected static string $resource = ProductResource::class;
 
-    public function mount(int | string $record): void
+    public function mount(int|string $record): void
     {
         $this->initializeActiveLocale();
 
@@ -125,6 +126,9 @@ class EditProduct extends EditRecord
         if ($record->type === 'simple') {
             $data['price'] = $record->variants->first()?->price;
             $data['old_price'] = $record->variants->first()?->old_price;
+            $data['multi_currency_code'] = $record->variants->first()?->multi_currency_code;
+            $data['multi_currency_price'] = $record->variants->first()?->multi_currency_price;
+            $data['multi_currency_old_price'] = $record->variants->first()?->multi_currency_old_price;
         }
 
         if ($record->type === 'variant') {
@@ -156,8 +160,10 @@ class EditProduct extends EditRecord
     {
         /** @var Product $record */
         $record = $this->getRecord();
+        $data = $this->prepareProductDataForActiveLocale($data, $record);
+        $data = $this->convertMultiCurrencyPrices($data);
 
-        return $this->prepareProductDataForActiveLocale($data, $record);
+        return $data;
     }
 
     protected function handleRecordUpdate(Model $record, array $data): Model
@@ -195,6 +201,9 @@ class EditProduct extends EditRecord
             'barcode' => $variant->barcode,
             'price' => $data['price'],
             'old_price' => $data['old_price'] ?? null,
+            'multi_currency_code' => $data['multi_currency_code'] ?? null,
+            'multi_currency_price' => $data['multi_currency_price'] ?? null,
+            'multi_currency_old_price' => $data['multi_currency_old_price'] ?? null,
             'stock_qty' => $variant->stock_qty ?? 0,
             'status' => $data['stock_status'] ?? 'in_stock',
             'option_snapshot' => $variant->option_snapshot ?? [],
@@ -222,6 +231,9 @@ class EditProduct extends EditRecord
                 'barcode' => $variant->barcode,
                 'price' => $variantData['price'] ?? 0,
                 'old_price' => $variantData['old_price'] ?? null,
+                'multi_currency_code' => $data['multi_currency_code'] ?? null,
+                'multi_currency_price' => $variantData['multi_currency_price'] ?? null,
+                'multi_currency_old_price' => $variantData['multi_currency_old_price'] ?? null,
                 'stock_qty' => $variant->stock_qty ?? 0,
                 'status' => $variantData['status'] ?? 'in_stock',
                 'option_snapshot' => $variantData['attribute_option_ids'] ?? [],
@@ -249,4 +261,49 @@ class EditProduct extends EditRecord
         }
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function convertMultiCurrencyPrices(array $data): array
+    {
+        $currencyCode = $data['multi_currency_code'] ?? null;
+
+        if (! filled($currencyCode)) {
+            return $data;
+        }
+
+        if ($currencyCode === Currency::getBaseCode()) {
+            return $data;
+        }
+
+        $currency = Currency::where('code', $currencyCode)->first();
+
+        if (! $currency) {
+            return $data;
+        }
+
+        if (array_key_exists('multi_currency_price', $data) && filled($data['multi_currency_price'])) {
+            $data['price'] = $currency->convertToBase((float) $data['multi_currency_price']);
+        }
+
+        if (array_key_exists('multi_currency_old_price', $data) && filled($data['multi_currency_old_price'])) {
+            $data['old_price'] = $currency->convertToBase((float) $data['multi_currency_old_price']);
+        }
+
+        if (array_key_exists('variants', $data)) {
+            foreach ($data['variants'] as &$variant) {
+                if (filled($variant['multi_currency_price'] ?? null)) {
+                    $variant['price'] = $currency->convertToBase((float) $variant['multi_currency_price']);
+                }
+
+                if (filled($variant['multi_currency_old_price'] ?? null)) {
+                    $variant['old_price'] = $currency->convertToBase((float) $variant['multi_currency_old_price']);
+                }
+            }
+            unset($variant);
+        }
+
+        return $data;
+    }
 }

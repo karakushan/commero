@@ -1,17 +1,27 @@
 <?php
 
+use Commero\Support\ContentBlocks\EmptyContentBlockRegistry;
+use Commero\Support\ContentBlocks\NullContentBlockHydrator;
+
 return [
     'theme_view_path' => resource_path('views/shophats'),
 
     'content_blocks' => [
-        'registry' => \Commero\Support\ContentBlocks\EmptyContentBlockRegistry::class,
-        'hydrator' => \Commero\Support\ContentBlocks\NullContentBlockHydrator::class,
+        'registry' => EmptyContentBlockRegistry::class,
+        'hydrator' => NullContentBlockHydrator::class,
     ],
 
     'locales' => [
-        'supported' => ['uk', 'en', 'ru'],
+        'supported' => ['uk', 'en', 'ru', 'es', 'pl'],
         'fallback' => 'uk',
         'default' => 'uk',
+        'country_map' => [
+            'uk' => 'UA',
+            'en' => 'GB',
+            'ru' => 'RU',
+            'es' => 'ES',
+            'pl' => 'PL',
+        ],
     ],
 
     'routing' => [
