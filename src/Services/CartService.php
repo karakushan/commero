@@ -2,6 +2,7 @@
 
 namespace Commero\Services;
 
+use Commero\Models\Currency;
 use Commero\Models\Product;
 use Commero\Models\ProductVariant;
 use Commero\Support\Locales;
@@ -12,6 +13,8 @@ use Illuminate\Validation\ValidationException;
 class CartService
 {
     private const SESSION_KEY = 'cart.items';
+
+    private const DEFAULT_CURRENCY_SYMBOL = '₴';
 
     public function getCart(?Product $recommendedProduct = null, ?string $lastAddedLineId = null): array
     {
@@ -50,7 +53,7 @@ class CartService
                 continue;
             }
 
-            $unitPrice = (float) $variant->price;
+            ['price' => $unitPrice, 'old_price' => $oldPrice] = $this->resolveDisplayPrices($variant);
             $lineTotal = $unitPrice * $quantity;
             $totalNumeric += $lineTotal;
 
@@ -74,7 +77,7 @@ class CartService
                 'quantity' => $quantity,
                 'unit_price' => $this->formatMoney($unitPrice),
                 'unit_price_numeric' => round($unitPrice, 2),
-                'old_price_numeric' => $variant->old_price !== null ? round((float) $variant->old_price, 2) : null,
+                'old_price_numeric' => $oldPrice !== null ? round($oldPrice, 2) : null,
                 'total' => $this->formatMoney($lineTotal),
             ];
         }
@@ -162,8 +165,7 @@ class CartService
                     ])
                 ),
             ],
-            'unit_price_numeric' => round((float) $variant->price, 2),
-            'old_price_numeric' => $variant->old_price !== null ? round((float) $variant->old_price, 2) : null,
+            ...$this->serializeDisplayPrices($variant),
         ];
 
         session()->put(self::SESSION_KEY, $items);
@@ -222,7 +224,54 @@ class CartService
 
     private function formatMoney(float $amount): string
     {
-        return number_format($amount, 0, '.', ' ').' ₴';
+        $currency = current_currency();
+        $precision = fmod(round($amount, 2), 1.0) === 0.0 ? 0 : 2;
+
+        return number_format($amount, $precision, '.', ' ').' '.($currency?->symbol ?? self::DEFAULT_CURRENCY_SYMBOL);
+    }
+
+    /**
+     * @return array{price: float, old_price: ?float}
+     */
+    private function resolveDisplayPrices(ProductVariant $variant): array
+    {
+        $currency = current_currency();
+
+        if (! $currency instanceof Currency || $currency->is_base) {
+            return [
+                'price' => round((float) $variant->price, 2),
+                'old_price' => $variant->old_price !== null ? round((float) $variant->old_price, 2) : null,
+            ];
+        }
+
+        if ($variant->multi_currency_code === $currency->code && $variant->multi_currency_price !== null) {
+            return [
+                'price' => round((float) $variant->multi_currency_price, 2),
+                'old_price' => $variant->multi_currency_old_price !== null
+                    ? round((float) $variant->multi_currency_old_price, 2)
+                    : null,
+            ];
+        }
+
+        return [
+            'price' => round(convert_price((float) $variant->price), 2),
+            'old_price' => $variant->old_price !== null
+                ? round(convert_price((float) $variant->old_price), 2)
+                : null,
+        ];
+    }
+
+    /**
+     * @return array{unit_price_numeric: float, old_price_numeric: ?float}
+     */
+    private function serializeDisplayPrices(ProductVariant $variant): array
+    {
+        ['price' => $price, 'old_price' => $oldPrice] = $this->resolveDisplayPrices($variant);
+
+        return [
+            'unit_price_numeric' => round($price, 2),
+            'old_price_numeric' => $oldPrice !== null ? round($oldPrice, 2) : null,
+        ];
     }
 
     private function productName(Product $product): string
