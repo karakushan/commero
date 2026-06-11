@@ -5,6 +5,7 @@ namespace Commero\Services;
 use Commero\Models\Currency;
 use Commero\Models\Product;
 use Commero\Models\ProductVariant;
+use Commero\Models\SiteSetting;
 use Commero\Support\Locales;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
@@ -225,9 +226,23 @@ class CartService
     private function formatMoney(float $amount): string
     {
         $currency = current_currency();
-        $precision = fmod(round($amount, 2), 1.0) === 0.0 ? 0 : 2;
+        $precision = $this->shouldDisplayPriceDecimals() ? 2 : 0;
 
         return number_format($amount, $precision, '.', ' ').' '.($currency?->symbol ?? self::DEFAULT_CURRENCY_SYMBOL);
+    }
+
+    private function shouldDisplayPriceDecimals(): bool
+    {
+        static $shouldDisplayDecimals;
+
+        if ($shouldDisplayDecimals !== null) {
+            return $shouldDisplayDecimals;
+        }
+
+        $shouldDisplayDecimals = (bool) SiteSetting::query()
+            ->value('show_price_decimals');
+
+        return $shouldDisplayDecimals;
     }
 
     /**

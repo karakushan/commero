@@ -324,11 +324,12 @@ return [
         'social_identifier_hint' => 'Унікальний ключ для шаблону, наприклад: instagram, facebook, telegram',
         'identifier_unique' => 'Ідентифікатори мають бути унікальними. Дублікати: :identifiers',
         'saved' => 'Налаштування збережено',
-        'currency_section' => 'Налаштування валют',
+        'price_currency_section' => 'Налаштування цін і валют',
         'multi_currency_enabled' => 'Увімкнути мультивалютність',
         'country_source' => 'Джерело країни',
         'country_source_cookie' => 'Cookie',
         'country_source_url' => 'URL',
+        'show_price_decimals' => 'Показувати копійки в цінах',
     ],
     'category' => [
         'tabs' => [

@@ -26,6 +26,7 @@ class SiteSetting extends Model
         'social_links_translations',
         'multi_currency_enabled',
         'country_source',
+        'show_price_decimals',
     ];
 
     protected $casts = [
@@ -38,6 +39,7 @@ class SiteSetting extends Model
         'social_links_translations' => 'array',
         'site_name_translations' => 'array',
         'multi_currency_enabled' => 'boolean',
+        'show_price_decimals' => 'boolean',
     ];
 
     public function getSiteNameAttribute(mixed $value): ?string
@@ -73,6 +75,11 @@ class SiteSetting extends Model
     public function getCountrySource(): ?string
     {
         return $this->country_source;
+    }
+
+    public function shouldDisplayPriceDecimals(): bool
+    {
+        return (bool) $this->getRawOriginal('show_price_decimals');
     }
 
     public function getSiteNameForLocale(?string $locale = null, bool $useFallback = true): ?string

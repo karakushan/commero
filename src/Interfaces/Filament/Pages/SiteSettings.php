@@ -108,7 +108,7 @@ class SiteSettings extends Page
                                 ->helperText(__('commero::admin.site_setting.nova_poshta_api_key_hint'))
                                 ->maxLength(255),
                         ]),
-                    Section::make(__('commero::admin.site_setting.currency_section'))
+                    Section::make(__('commero::admin.site_setting.price_currency_section'))
                         ->schema([
                             Toggle::make('multi_currency_enabled')
                                 ->label(__('commero::admin.site_setting.multi_currency_enabled'))
@@ -120,6 +120,8 @@ class SiteSettings extends Page
                                     'url' => __('commero::admin.site_setting.country_source_url'),
                                 ])
                                 ->visible(fn (callable $get): bool => (bool) $get('multi_currency_enabled')),
+                            Toggle::make('show_price_decimals')
+                                ->label(__('commero::admin.site_setting.show_price_decimals')),
                         ])
                         ->columns(2),
                     Section::make(__('commero::admin.site_setting.contacts'))
@@ -275,6 +277,7 @@ class SiteSettings extends Page
             'social_links' => $record?->getEditableSocialLinksForLocale($activeLocale) ?? [],
             'multi_currency_enabled' => (bool) $record?->getRawOriginal('multi_currency_enabled'),
             'country_source' => $record?->country_source,
+            'show_price_decimals' => (bool) $record?->getRawOriginal('show_price_decimals'),
         ];
     }
 
@@ -286,6 +289,7 @@ class SiteSettings extends Page
             'nova_poshta_api_key' => $data['nova_poshta_api_key'] ?? null,
             'multi_currency_enabled' => (bool) ($data['multi_currency_enabled'] ?? false),
             'country_source' => $data['multi_currency_enabled'] ? ($data['country_source'] ?? null) : null,
+            'show_price_decimals' => (bool) ($data['show_price_decimals'] ?? false),
         ];
 
         if (Locales::isDefault($activeLocale)) {

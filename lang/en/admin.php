@@ -324,11 +324,12 @@ return [
         'social_identifier_hint' => 'Unique template key, for example: instagram, facebook, telegram',
         'identifier_unique' => 'Identifiers must be unique. Duplicates: :identifiers',
         'saved' => 'Settings saved',
-        'currency_section' => 'Currency settings',
+        'price_currency_section' => 'Price and currency settings',
         'multi_currency_enabled' => 'Enable multi-currency',
         'country_source' => 'Country source',
         'country_source_cookie' => 'Cookie',
         'country_source_url' => 'URL',
+        'show_price_decimals' => 'Show cents in prices',
     ],
     'category' => [
         'tabs' => [
