@@ -69,11 +69,6 @@ class SetCountryFromUrl
         }
 
         $country = $parts[0];
-        $locale = $parts[1];
-
-        if ($locale !== '' && $locale !== app()->getLocale()) {
-            app()->setLocale($locale);
-        }
 
         return mb_strlen($country) === 2 ? $country : null;
     }
