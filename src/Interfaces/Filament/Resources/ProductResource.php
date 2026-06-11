@@ -483,9 +483,7 @@ class ProductResource extends AdminResource
                     }),
                 TextColumn::make('sku')->label(__('commero::admin.common.sku'))->searchable(),
                 TextColumn::make('min_price')->label(__('commero::admin.common.price'))
-                    ->state(fn (Product $record): ?string => $record->variants->min('price'))
-                    ->numeric(decimalPlaces: 2)
-                    ->suffix(' '.Currency::getBaseSymbol())
+                    ->state(fn (Product $record): string => format_money_amount($record->variants->min('price'), Currency::getBaseSymbol()))
                     ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('variants_min_price', $direction)),
                 TextColumn::make('stock_status')->label(__('commero::admin.common.availability'))
                     ->badge()

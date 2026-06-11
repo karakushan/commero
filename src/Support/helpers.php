@@ -3,6 +3,7 @@
 use Commero\Models\Category;
 use Commero\Models\Currency;
 use Commero\Models\Page;
+use Commero\Models\SiteSetting;
 use Commero\Support\EntityLinkService;
 use Commero\Support\MenuManager;
 use Illuminate\Support\Collection;
@@ -88,5 +89,41 @@ if (! function_exists('convert_price')) {
         }
 
         return $currency->convertFromBase($basePrice);
+    }
+}
+
+if (! function_exists('price_display_decimals')) {
+    function price_display_decimals(): int
+    {
+        static $displayDecimals;
+
+        if ($displayDecimals !== null) {
+            return $displayDecimals;
+        }
+
+        $displayDecimals = (bool) SiteSetting::query()->value('show_price_decimals');
+
+        return $displayDecimals ? 2 : 0;
+    }
+}
+
+if (! function_exists('normalize_price')) {
+    function normalize_price(float|int|string|null $amount): float
+    {
+        return round((float) ($amount ?? 0), price_display_decimals());
+    }
+}
+
+if (! function_exists('format_price_number')) {
+    function format_price_number(float|int|string|null $amount): string
+    {
+        return number_format(normalize_price($amount), price_display_decimals(), '.', ' ');
+    }
+}
+
+if (! function_exists('format_money_amount')) {
+    function format_money_amount(float|int|string|null $amount, ?string $currencySymbol = null): string
+    {
+        return format_price_number($amount).' '.($currencySymbol ?? current_currency()?->symbol ?? '₴');
     }
 }

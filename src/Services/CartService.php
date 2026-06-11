@@ -5,7 +5,6 @@ namespace Commero\Services;
 use Commero\Models\Currency;
 use Commero\Models\Product;
 use Commero\Models\ProductVariant;
-use Commero\Models\SiteSetting;
 use Commero\Support\Locales;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
@@ -77,8 +76,8 @@ class CartService
                 ],
                 'quantity' => $quantity,
                 'unit_price' => $this->formatMoney($unitPrice),
-                'unit_price_numeric' => round($unitPrice, 2),
-                'old_price_numeric' => $oldPrice !== null ? round($oldPrice, 2) : null,
+                'unit_price_numeric' => normalize_price($unitPrice),
+                'old_price_numeric' => $oldPrice !== null ? normalize_price($oldPrice) : null,
                 'total' => $this->formatMoney($lineTotal),
             ];
         }
@@ -91,7 +90,7 @@ class CartService
             'count' => array_sum(array_column($items, 'quantity')),
             'items' => array_values($items),
             'total' => $this->formatMoney($totalNumeric),
-            'total_numeric' => round($totalNumeric, 2),
+            'total_numeric' => normalize_price($totalNumeric),
             'last_added_line_id' => $lastAddedLineId,
             'recommended_products' => $this->resolveRecommendedProducts($recommendedProduct),
         ];
@@ -225,24 +224,7 @@ class CartService
 
     private function formatMoney(float $amount): string
     {
-        $currency = current_currency();
-        $precision = $this->shouldDisplayPriceDecimals() ? 2 : 0;
-
-        return number_format($amount, $precision, '.', ' ').' '.($currency?->symbol ?? self::DEFAULT_CURRENCY_SYMBOL);
-    }
-
-    private function shouldDisplayPriceDecimals(): bool
-    {
-        static $shouldDisplayDecimals;
-
-        if ($shouldDisplayDecimals !== null) {
-            return $shouldDisplayDecimals;
-        }
-
-        $shouldDisplayDecimals = (bool) SiteSetting::query()
-            ->value('show_price_decimals');
-
-        return $shouldDisplayDecimals;
+        return format_money_amount($amount, current_currency()?->symbol ?? self::DEFAULT_CURRENCY_SYMBOL);
     }
 
     /**
@@ -254,24 +236,24 @@ class CartService
 
         if (! $currency instanceof Currency || $currency->is_base) {
             return [
-                'price' => round((float) $variant->price, 2),
-                'old_price' => $variant->old_price !== null ? round((float) $variant->old_price, 2) : null,
+                'price' => normalize_price($variant->price),
+                'old_price' => $variant->old_price !== null ? normalize_price($variant->old_price) : null,
             ];
         }
 
         if ($variant->multi_currency_code === $currency->code && $variant->multi_currency_price !== null) {
             return [
-                'price' => round((float) $variant->multi_currency_price, 2),
+                'price' => normalize_price($variant->multi_currency_price),
                 'old_price' => $variant->multi_currency_old_price !== null
-                    ? round((float) $variant->multi_currency_old_price, 2)
+                    ? normalize_price($variant->multi_currency_old_price)
                     : null,
             ];
         }
 
         return [
-            'price' => round(convert_price((float) $variant->price), 2),
+            'price' => normalize_price(convert_price((float) $variant->price)),
             'old_price' => $variant->old_price !== null
-                ? round(convert_price((float) $variant->old_price), 2)
+                ? normalize_price(convert_price((float) $variant->old_price))
                 : null,
         ];
     }
@@ -284,8 +266,8 @@ class CartService
         ['price' => $price, 'old_price' => $oldPrice] = $this->resolveDisplayPrices($variant);
 
         return [
-            'unit_price_numeric' => round($price, 2),
-            'old_price_numeric' => $oldPrice !== null ? round($oldPrice, 2) : null,
+            'unit_price_numeric' => normalize_price($price),
+            'old_price_numeric' => $oldPrice !== null ? normalize_price($oldPrice) : null,
         ];
     }
 

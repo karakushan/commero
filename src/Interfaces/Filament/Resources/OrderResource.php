@@ -225,7 +225,7 @@ class OrderResource extends AdminResource
                                 ->content(function (?OrderItem $record): string {
                                     $price = $record?->unit_price ?? $record?->product?->variants->first()?->price;
 
-                                    return $price !== null ? number_format((float) $price, 2, '.', ' ') : '—';
+                                    return $price !== null ? format_price_number($price) : '—';
                                 }),
                             Placeholder::make('variant_attributes')
                                 ->label(__('commero::admin.order.variant_attributes'))
@@ -283,8 +283,7 @@ class OrderResource extends AdminResource
                     ->formatStateUsing(fn (bool $state): string => static::getOrderSourceLabel($state))
                     ->color(fn (bool $state): string => $state ? 'warning' : 'gray'),
                 TextColumn::make('total_amount')->label(__('commero::admin.order.total_amount'))
-                    ->numeric(decimalPlaces: 2)
-                    ->suffix(' '.Currency::getBaseSymbol()),
+                    ->state(fn (Order $record): string => format_money_amount($record->total_amount, Currency::getBaseSymbol())),
                 TextColumn::make('updated_at')->label(__('commero::admin.common.updated_at'))->dateTime()->sortable(),
             ])
             ->filters([
@@ -321,7 +320,9 @@ class OrderResource extends AdminResource
                 ->label(__('commero::admin.order.user'))
                 ->default('—')
                 ->url(fn (Order $record): ?string => $record->user ? UserResource::getUrl('edit', ['record' => $record->user]) : null),
-            TextEntry::make('total_amount')->label(__('commero::admin.order.total_amount'))->numeric(decimalPlaces: 2),
+            TextEntry::make('total_amount')
+                ->label(__('commero::admin.order.total_amount'))
+                ->state(fn (Order $record): string => format_money_amount($record->total_amount, Currency::getBaseSymbol())),
             TextEntry::make('payment_method_name')->label(__('commero::admin.order.payment_method_name')),
             TextEntry::make('payment_method_code')->label(__('commero::admin.order.payment_method_code')),
             TextEntry::make('shipping_method_name')->label(__('commero::admin.order.shipping_method_name')),
@@ -361,7 +362,7 @@ class OrderResource extends AdminResource
                         ->state(function (OrderItem $record): string {
                             $price = $record->unit_price ?? $record->product?->variants->first()?->price;
 
-                            return $price !== null ? number_format((float) $price, 2, '.', ' ') : '—';
+                            return $price !== null ? format_price_number($price) : '—';
                         }),
                     TextEntry::make('product_id')
                         ->label(__('commero::admin.order.product'))
