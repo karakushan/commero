@@ -127,14 +127,6 @@ class SiteSettings extends Page
                         ->columns(2),
                     Section::make(__('commero::admin.site_setting.contacts'))
                         ->schema([
-                            TextInput::make('google_maps_api_key')
-                                ->label(__('commero::admin.site_setting.google_maps_api_key'))
-                                ->password()
-                                ->revealable()
-                                ->autocomplete('off')
-                                ->helperText(__('commero::admin.site_setting.google_maps_api_key_hint'))
-                                ->maxLength(2048)
-                                ->columnSpanFull(),
                             Repeater::make('contacts')
                                 ->label(__('commero::admin.site_setting.contacts'))
                                 ->schema([
@@ -165,8 +157,18 @@ class SiteSettings extends Page
                         ->description(__('commero::admin.site_setting.addresses_hint'))
                         ->visible(fn (): bool => $this->activeLocale === Locales::default())
                         ->schema([
+                            TextInput::make('google_maps_api_key')
+                                ->label(__('commero::admin.site_setting.google_maps_api_key'))
+                                ->password()
+                                ->revealable()
+                                ->autocomplete('off')
+                                ->live()
+                                ->helperText(__('commero::admin.site_setting.google_maps_api_key_hint'))
+                                ->maxLength(2048)
+                                ->columnSpanFull(),
                             Repeater::make('addresses')
                                 ->label(__('commero::admin.site_setting.addresses'))
+                                ->visible(fn (callable $get): bool => filled($get('google_maps_api_key')))
                                 ->schema([
                                     TextInput::make('label')
                                         ->label(__('commero::admin.common.label'))
