@@ -159,6 +159,8 @@ class SiteSettings extends Page
                         ->schema([
                             TextInput::make('google_maps_api_key')
                                 ->label(__('commero::admin.site_setting.google_maps_api_key'))
+                                ->password()
+                                ->revealable()
                                 ->autocomplete('off')
                                 ->live()
                                 ->helperText(__('commero::admin.site_setting.google_maps_api_key_hint'))
@@ -170,7 +172,13 @@ class SiteSettings extends Page
                                 ->schema([
                                     TextInput::make('label')
                                         ->label(__('commero::admin.common.label'))
+                                        ->helperText(__('commero::admin.site_setting.address_label_hint'))
                                         ->maxLength(255),
+                                    Select::make('locale')
+                                        ->label(__('commero::admin.site_setting.address_locale'))
+                                        ->options(AdminLocales::options())
+                                        ->default(Locales::default())
+                                        ->required(),
                                     StoreLocationPicker::make('location')
                                         ->label(__('commero::admin.site_setting.address_location_picker'))
                                         ->columnSpanFull(),
@@ -304,6 +312,7 @@ class SiteSettings extends Page
             'addresses' => collect($record?->getEditableAddresses() ?? [])
                 ->map(fn (array $item): array => [
                     'label' => $item['label'] ?? null,
+                    'locale' => $item['locale'] ?? Locales::default(),
                     'location' => [
                         'address' => $item['address'] ?? null,
                         'coordinates' => $item['coordinates'] ?? null,
@@ -442,6 +451,7 @@ class SiteSettings extends Page
                     'label' => $label,
                     'address' => $address,
                     'coordinates' => $coordinates,
+                    'locale' => Locales::resolve($this->normalizeTextValue($item['locale'] ?? null) ?? Locales::default()),
                 ];
             })
             ->filter()
