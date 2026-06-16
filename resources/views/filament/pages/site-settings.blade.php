@@ -1,4 +1,9 @@
 <x-filament-panels::page>
+    <div
+        data-commero-site-settings-config
+        data-google-maps-api-key="{{ (string) data_get($this, 'data.google_maps_api_key', '') }}"
+    ></div>
+
     {{ $this->form }}
 
     <script>
@@ -19,12 +24,14 @@
                 activeApiKey: null,
             };
 
+            const getConfigNode = () => document.querySelector('[data-commero-site-settings-config]');
             const getApiKeyInput = () => document.querySelector('input[name="data.google_maps_api_key"]');
+            const getStoredApiKey = () => (getConfigNode()?.dataset.googleMapsApiKey || '').trim();
 
             const getApiKey = () => {
                 const input = getApiKeyInput();
 
-                return (input?.value || '').trim();
+                return (input?.value || getStoredApiKey() || '').trim();
             };
 
             const findRelatedField = (searchInput, suffix) => {
@@ -110,6 +117,7 @@
             };
 
             const boot = () => {
+                state.activeApiKey = getApiKey();
                 loadGoogleMaps();
 
                 if (state.observer) {
@@ -138,7 +146,9 @@
 
                 const apiKey = getApiKey();
 
-                if (! apiKey || apiKey === state.activeApiKey || window.google?.maps?.places) {
+                state.activeApiKey = apiKey;
+
+                if (! apiKey || window.google?.maps?.places) {
                     return;
                 }
 

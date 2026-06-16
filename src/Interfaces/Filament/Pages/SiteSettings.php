@@ -159,8 +159,6 @@ class SiteSettings extends Page
                         ->schema([
                             TextInput::make('google_maps_api_key')
                                 ->label(__('commero::admin.site_setting.google_maps_api_key'))
-                                ->password()
-                                ->revealable()
                                 ->autocomplete('off')
                                 ->live()
                                 ->helperText(__('commero::admin.site_setting.google_maps_api_key_hint'))
