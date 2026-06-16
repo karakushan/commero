@@ -1,9 +1,6 @@
-<x-filament-panels::page>
-    {{ $this->form }}
-
-    <script>
-        window.commeroStoreLocationPicker = window.commeroStoreLocationPicker || function (config) {
-            return {
+<script>
+    window.commeroStoreLocationPicker = window.commeroStoreLocationPicker || function (config) {
+        return {
                 state: config.state ?? {},
                 defaultCenter: config.defaultCenter ?? { lat: 50.4501, lng: 30.5234 },
                 apiKeyInputName: config.apiKeyInputName ?? 'data.google_maps_api_key',
@@ -334,5 +331,8 @@
                 },
             }
         }
-    </script>
+</script>
+
+<x-filament-panels::page>
+    {{ $this->form }}
 </x-filament-panels::page>
