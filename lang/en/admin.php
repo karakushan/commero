@@ -321,7 +321,7 @@ return [
         'google_maps_api_key' => 'Google Maps API key',
         'google_maps_api_key_hint' => 'Used for address suggestions in the addresses block and for the map on the contacts page.',
         'contacts' => 'Contacts',
-        'addresses' => 'Map addresses',
+        'addresses' => 'Store addresses',
         'addresses_hint' => 'Shared across all locales. The first filled address can be used on the contacts page.',
         'address_location_search' => 'Geolocation search',
         'address_location_search_placeholder' => 'Start typing an address...',

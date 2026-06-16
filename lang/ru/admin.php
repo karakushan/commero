@@ -321,7 +321,7 @@ return [
         'google_maps_api_key' => 'API ключ Google Maps',
         'google_maps_api_key_hint' => 'Используется для подсказок адреса в блоке адресов и для карты на странице контактов.',
         'contacts' => 'Контакты',
-        'addresses' => 'Адреса для карты',
+        'addresses' => 'Адреса магазина',
         'addresses_hint' => 'Общий блок для всех языков. Первый заполненный адрес можно использовать на странице контактов.',
         'address_location_search' => 'Поиск геолокации',
         'address_location_search_placeholder' => 'Начните вводить адрес...',
