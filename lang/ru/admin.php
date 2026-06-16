@@ -318,6 +318,8 @@ return [
         'favicon_png_path_hint' => 'PNG fallback favicon для браузеров без поддержки SVG.',
         'nova_poshta_api_key' => 'API ключ Новой Почты',
         'nova_poshta_api_key_hint' => 'Используется для поиска городов и отделений на checkout.',
+        'google_maps_api_key' => 'API ключ Google Maps',
+        'google_maps_api_key_hint' => 'Используется для подсказок адреса в блоке адресов и для карты на странице контактов.',
         'contacts' => 'Контакты',
         'addresses' => 'Адреса для карты',
         'addresses_hint' => 'Общий блок для всех языков. Первый заполненный адрес можно использовать на странице контактов.',

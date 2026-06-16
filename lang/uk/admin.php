@@ -318,6 +318,8 @@ return [
         'favicon_png_path_hint' => 'PNG favicon для браузерів без підтримки SVG.',
         'nova_poshta_api_key' => 'API ключ Нової Пошти',
         'nova_poshta_api_key_hint' => 'Ключ використовується для пошуку міст та відділень на checkout.',
+        'google_maps_api_key' => 'API ключ Google Maps',
+        'google_maps_api_key_hint' => 'Використовується для підказок адрес у блоці адрес та для карти на сторінці контактів.',
         'contacts' => 'Контакти',
         'addresses' => 'Адреси для карти',
         'addresses_hint' => 'Спільний блок для всіх мов. Першу заповнену адресу можна використати на сторінці контактів.',

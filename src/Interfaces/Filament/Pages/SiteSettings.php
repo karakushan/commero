@@ -127,6 +127,14 @@ class SiteSettings extends Page
                         ->columns(2),
                     Section::make(__('commero::admin.site_setting.contacts'))
                         ->schema([
+                            TextInput::make('google_maps_api_key')
+                                ->label(__('commero::admin.site_setting.google_maps_api_key'))
+                                ->password()
+                                ->revealable()
+                                ->autocomplete('off')
+                                ->helperText(__('commero::admin.site_setting.google_maps_api_key_hint'))
+                                ->maxLength(2048)
+                                ->columnSpanFull(),
                             Repeater::make('contacts')
                                 ->label(__('commero::admin.site_setting.contacts'))
                                 ->schema([
@@ -312,6 +320,7 @@ class SiteSettings extends Page
             'favicon_svg_path' => $record?->getRawOriginal('favicon_svg_path'),
             'favicon_png_path' => $record?->getRawOriginal('favicon_png_path'),
             'nova_poshta_api_key' => $record?->getAttribute('nova_poshta_api_key'),
+            'google_maps_api_key' => $record?->getAttribute('google_maps_api_key'),
             'contacts' => $record?->getEditableContactsForLocale($activeLocale) ?? [],
             'addresses' => $record?->getEditableAddresses() ?? [],
             'social_links' => $record?->getEditableSocialLinksForLocale($activeLocale) ?? [],
@@ -327,6 +336,7 @@ class SiteSettings extends Page
             'favicon_svg_path' => $this->normalizeTextValue($data['favicon_svg_path'] ?? null),
             'favicon_png_path' => $this->normalizeTextValue($data['favicon_png_path'] ?? null),
             'nova_poshta_api_key' => $data['nova_poshta_api_key'] ?? null,
+            'google_maps_api_key' => $data['google_maps_api_key'] ?? null,
             'multi_currency_enabled' => (bool) ($data['multi_currency_enabled'] ?? false),
             'country_source' => $data['multi_currency_enabled'] ? ($data['country_source'] ?? null) : null,
             'show_price_decimals' => (bool) ($data['show_price_decimals'] ?? false),

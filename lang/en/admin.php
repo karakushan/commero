@@ -318,6 +318,8 @@ return [
         'favicon_png_path_hint' => 'PNG fallback favicon for browsers without SVG support.',
         'nova_poshta_api_key' => 'Nova Poshta API key',
         'nova_poshta_api_key_hint' => 'Used to search cities and branches on checkout.',
+        'google_maps_api_key' => 'Google Maps API key',
+        'google_maps_api_key_hint' => 'Used for address suggestions in the addresses block and for the map on the contacts page.',
         'contacts' => 'Contacts',
         'addresses' => 'Map addresses',
         'addresses_hint' => 'Shared across all locales. The first filled address can be used on the contacts page.',

@@ -20,6 +20,7 @@ class SiteSetting extends Model
         'favicon_svg_path',
         'favicon_png_path',
         'nova_poshta_api_key',
+        'google_maps_api_key',
         'contacts',
         'contacts_translations',
         'addresses',
@@ -32,6 +33,7 @@ class SiteSetting extends Model
 
     protected $casts = [
         'nova_poshta_api_key' => 'encrypted',
+        'google_maps_api_key' => 'encrypted',
         'contacts' => 'array',
         'contacts_translations' => 'array',
         'addresses' => 'array',

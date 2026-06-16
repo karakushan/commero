@@ -16,6 +16,15 @@
             const state = {
                 googleLoading: false,
                 observer: null,
+                activeApiKey: null,
+            };
+
+            const getApiKeyInput = () => document.querySelector('input[name="data.google_maps_api_key"]');
+
+            const getApiKey = () => {
+                const input = getApiKeyInput();
+
+                return (input?.value || '').trim();
             };
 
             const findRelatedField = (searchInput, suffix) => {
@@ -70,7 +79,7 @@
             };
 
             const loadGoogleMaps = () => {
-                const apiKey = @js((string) config('services.google.maps_api_key', ''));
+                const apiKey = getApiKey();
 
                 if (! apiKey || window.google?.maps?.places) {
                     initLocationPickers();
@@ -82,6 +91,7 @@
                 }
 
                 state.googleLoading = true;
+                state.activeApiKey = apiKey;
 
                 const existingScript = document.querySelector('script[data-commero-google-maps]');
 
@@ -119,6 +129,21 @@
             document.addEventListener('DOMContentLoaded', boot, { once: true });
             document.addEventListener('livewire:navigated', boot);
             document.addEventListener('livewire:initialized', boot);
+            document.addEventListener('input', (event) => {
+                const target = event.target;
+
+                if (!(target instanceof HTMLInputElement) || target.name !== 'data.google_maps_api_key') {
+                    return;
+                }
+
+                const apiKey = getApiKey();
+
+                if (! apiKey || apiKey === state.activeApiKey || window.google?.maps?.places) {
+                    return;
+                }
+
+                loadGoogleMaps();
+            });
             boot();
         })();
     </script>
