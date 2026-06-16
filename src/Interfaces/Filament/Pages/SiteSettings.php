@@ -12,6 +12,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -152,6 +153,44 @@ class SiteSettings extends Page
                                 ->columns(4)
                                 ->columnSpanFull(),
                         ]),
+                    Section::make(__('commero::admin.site_setting.addresses'))
+                        ->description(__('commero::admin.site_setting.addresses_hint'))
+                        ->visible(fn (): bool => $this->activeLocale === Locales::default())
+                        ->schema([
+                            Repeater::make('addresses')
+                                ->label(__('commero::admin.site_setting.addresses'))
+                                ->schema([
+                                    TextInput::make('label')
+                                        ->label(__('commero::admin.common.label'))
+                                        ->maxLength(255),
+                                    TextInput::make('location_search')
+                                        ->label(__('commero::admin.site_setting.address_location_search'))
+                                        ->placeholder(__('commero::admin.site_setting.address_location_search_placeholder'))
+                                        ->helperText(__('commero::admin.site_setting.address_location_search_hint'))
+                                        ->dehydrated(false)
+                                        ->extraAttributes([
+                                            'data-location-address-search' => 'true',
+                                        ])
+                                        ->columnSpanFull(),
+                                    Textarea::make('address')
+                                        ->label(__('commero::admin.site_setting.address_value'))
+                                        ->rows(3)
+                                        ->extraAttributes([
+                                            'data-location-address' => 'true',
+                                        ])
+                                        ->columnSpanFull(),
+                                    TextInput::make('coordinates')
+                                        ->label(__('commero::admin.site_setting.address_coordinates'))
+                                        ->placeholder('50.450100,30.523400')
+                                        ->helperText(__('commero::admin.site_setting.address_coordinates_hint'))
+                                        ->extraAttributes([
+                                            'data-location-coordinates' => 'true',
+                                        ])
+                                        ->columnSpanFull(),
+                                ])
+                                ->columns(2)
+                                ->columnSpanFull(),
+                        ]),
                     Section::make(__('commero::admin.site_setting.social_links'))
                         ->schema([
                             Repeater::make('social_links')
@@ -274,6 +313,7 @@ class SiteSettings extends Page
             'favicon_png_path' => $record?->getRawOriginal('favicon_png_path'),
             'nova_poshta_api_key' => $record?->getAttribute('nova_poshta_api_key'),
             'contacts' => $record?->getEditableContactsForLocale($activeLocale) ?? [],
+            'addresses' => $record?->getEditableAddresses() ?? [],
             'social_links' => $record?->getEditableSocialLinksForLocale($activeLocale) ?? [],
             'multi_currency_enabled' => (bool) $record?->getRawOriginal('multi_currency_enabled'),
             'country_source' => $record?->country_source,
@@ -297,6 +337,7 @@ class SiteSettings extends Page
             $preparedData['logo_path'] = $this->normalizeTextValue($data['logo_path'] ?? null);
             $preparedData['footer_logo_path'] = $this->normalizeTextValue($data['footer_logo_path'] ?? null);
             $preparedData['contacts'] = $this->normalizeLocalizedItems($data['contacts'] ?? [], ['label', 'value']);
+            $preparedData['addresses'] = $this->normalizeAddresses($data['addresses'] ?? []);
             $preparedData['social_links'] = $this->normalizeLocalizedItems($data['social_links'] ?? [], ['label', 'url']);
 
             return $preparedData;
@@ -376,6 +417,33 @@ class SiteSettings extends Page
                 }
 
                 return $normalized;
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    protected function normalizeAddresses(array $items): array
+    {
+        return collect($items)
+            ->map(function (mixed $item): ?array {
+                if (! is_array($item)) {
+                    return null;
+                }
+
+                $label = $this->normalizeTextValue($item['label'] ?? null);
+                $address = $this->normalizeTextValue($item['address'] ?? null);
+                $coordinates = $this->normalizeTextValue($item['coordinates'] ?? null);
+
+                if (! filled($label) && ! filled($address) && ! filled($coordinates)) {
+                    return null;
+                }
+
+                return [
+                    'label' => $label,
+                    'address' => $address,
+                    'coordinates' => $coordinates,
+                ];
             })
             ->filter()
             ->values()

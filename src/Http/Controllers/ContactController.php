@@ -22,6 +22,7 @@ class ContactController extends Controller
         $pageTranslation = $page?->translation($locale);
         $siteSetting = SiteSetting::query()->first();
         $contacts = collect($siteSetting?->contacts ?? []);
+        $primaryAddress = $siteSetting?->getPrimaryAddress();
 
         $findContact = function (array $identifiers, array $labels = []) use ($contacts): ?array {
             $normalizedIdentifiers = collect($identifiers)
@@ -46,10 +47,11 @@ class ContactController extends Controller
         $emailContact = $findContact(['email', 'mail'], ['email', 'e-mail', 'пошта']);
 
         $phone = $phoneContact['value'] ?? '+38 098 607 43 03';
-        $address = $addressContact['value'] ?? __('Kyiv, 19A Lesia Kurbasa Avenue');
+        $address = $primaryAddress['address'] ?? $addressContact['value'] ?? __('Kyiv, 19A Lesia Kurbasa Avenue');
+        $coordinates = $primaryAddress['coordinates'] ?? null;
         $email = $emailContact['value'] ?? 'shophats.info@gmail.com';
         $workingHours = $workingHoursContact['value'] ?? __('Mon - Fri 10:00 - 17:00, Sat 10:00 - 13:00, Sun - day off');
-        $mapQuery = Str::of($address)
+        $mapQuery = Str::of($coordinates ?: $address)
             ->replace(["\r\n", "\n", "\r"], ' ')
             ->squish()
             ->value();
@@ -79,6 +81,7 @@ class ContactController extends Controller
             'phone' => $phone,
             'phoneHref' => preg_replace('/[^0-9+]/', '', $phone) ?: null,
             'address' => $address,
+            'primaryAddress' => $primaryAddress,
             'email' => $email,
             'workingHours' => $workingHours,
             'workingHoursHtml' => nl2br(e(str_replace(', ', PHP_EOL, $workingHours))),

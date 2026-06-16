@@ -22,6 +22,7 @@ class SiteSetting extends Model
         'nova_poshta_api_key',
         'contacts',
         'contacts_translations',
+        'addresses',
         'social_links',
         'social_links_translations',
         'multi_currency_enabled',
@@ -33,6 +34,7 @@ class SiteSetting extends Model
         'nova_poshta_api_key' => 'encrypted',
         'contacts' => 'array',
         'contacts_translations' => 'array',
+        'addresses' => 'array',
         'logo_path_translations' => 'array',
         'footer_logo_path_translations' => 'array',
         'social_links' => 'array',
@@ -60,6 +62,11 @@ class SiteSetting extends Model
     public function getSocialLinksAttribute(mixed $value): array
     {
         return $this->getSocialLinksForLocale(app()->getLocale());
+    }
+
+    public function getAddressesAttribute(mixed $value): array
+    {
+        return $this->getAddresses();
     }
 
     public function getFooterLogoPathAttribute(mixed $value): ?string
@@ -169,6 +176,22 @@ class SiteSetting extends Model
         );
     }
 
+    public function getAddresses(): array
+    {
+        return $this->normalizeAddresses($this->getRawJsonAttribute('addresses'));
+    }
+
+    public function getEditableAddresses(): array
+    {
+        return $this->getAddresses();
+    }
+
+    public function getPrimaryAddress(): ?array
+    {
+        return collect($this->getAddresses())
+            ->first(fn (array $address): bool => filled($address['address'] ?? null) || filled($address['coordinates'] ?? null));
+    }
+
     protected function getLocalizedItemsForLocale(
         ?string $locale,
         array $defaultItems,
@@ -276,6 +299,33 @@ class SiteSetting extends Model
     protected function normalizeSocialLinks(array $items): array
     {
         return $this->normalizeLocalizedItems($items, ['label', 'url']);
+    }
+
+    protected function normalizeAddresses(array $items): array
+    {
+        return collect($items)
+            ->map(function (mixed $item): ?array {
+                if (! is_array($item)) {
+                    return null;
+                }
+
+                $label = $this->normalizeTextValue($item['label'] ?? null);
+                $address = $this->normalizeTextValue($item['address'] ?? null);
+                $coordinates = $this->normalizeTextValue($item['coordinates'] ?? null);
+
+                if ($label === null && $address === null && $coordinates === null) {
+                    return null;
+                }
+
+                return [
+                    'label' => $label,
+                    'address' => $address,
+                    'coordinates' => $coordinates,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
     }
 
     protected function normalizeLocalizedItems(array $items, array $translatableFields): array
