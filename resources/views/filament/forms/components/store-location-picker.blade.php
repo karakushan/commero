@@ -11,6 +11,7 @@
         x-data="window.commeroStoreLocationPicker({
             state: $wire.{{ $entangledState }},
             defaultCenter: { lat: 50.4501, lng: 30.5234 },
+            apiKeyInputId: 'form.google_maps_api_key',
             apiKeyInputName: 'data.google_maps_api_key',
             searchPlaceholder: @js(__('commero::admin.site_setting.address_location_search_placeholder')),
             missingKeyMessage: @js(__('commero::admin.site_setting.address_location_missing_key')),

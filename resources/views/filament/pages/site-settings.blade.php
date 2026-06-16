@@ -9,6 +9,7 @@
                 return {
                 state: config.state ?? {},
                 defaultCenter: config.defaultCenter ?? { lat: 50.4501, lng: 30.5234 },
+                apiKeyInputId: config.apiKeyInputId ?? 'form.google_maps_api_key',
                 apiKeyInputName: config.apiKeyInputName ?? 'data.google_maps_api_key',
                 searchPlaceholder: config.searchPlaceholder ?? '',
                 searchQuery: '',
@@ -60,7 +61,12 @@
                 },
 
                 readApiKey() {
-                    return (document.querySelector(`input[name="${this.apiKeyInputName}"]`)?.value || '').trim()
+                    const input = (
+                        (this.apiKeyInputId ? document.getElementById(this.apiKeyInputId) : null)
+                        ?? (this.apiKeyInputName ? document.querySelector(`input[name="${this.apiKeyInputName}"]`) : null)
+                    )
+
+                    return (input?.value || '').trim()
                 },
 
                 async loadMapsLibrary() {
