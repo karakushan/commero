@@ -323,6 +323,8 @@ return [
         'contacts' => 'Contacts',
         'addresses' => 'Store addresses',
         'addresses_hint' => 'Shared across all locales. The first filled address can be used on the contacts page.',
+        'address_label_hint' => 'This label will be shown on the contacts page instead of the address text.',
+        'address_locale' => 'Address display language',
         'address_location_search' => 'Geolocation search',
         'address_location_search_placeholder' => 'Start typing an address...',
         'address_location_search_hint' => 'Choose a Google suggestion to fill the address and coordinates automatically.',

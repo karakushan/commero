@@ -188,9 +188,30 @@ class SiteSetting extends Model
         return $this->getAddresses();
     }
 
-    public function getPrimaryAddress(): ?array
+    public function getAddressesForLocale(?string $locale = null, bool $useFallback = true): array
     {
-        return collect($this->getAddresses())
+        $resolvedLocale = Locales::resolve($locale);
+        $addresses = collect($this->getAddresses());
+
+        $localized = $addresses
+            ->filter(function (array $address) use ($resolvedLocale): bool {
+                $addressLocale = $this->normalizeTextValue($address['locale'] ?? null, false);
+
+                return $addressLocale === $resolvedLocale;
+            })
+            ->values()
+            ->all();
+
+        if ($localized !== []) {
+            return $localized;
+        }
+
+        return $useFallback ? $addresses->values()->all() : [];
+    }
+
+    public function getPrimaryAddress(?string $locale = null, bool $useFallback = true): ?array
+    {
+        return collect($this->getAddressesForLocale($locale, $useFallback))
             ->first(fn (array $address): bool => filled($address['address'] ?? null) || filled($address['coordinates'] ?? null));
     }
 
@@ -314,6 +335,7 @@ class SiteSetting extends Model
                 $label = $this->normalizeTextValue($item['label'] ?? null);
                 $address = $this->normalizeTextValue($item['address'] ?? null);
                 $coordinates = $this->normalizeTextValue($item['coordinates'] ?? null);
+                $locale = Locales::resolve($this->normalizeTextValue($item['locale'] ?? null, false));
 
                 if ($label === null && $address === null && $coordinates === null) {
                     return null;
@@ -323,6 +345,7 @@ class SiteSetting extends Model
                     'label' => $label,
                     'address' => $address,
                     'coordinates' => $coordinates,
+                    'locale' => $locale,
                 ];
             })
             ->filter()
