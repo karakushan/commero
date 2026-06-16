@@ -137,12 +137,14 @@
                         map: this.map,
                         position: center,
                         draggable: true,
+                        visible: true,
                     })
 
                     this.geocoder = new google.maps.Geocoder()
                     this.autocompleteService = new google.maps.places.AutocompleteService()
                     this.placesService = new google.maps.places.PlacesService(document.createElement('div'))
                     this.mapsReady = true
+                    this.refreshMap()
 
                     this.marker.addListener('dragend', (event) => {
                         const location = {
@@ -170,7 +172,25 @@
                         this.geocodeAddress(this.state.address)
                     } else if (this.state.address) {
                         this.setMarkerLocation(center)
+                    } else {
+                        this.setMarkerLocation(center)
                     }
+                },
+
+                refreshMap() {
+                    if (!this.map || !window.google?.maps) {
+                        return
+                    }
+
+                    window.setTimeout(() => {
+                        google.maps.event.trigger(this.map, 'resize')
+
+                        const location = this.parseCoordinates(this.state.coordinates) ?? this.defaultCenter
+
+                        this.map.setCenter(location)
+                        this.marker?.setPosition(location)
+                        this.marker?.setVisible(true)
+                    }, 50)
                 },
 
                 fetchPredictions(query) {
@@ -283,6 +303,7 @@
                         return
                     }
 
+                    this.marker.setVisible(true)
                     this.marker.setPosition(location)
                     this.map.setCenter(location)
                     this.map.setZoom(16)
