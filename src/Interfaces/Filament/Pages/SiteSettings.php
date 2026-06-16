@@ -3,6 +3,7 @@
 namespace Commero\Interfaces\Filament\Pages;
 
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+use Commero\Forms\Components\StoreLocationPicker;
 use Commero\Models\SiteSetting;
 use Commero\Rules\FlexibleUrl;
 use Commero\Support\Filament\AdminLocales;
@@ -12,7 +13,6 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -171,29 +171,8 @@ class SiteSettings extends Page
                                     TextInput::make('label')
                                         ->label(__('commero::admin.common.label'))
                                         ->maxLength(255),
-                                    TextInput::make('location_search')
-                                        ->label(__('commero::admin.site_setting.address_location_search'))
-                                        ->placeholder(__('commero::admin.site_setting.address_location_search_placeholder'))
-                                        ->helperText(__('commero::admin.site_setting.address_location_search_hint'))
-                                        ->dehydrated(false)
-                                        ->extraAttributes([
-                                            'data-location-address-search' => 'true',
-                                        ])
-                                        ->columnSpanFull(),
-                                    Textarea::make('address')
-                                        ->label(__('commero::admin.site_setting.address_value'))
-                                        ->rows(3)
-                                        ->extraAttributes([
-                                            'data-location-address' => 'true',
-                                        ])
-                                        ->columnSpanFull(),
-                                    TextInput::make('coordinates')
-                                        ->label(__('commero::admin.site_setting.address_coordinates'))
-                                        ->placeholder('50.450100,30.523400')
-                                        ->helperText(__('commero::admin.site_setting.address_coordinates_hint'))
-                                        ->extraAttributes([
-                                            'data-location-coordinates' => 'true',
-                                        ])
+                                    StoreLocationPicker::make('location')
+                                        ->label(__('commero::admin.site_setting.address_location_picker'))
                                         ->columnSpanFull(),
                                 ])
                                 ->columns(2)
@@ -322,7 +301,16 @@ class SiteSettings extends Page
             'nova_poshta_api_key' => $record?->getAttribute('nova_poshta_api_key'),
             'google_maps_api_key' => $record?->getAttribute('google_maps_api_key'),
             'contacts' => $record?->getEditableContactsForLocale($activeLocale) ?? [],
-            'addresses' => $record?->getEditableAddresses() ?? [],
+            'addresses' => collect($record?->getEditableAddresses() ?? [])
+                ->map(fn (array $item): array => [
+                    'label' => $item['label'] ?? null,
+                    'location' => [
+                        'address' => $item['address'] ?? null,
+                        'coordinates' => $item['coordinates'] ?? null,
+                    ],
+                ])
+                ->values()
+                ->all(),
             'social_links' => $record?->getEditableSocialLinksForLocale($activeLocale) ?? [],
             'multi_currency_enabled' => (bool) $record?->getRawOriginal('multi_currency_enabled'),
             'country_source' => $record?->country_source,
@@ -442,8 +430,9 @@ class SiteSettings extends Page
                 }
 
                 $label = $this->normalizeTextValue($item['label'] ?? null);
-                $address = $this->normalizeTextValue($item['address'] ?? null);
-                $coordinates = $this->normalizeTextValue($item['coordinates'] ?? null);
+                $location = is_array($item['location'] ?? null) ? $item['location'] : [];
+                $address = $this->normalizeTextValue($location['address'] ?? $item['address'] ?? null);
+                $coordinates = $this->normalizeTextValue($location['coordinates'] ?? $item['coordinates'] ?? null);
 
                 if (! filled($label) && ! filled($address) && ! filled($coordinates)) {
                     return null;
