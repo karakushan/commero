@@ -140,8 +140,9 @@ class ProductResource extends AdminResource
                                     'in_stock' => __('commero::admin.product.stock_status.in_stock'),
                                     'out_of_stock' => __('commero::admin.product.stock_status.out_of_stock'),
                                     'preorder' => __('commero::admin.product.stock_status.preorder'),
+                                    'always_in_stock' => __('commero::admin.product.stock_status.always_in_stock'),
                                 ])
-                                ->default('in_stock')
+                                ->default('always_in_stock')
                                 ->required()
                                 ->live()
                                 ->columnSpan(1),
@@ -351,9 +352,9 @@ class ProductResource extends AdminResource
                                                 ->integer()
                                                 ->minValue(1)
                                                 ->default(1)
-                                                ->required(fn (callable $get): bool => $get('status') === 'in_stock')
-                                                ->visible(fn (callable $get): bool => $get('status') === 'in_stock')
-                                                ->dehydrated(fn (callable $get): bool => $get('status') === 'in_stock'),
+                                                ->required(fn (callable $get): bool => $get('../../stock_status') !== 'always_in_stock' && $get('status') === 'in_stock')
+                                                ->visible(fn (callable $get): bool => $get('../../stock_status') !== 'always_in_stock' && $get('status') === 'in_stock')
+                                                ->dehydrated(fn (callable $get): bool => $get('../../stock_status') !== 'always_in_stock' && $get('status') === 'in_stock'),
                                             Select::make('attribute_option_ids')
                                                 ->label(__('commero::admin.product.variants.attributes'))
                                                 ->multiple()
@@ -514,12 +515,14 @@ class ProductResource extends AdminResource
                         'in_stock' => 'success',
                         'out_of_stock' => 'danger',
                         'preorder' => 'warning',
+                        'always_in_stock' => 'success',
                         default => 'gray',
                     })
                     ->icon(fn (string $state): string => match ($state) {
                         'in_stock' => 'heroicon-o-check-circle',
                         'out_of_stock' => 'heroicon-o-x-circle',
                         'preorder' => 'heroicon-o-clock',
+                        'always_in_stock' => 'heroicon-o-inbox-stack',
                         default => 'heroicon-o-question-mark-circle',
                     }),
                 TextColumn::make('categories')
@@ -537,6 +540,7 @@ class ProductResource extends AdminResource
                         'in_stock' => __('commero::admin.product.stock_status.in_stock'),
                         'out_of_stock' => __('commero::admin.product.stock_status.out_of_stock'),
                         'preorder' => __('commero::admin.product.stock_status.preorder'),
+                        'always_in_stock' => __('commero::admin.product.stock_status.always_in_stock'),
                     ]),
                 SelectFilter::make('categories')
                     ->label(__('commero::admin.common.categories'))

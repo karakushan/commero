@@ -207,7 +207,9 @@ class EditProduct extends EditRecord
             'multi_currency_price' => $data['multi_currency_price'] ?? null,
             'multi_currency_old_price' => $data['multi_currency_old_price'] ?? null,
             'stock_qty' => $data['stock_qty'] ?? $variant->stock_qty ?? 0,
-            'status' => $data['stock_status'] ?? 'in_stock',
+            'status' => ($data['stock_status'] ?? 'in_stock') === 'always_in_stock'
+                ? 'in_stock'
+                : ($data['stock_status'] ?? 'in_stock'),
             'option_snapshot' => $variant->option_snapshot ?? [],
         ]);
 

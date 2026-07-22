@@ -119,6 +119,10 @@ class Product extends Model
 
     public function hasInStockVariants(): bool
     {
+        if (($this->stock_status ?? 'in_stock') === 'always_in_stock') {
+            return true;
+        }
+
         if ($this->type !== 'variant') {
             return ($this->stock_status ?? 'in_stock') === 'in_stock';
         }
@@ -132,6 +136,10 @@ class Product extends Model
 
     public function effectiveStockStatus(): string
     {
+        if (($this->stock_status ?? 'in_stock') === 'always_in_stock') {
+            return 'in_stock';
+        }
+
         if ($this->type !== 'variant') {
             return $this->stock_status ?? 'in_stock';
         }

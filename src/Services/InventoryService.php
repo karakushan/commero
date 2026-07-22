@@ -41,8 +41,9 @@ class InventoryService
             if (! $variant instanceof ProductVariant
                 || ! $variant->product instanceof Product
                 || $variant->product->status !== 'published'
-                || ! in_array($variant->status, ['in_stock', 'active'], true)
-                || $variant->stock_qty < $quantity) {
+                || (($variant->product->stock_status ?? null) !== 'always_in_stock'
+                    && (! in_array($variant->status, ['in_stock', 'active'], true)
+                        || $variant->stock_qty < $quantity))) {
                 throw ValidationException::withMessages([
                     $errorKey => __('This product variant is currently unavailable.'),
                 ]);
@@ -52,6 +53,11 @@ class InventoryService
         foreach ($quantities as $variantId => $quantity) {
             /** @var ProductVariant $variant */
             $variant = $variants->get($variantId);
+
+            if (($variant->product->stock_status ?? null) === 'always_in_stock') {
+                continue;
+            }
+
             $remainingQuantity = $variant->stock_qty - $quantity;
 
             $variant->forceFill([
@@ -92,6 +98,10 @@ class InventoryService
                 $variant = $variants->get($variantId);
 
                 if (! $variant instanceof ProductVariant) {
+                    continue;
+                }
+
+                if (($variant->product->stock_status ?? null) === 'always_in_stock') {
                     continue;
                 }
 

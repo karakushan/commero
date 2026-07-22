@@ -48,7 +48,7 @@ class CartService
             if (
                 $product->status !== 'published'
                 || $product->effectiveStockStatus() !== 'in_stock'
-                || $variant->status !== 'in_stock'
+                || (($product->stock_status ?? null) !== 'always_in_stock' && $variant->status !== 'in_stock')
             ) {
                 continue;
             }
@@ -130,7 +130,9 @@ class CartService
             ]);
         }
 
-        if ($variant->status !== 'in_stock') {
+        $alwaysInStock = ($product->stock_status ?? null) === 'always_in_stock';
+
+        if (! $alwaysInStock && $variant->status !== 'in_stock') {
             throw ValidationException::withMessages([
                 'variant_id' => __('This product variant is currently unavailable.'),
             ]);
@@ -141,7 +143,7 @@ class CartService
         $lineId = $this->lineId($product->id, $variant->id);
         $existingQuantity = (int) ($items[$lineId]['quantity'] ?? 0);
 
-        if ($existingQuantity + $quantity > $variant->stock_qty) {
+        if (! $alwaysInStock && $existingQuantity + $quantity > $variant->stock_qty) {
             throw ValidationException::withMessages([
                 'quantity' => __('This product variant is currently unavailable.'),
             ]);
@@ -193,10 +195,12 @@ class CartService
             unset($items[$lineId]);
         } else {
             $variant = ProductVariant::query()->find($items[$lineId]['variant_id'] ?? null);
+            $product = $variant?->product;
 
             if (! $variant instanceof ProductVariant
-                || $variant->status !== 'in_stock'
-                || $qty > $variant->stock_qty) {
+                || ! $product instanceof Product
+                || (($product->stock_status ?? null) !== 'always_in_stock'
+                    && ($variant->status !== 'in_stock' || $qty > $variant->stock_qty))) {
                 throw ValidationException::withMessages([
                     'quantity' => __('This product variant is currently unavailable.'),
                 ]);

@@ -88,11 +88,13 @@ class OrderPlacementService
             ]);
         }
 
-        $variant = $product->variants()
-            ->whereIn('status', ['in_stock', 'active'])
-            ->orderBy('sort')
-            ->orderBy('id')
-            ->first();
+        $variantQuery = $product->variants()->orderBy('sort')->orderBy('id');
+
+        if (($product->stock_status ?? null) !== 'always_in_stock') {
+            $variantQuery->whereIn('status', ['in_stock', 'active']);
+        }
+
+        $variant = $variantQuery->first();
 
         if (! $variant instanceof ProductVariant) {
             throw ValidationException::withMessages([

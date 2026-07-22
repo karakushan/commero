@@ -139,7 +139,9 @@ class UpsertProductService
             'multi_currency_price' => array_key_exists('multi_currency_price', $payload) ? $payload['multi_currency_price'] : $variant->multi_currency_price,
             'multi_currency_old_price' => array_key_exists('multi_currency_old_price', $payload) ? $payload['multi_currency_old_price'] : $variant->multi_currency_old_price,
             'stock_qty' => $variant->stock_qty ?? 0,
-            'status' => $payload['stock_status'] ?? 'in_stock',
+            'status' => ($payload['stock_status'] ?? 'in_stock') === 'always_in_stock'
+                ? 'in_stock'
+                : ($payload['stock_status'] ?? 'in_stock'),
             'option_snapshot' => $variant->option_snapshot ?? [],
         ]);
 

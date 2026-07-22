@@ -433,6 +433,7 @@ return [
             'in_stock' => 'In stock',
             'out_of_stock' => 'Out of stock',
             'preorder' => 'Pre-order',
+            'always_in_stock' => 'Always in stock',
         ],
         'actions' => [
             'view_on_site' => 'Open product',

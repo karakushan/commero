@@ -433,6 +433,7 @@ return [
             'in_stock' => 'В наличии',
             'out_of_stock' => 'Нет в наличии',
             'preorder' => 'Под заказ',
+            'always_in_stock' => 'Всегда в наличии',
         ],
         'actions' => [
             'view_on_site' => 'Открыть товар',

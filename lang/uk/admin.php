@@ -433,6 +433,7 @@ return [
             'in_stock' => 'В наявності',
             'out_of_stock' => 'Немає в наявності',
             'preorder' => 'Під замовлення',
+            'always_in_stock' => 'Завжди в наявності',
         ],
         'actions' => [
             'view_on_site' => 'Відкрити товар',
