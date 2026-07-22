@@ -9,11 +9,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::table('products')->update(['stock_status' => null]);
-
         Schema::table('products', function (Blueprint $table): void {
             $table->string('stock_status')->nullable()->default(null)->change();
         });
+
+        DB::table('products')->update(['stock_status' => null]);
     }
 
     public function down(): void
@@ -21,7 +21,7 @@ return new class extends Migration
         DB::table('products')->whereNull('stock_status')->update(['stock_status' => 'always_in_stock']);
 
         Schema::table('products', function (Blueprint $table): void {
-            $table->string('stock_status')->default('always_in_stock')->change();
+            $table->string('stock_status')->nullable(false)->default('always_in_stock')->change();
         });
     }
 };
