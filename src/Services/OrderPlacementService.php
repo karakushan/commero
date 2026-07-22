@@ -90,7 +90,7 @@ class OrderPlacementService
 
         $variantQuery = $product->variants()->orderBy('sort')->orderBy('id');
 
-        if (($product->stock_status ?? null) !== 'always_in_stock') {
+        if (! $product->isAlwaysInStock()) {
             $variantQuery->whereIn('status', ['in_stock', 'active']);
         }
 

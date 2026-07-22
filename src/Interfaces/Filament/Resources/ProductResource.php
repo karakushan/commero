@@ -143,6 +143,10 @@ class ProductResource extends AdminResource
                                     'always_in_stock' => __('commero::admin.product.stock_status.always_in_stock'),
                                 ])
                                 ->default('always_in_stock')
+                                ->afterStateHydrated(function (Select $component, ?string $state): void {
+                                    $component->state($state ?? 'always_in_stock');
+                                })
+                                ->dehydrateStateUsing(fn (?string $state): ?string => $state === 'always_in_stock' ? null : $state)
                                 ->required()
                                 ->live()
                                 ->columnSpan(1),
@@ -510,15 +514,15 @@ class ProductResource extends AdminResource
                 TextColumn::make('stock_status')->label(__('commero::admin.common.availability'))
                     ->badge()
                     ->sortable()
-                    ->formatStateUsing(fn (string $state): string => __('commero::admin.product.stock_status.'.$state))
-                    ->color(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn (?string $state): string => __('commero::admin.product.stock_status.'.($state ?? 'always_in_stock')))
+                    ->color(fn (?string $state): string => match ($state ?? 'always_in_stock') {
                         'in_stock' => 'success',
                         'out_of_stock' => 'danger',
                         'preorder' => 'warning',
                         'always_in_stock' => 'success',
                         default => 'gray',
                     })
-                    ->icon(fn (string $state): string => match ($state) {
+                    ->icon(fn (?string $state): string => match ($state ?? 'always_in_stock') {
                         'in_stock' => 'heroicon-o-check-circle',
                         'out_of_stock' => 'heroicon-o-x-circle',
                         'preorder' => 'heroicon-o-clock',

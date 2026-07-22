@@ -41,7 +41,7 @@ class InventoryService
             if (! $variant instanceof ProductVariant
                 || ! $variant->product instanceof Product
                 || $variant->product->status !== 'published'
-                || (($variant->product->stock_status ?? null) !== 'always_in_stock'
+                || (! $variant->product->isAlwaysInStock()
                     && (! in_array($variant->status, ['in_stock', 'active'], true)
                         || $variant->stock_qty < $quantity))) {
                 throw ValidationException::withMessages([
@@ -54,7 +54,7 @@ class InventoryService
             /** @var ProductVariant $variant */
             $variant = $variants->get($variantId);
 
-            if (($variant->product->stock_status ?? null) === 'always_in_stock') {
+            if ($variant->product->isAlwaysInStock()) {
                 continue;
             }
 
@@ -101,7 +101,7 @@ class InventoryService
                     continue;
                 }
 
-                if (($variant->product->stock_status ?? null) === 'always_in_stock') {
+                if ($variant->product->isAlwaysInStock()) {
                     continue;
                 }
 

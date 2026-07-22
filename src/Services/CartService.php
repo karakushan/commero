@@ -48,7 +48,7 @@ class CartService
             if (
                 $product->status !== 'published'
                 || $product->effectiveStockStatus() !== 'in_stock'
-                || (($product->stock_status ?? null) !== 'always_in_stock' && $variant->status !== 'in_stock')
+                || (! $product->isAlwaysInStock() && $variant->status !== 'in_stock')
             ) {
                 continue;
             }
@@ -130,7 +130,7 @@ class CartService
             ]);
         }
 
-        $alwaysInStock = ($product->stock_status ?? null) === 'always_in_stock';
+        $alwaysInStock = $product->isAlwaysInStock();
 
         if (! $alwaysInStock && $variant->status !== 'in_stock') {
             throw ValidationException::withMessages([
@@ -199,7 +199,7 @@ class CartService
 
             if (! $variant instanceof ProductVariant
                 || ! $product instanceof Product
-                || (($product->stock_status ?? null) !== 'always_in_stock'
+                || (! $product->isAlwaysInStock()
                     && ($variant->status !== 'in_stock' || $qty > $variant->stock_qty))) {
                 throw ValidationException::withMessages([
                     'quantity' => __('This product variant is currently unavailable.'),

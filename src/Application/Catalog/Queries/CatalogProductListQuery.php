@@ -194,7 +194,7 @@ class CatalogProductListQuery
             is_hit_sales: (bool) $product->is_hit_sales,
             is_new: (bool) $product->is_new,
             gallery: $galleryImages,
-            stock_status: $product->stock_status ?? 'in_stock',
+            stock_status: $product->effectiveStockStatus(),
             url: Locales::isDefault($locale)
                 ? route('product.show', ['slug' => $product->localizedSlug($locale, $product->sku) ?? $product->sku])
                 : route('localized.product.show', ['locale' => $locale, 'slug' => $product->localizedSlug($locale, $product->sku) ?? $product->sku]),
