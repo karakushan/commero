@@ -18,6 +18,7 @@ return [
         'slug' => 'Slug',
         'sort' => 'Sort',
         'price' => 'Price',
+        'stock_quantity' => 'Stock quantity',
         'availability' => 'Availability',
         'status' => 'Status',
         'type' => 'Type',

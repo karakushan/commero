@@ -129,6 +129,7 @@ class EditProduct extends EditRecord
             $data['multi_currency_code'] = $record->variants->first()?->multi_currency_code;
             $data['multi_currency_price'] = $record->variants->first()?->multi_currency_price;
             $data['multi_currency_old_price'] = $record->variants->first()?->multi_currency_old_price;
+            $data['stock_qty'] = $record->variants->first()?->stock_qty;
         }
 
         if ($record->type === 'variant') {
@@ -141,6 +142,7 @@ class EditProduct extends EditRecord
                     'sku' => $variant->sku,
                     'price' => $variant->price,
                     'old_price' => $variant->old_price,
+                    'stock_qty' => $variant->stock_qty,
                     'status' => $variant->status,
                     'sort' => $variant->sort,
                     'attribute_option_ids' => $variant->attributeValues
@@ -204,7 +206,7 @@ class EditProduct extends EditRecord
             'multi_currency_code' => $data['multi_currency_code'] ?? null,
             'multi_currency_price' => $data['multi_currency_price'] ?? null,
             'multi_currency_old_price' => $data['multi_currency_old_price'] ?? null,
-            'stock_qty' => $variant->stock_qty ?? 0,
+            'stock_qty' => $data['stock_qty'] ?? $variant->stock_qty ?? 0,
             'status' => $data['stock_status'] ?? 'in_stock',
             'option_snapshot' => $variant->option_snapshot ?? [],
         ]);
@@ -234,7 +236,7 @@ class EditProduct extends EditRecord
                 'multi_currency_code' => $data['multi_currency_code'] ?? null,
                 'multi_currency_price' => $variantData['multi_currency_price'] ?? null,
                 'multi_currency_old_price' => $variantData['multi_currency_old_price'] ?? null,
-                'stock_qty' => $variant->stock_qty ?? 0,
+                'stock_qty' => $variantData['stock_qty'] ?? $variant->stock_qty ?? 0,
                 'status' => $variantData['status'] ?? 'in_stock',
                 'option_snapshot' => $variantData['attribute_option_ids'] ?? [],
                 'sort' => $index,

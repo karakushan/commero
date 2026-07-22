@@ -143,6 +143,17 @@ class ProductResource extends AdminResource
                                 ])
                                 ->default('in_stock')
                                 ->required()
+                                ->live()
+                                ->columnSpan(1),
+                            TextInput::make('stock_qty')
+                                ->label(__('commero::admin.common.stock_quantity'))
+                                ->numeric()
+                                ->integer()
+                                ->minValue(1)
+                                ->default(1)
+                                ->required(fn (callable $get): bool => $get('stock_status') === 'in_stock')
+                                ->visible(fn (callable $get): bool => $get('stock_status') === 'in_stock')
+                                ->dehydrated(fn (callable $get): bool => $get('stock_status') === 'in_stock')
                                 ->columnSpan(1),
                             Select::make('category_ids')
                                 ->label(__('commero::admin.product.category_ids'))
@@ -332,7 +343,17 @@ class ProductResource extends AdminResource
                                                     'preorder' => __('commero::admin.product.stock_status.preorder'),
                                                 ])
                                                 ->default('in_stock')
-                                                ->required(),
+                                                ->required()
+                                                ->live(),
+                                            TextInput::make('stock_qty')
+                                                ->label(__('commero::admin.common.stock_quantity'))
+                                                ->numeric()
+                                                ->integer()
+                                                ->minValue(1)
+                                                ->default(1)
+                                                ->required(fn (callable $get): bool => $get('status') === 'in_stock')
+                                                ->visible(fn (callable $get): bool => $get('status') === 'in_stock')
+                                                ->dehydrated(fn (callable $get): bool => $get('status') === 'in_stock'),
                                             Select::make('attribute_option_ids')
                                                 ->label(__('commero::admin.product.variants.attributes'))
                                                 ->multiple()

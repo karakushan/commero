@@ -141,6 +141,12 @@ class CartService
         $lineId = $this->lineId($product->id, $variant->id);
         $existingQuantity = (int) ($items[$lineId]['quantity'] ?? 0);
 
+        if ($existingQuantity + $quantity > $variant->stock_qty) {
+            throw ValidationException::withMessages([
+                'quantity' => __('This product variant is currently unavailable.'),
+            ]);
+        }
+
         $items[$lineId] = [
             'product_id' => $product->id,
             'variant_id' => $variant->id,
@@ -186,6 +192,16 @@ class CartService
         if ($qty <= 0) {
             unset($items[$lineId]);
         } else {
+            $variant = ProductVariant::query()->find($items[$lineId]['variant_id'] ?? null);
+
+            if (! $variant instanceof ProductVariant
+                || $variant->status !== 'in_stock'
+                || $qty > $variant->stock_qty) {
+                throw ValidationException::withMessages([
+                    'quantity' => __('This product variant is currently unavailable.'),
+                ]);
+            }
+
             $items[$lineId]['quantity'] = $qty;
         }
 

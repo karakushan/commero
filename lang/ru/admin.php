@@ -18,6 +18,7 @@ return [
         'slug' => 'Slug',
         'sort' => 'Сортировка',
         'price' => 'Цена',
+        'stock_quantity' => 'Количество на складе',
         'availability' => 'Наличие',
         'status' => 'Статус',
         'type' => 'Тип',

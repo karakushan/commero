@@ -2,6 +2,7 @@
 
 namespace Commero\Models;
 
+use Commero\Services\InventoryService;
 use Commero\Support\Phone;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -45,7 +46,18 @@ class Order extends Model
         'total_amount' => 'decimal:2',
         'is_quick_order' => 'boolean',
         'has_other_recipient' => 'boolean',
+        'inventory_released_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::updated(function (self $order): void {
+            if ($order->wasChanged('status')
+                && in_array($order->status, ['cancelled', 'returned'], true)) {
+                app(InventoryService::class)->release($order);
+            }
+        });
+    }
 
     protected function customerPhone(): Attribute
     {

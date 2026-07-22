@@ -143,6 +143,7 @@ class OrderPlacementService
                 'quantity' => $resolvedQuantity,
             ]],
             user: auth()->user(),
+            stockErrorKey: 'phone',
         );
     }
 
@@ -165,9 +166,17 @@ class OrderPlacementService
             ->first();
     }
 
-    private function createOrder(array $attributes, array $items, ?User $user = null, array $userProfileUpdates = []): Order
+    private function createOrder(
+        array $attributes,
+        array $items,
+        ?User $user = null,
+        array $userProfileUpdates = [],
+        string $stockErrorKey = 'cart',
+    ): Order
     {
-        return DB::transaction(function () use ($attributes, $items, $user, $userProfileUpdates): Order {
+        return DB::transaction(function () use ($attributes, $items, $user, $userProfileUpdates, $stockErrorKey): Order {
+            app(InventoryService::class)->reserve($items, $stockErrorKey);
+
             $order = Order::query()->create(array_merge([
                 'number' => $this->generateOrderNumber(),
                 'status' => OrderStatus::query()->where('is_default_for_new_order', true)->value('code') ?? 'new',

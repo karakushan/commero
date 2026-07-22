@@ -18,6 +18,7 @@ return [
         'slug' => 'Slug',
         'sort' => 'Сортування',
         'price' => 'Ціна',
+        'stock_quantity' => 'Кількість на складі',
         'availability' => 'Наявність',
         'status' => 'Статус',
         'type' => 'Тип',

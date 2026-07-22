@@ -80,7 +80,7 @@ class CreateProduct extends CreateRecord
             'multi_currency_code' => $data['multi_currency_code'] ?? null,
             'multi_currency_price' => $data['multi_currency_price'] ?? null,
             'multi_currency_old_price' => $data['multi_currency_old_price'] ?? null,
-            'stock_qty' => $variant->stock_qty ?? 0,
+            'stock_qty' => $data['stock_qty'] ?? $variant->stock_qty ?? 0,
             'status' => $data['stock_status'] ?? 'in_stock',
             'option_snapshot' => $variant->option_snapshot ?? [],
         ]);
@@ -104,7 +104,7 @@ class CreateProduct extends CreateRecord
                 'multi_currency_code' => $data['multi_currency_code'] ?? null,
                 'multi_currency_price' => $variantData['multi_currency_price'] ?? null,
                 'multi_currency_old_price' => $variantData['multi_currency_old_price'] ?? null,
-                'stock_qty' => $variant->stock_qty ?? 0,
+                'stock_qty' => $variantData['stock_qty'] ?? $variant->stock_qty ?? 0,
                 'status' => $variantData['status'] ?? 'in_stock',
                 'option_snapshot' => $variantData['attribute_option_ids'] ?? [],
                 'sort' => $index,
