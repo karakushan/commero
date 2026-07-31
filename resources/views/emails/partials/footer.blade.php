@@ -13,6 +13,7 @@
         'youtube' => 'https://cdn.simpleicons.org/youtube/FF0000',
         'tiktok' => 'https://cdn.simpleicons.org/tiktok/000000',
     ];
+    $footerPlainSocialIdentifiers = ['telegram', 'viber'];
 
     try {
         $footerSetting = \Commero\Models\SiteSetting::query()->first();
@@ -90,13 +91,22 @@
                 @php($socialUrl = trim((string) ($social['url'] ?? '')))
                 @php($socialIcon = $footerIconUrl($social['icon'] ?? null, $social['identifier'] ?? null))
                 @if(filled($socialUrl))
-                    <a href="{{ $socialUrl }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:0 5px;color:#444;text-decoration:none">
-                        @if(filled($socialIcon))
-                            <img src="{{ $socialIcon }}" alt="{{ $social['label'] ?? $social['identifier'] ?? '' }}" width="28" height="28" style="display:inline-block;width:28px;height:28px;object-fit:contain;vertical-align:middle">
-                        @else
-                            <span>{{ $social['label'] ?? $social['identifier'] ?? $socialUrl }}</span>
-                        @endif
-                    </a>
+                    @if(in_array(strtolower(trim((string) ($social['identifier'] ?? ''))), $footerPlainSocialIdentifiers, true))
+                        <span style="display:inline-flex;align-items:center;margin:0 5px;color:#444">
+                            @if(filled($socialIcon))
+                                <img src="{{ $socialIcon }}" alt="" width="28" height="28" style="display:inline-block;width:28px;height:28px;object-fit:contain;margin-right:5px;vertical-align:middle">
+                            @endif
+                            <span>{{ $social['label'] ?? $social['identifier'] }}</span>
+                        </span>
+                    @else
+                        <a href="{{ $socialUrl }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:0 5px;color:#444;text-decoration:none">
+                            @if(filled($socialIcon))
+                                <img src="{{ $socialIcon }}" alt="{{ $social['label'] ?? $social['identifier'] ?? '' }}" width="28" height="28" style="display:inline-block;width:28px;height:28px;object-fit:contain;vertical-align:middle">
+                            @else
+                                <span>{{ $social['label'] ?? $social['identifier'] ?? $socialUrl }}</span>
+                            @endif
+                        </a>
+                    @endif
                 @endif
             @endforeach
         </div>
