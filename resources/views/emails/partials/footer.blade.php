@@ -1,5 +1,5 @@
 @php
-    $footerLocale = $emailLocale ?? $settingsLocale ?? $order->locale ?? app()->getLocale();
+    $footerLocale = $settingsLocale ?? $order->locale ?? app()->getLocale();
     $footerEmailLocale = $emailLocale ?? app()->getLocale();
     $footerSiteName = config('app.name', 'ShopHats');
     $footerContacts = [];
