@@ -9,6 +9,7 @@ return [
         'customer_name' => 'Imię klienta',
         'customer_email' => 'Email klienta',
         'status' => 'Status',
+        'status_new' => 'Nowe',
         'items' => 'Produkty',
         'product' => 'Produkt',
         'quantity' => 'Ilość',

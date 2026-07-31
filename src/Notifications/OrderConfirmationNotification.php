@@ -38,17 +38,27 @@ class OrderConfirmationNotification extends Notification
     {
         $statusModel = OrderStatus::query()->with('translations')->where('code', $status)->first();
         $requestedLocale = $this->order->locale ?: Locales::fallback();
+        $emailLocale = Locales::emailLocale($requestedLocale);
         $statusName = $statusModel?->translations->firstWhere('locale', $requestedLocale)?->name
-            ?? $statusModel?->translations->firstWhere('locale', Locales::emailLocale($requestedLocale))?->name
-            ?? $statusModel?->getRawOriginal('name');
+            ?? $statusModel?->translations->firstWhere('locale', $emailLocale)?->name;
 
         if (filled($statusName)) {
             return $statusName;
         }
 
-        $key = 'commero::admin.order.status.'.$status;
-        $label = __($key);
+        $key = 'commero::app.order_notifications.status_'.$status;
+        $label = __($key, [], $emailLocale);
 
-        return $label === $key ? $status : $label;
+        if ($label !== $key) {
+            return $label;
+        }
+
+        $rawName = $statusModel?->getRawOriginal('name');
+
+        if (filled($rawName)) {
+            return $rawName;
+        }
+
+        return $status;
     }
 }

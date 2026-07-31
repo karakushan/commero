@@ -12,6 +12,7 @@ return [
         'customer_name' => 'Ім’я клієнта',
         'customer_email' => 'Email клієнта',
         'status' => 'Статус',
+        'status_new' => 'Нове',
         'items' => 'Товари',
         'product' => 'Товар',
         'quantity' => 'Кількість',

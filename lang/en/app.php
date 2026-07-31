@@ -12,6 +12,7 @@ return [
         'customer_name' => 'Customer name',
         'customer_email' => 'Customer email',
         'status' => 'Status',
+        'status_new' => 'New',
         'items' => 'Products',
         'product' => 'Product',
         'quantity' => 'Quantity',
