@@ -3,6 +3,7 @@
 namespace Commero\Database\Seeders;
 
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
+use Commero\Support\Permissions;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
@@ -129,6 +130,8 @@ class RolesAndPermissionsSeeder extends Seeder
         $permissions = [
             ...$this->permissionNamesForResources($this->resources, $this->resourceActions),
             ...$this->pagePermissionNames(),
+            Permissions::RECEIVE_ORDER_NOTIFICATIONS,
+            Permissions::RECEIVE_MARKETING_LEAD_NOTIFICATIONS,
         ];
 
         foreach (array_unique($permissions) as $permission) {

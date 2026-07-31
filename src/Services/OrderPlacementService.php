@@ -25,6 +25,7 @@ class OrderPlacementService
         return $this->createOrder(
             attributes: [
                 'user_id' => $user?->id,
+                'locale' => app()->getLocale(),
                 'customer_name' => trim($validated['firstName'].' '.$validated['lastName']),
                 'customer_phone' => Phone::normalize($validated['phone']),
                 'customer_email' => trim($validated['email']),
@@ -109,6 +110,7 @@ class OrderPlacementService
         return $this->createOrder(
             attributes: [
                 'user_id' => auth()->id(),
+                'locale' => app()->getLocale(),
                 'customer_name' => __('Quick order customer'),
                 'customer_phone' => Phone::normalize($phone),
                 'customer_email' => auth()->user()?->email,

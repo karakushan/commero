@@ -1,6 +1,21 @@
 <?php
 
 return [
+    'order_notifications' => [
+        'new_order_subject' => 'Новый заказ :number',
+        'new_order_title' => 'Получен новый заказ',
+        'new_order_intro' => 'На сайте оформлен новый заказ.',
+        'status_subject' => 'Обновление статуса заказа :number',
+        'status_title' => 'Статус вашего заказа изменён',
+        'status_intro' => 'Статус вашего заказа :number обновлён.',
+        'previous_status' => 'Предыдущий статус',
+        'open_order' => 'Открыть заказ в админке',
+        'summary' => 'Заказ :number, клиент: :customer, сумма: :total',
+        'new_lead_subject' => 'Новая заявка: :type',
+        'new_lead_title' => 'Новая заявка из формы',
+        'lead_type' => 'Тип заявки',
+        'open_lead' => 'Открыть заявку в админке',
+    ],
     'title' => 'Каталожная платформа ShopHats',
     'subtitle' => 'Локализованный каркас каталога с админкой Filament и locale-aware запросами.',
     'catalog' => 'Каталог',

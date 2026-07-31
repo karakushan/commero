@@ -3,12 +3,14 @@
 namespace Commero\Models;
 
 use Commero\Services\InventoryService;
+use Commero\Services\OrderNotificationService;
 use Commero\Support\Phone;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
@@ -17,6 +19,7 @@ class Order extends Model
     protected $fillable = [
         'number',
         'status',
+        'locale',
         'is_quick_order',
         'user_id',
         'customer_name',
@@ -51,6 +54,24 @@ class Order extends Model
 
     protected static function booted(): void
     {
+        static::created(function (self $order): void {
+            DB::afterCommit(function () use ($order): void {
+                app(OrderNotificationService::class)->notifyAboutNewOrder($order);
+            });
+        });
+
+        static::updated(function (self $order): void {
+            if (! $order->wasChanged('status') || ! filled($order->customer_email)) {
+                return;
+            }
+
+            $previousStatus = (string) $order->getOriginal('status');
+
+            DB::afterCommit(function () use ($order, $previousStatus): void {
+                app(OrderNotificationService::class)->notifyCustomerAboutStatusChange($order, $previousStatus);
+            });
+        });
+
         static::updated(function (self $order): void {
             if ($order->wasChanged('status')
                 && in_array($order->status, ['cancelled', 'returned'], true)) {

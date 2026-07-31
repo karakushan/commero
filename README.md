@@ -7,7 +7,7 @@ Reusable Laravel commerce, CMS, and Filament admin core for Laravel projects.
 Require the package in your Laravel app:
 
 ```bash
-composer require karakushan/commero:dev-main
+composer require karakushan/commero:^1.0
 php artisan commero:install
 ```
 
@@ -53,6 +53,31 @@ Commero uses `config/commero.php` as the source of truth for locales:
 - `locales.default` sets the application and Filament admin locale
 - `locales.fallback` sets the Laravel fallback locale
 - `locales.supported` sets the supported locale list used by the package
+
+## Email Notifications
+
+Commero includes default email notifications for:
+
+- new orders for users with `Receive:OrderNotifications`
+- order status changes for the customer email saved on the order
+- new marketing leads for users with `Receive:MarketingLeadNotifications`
+
+The `admin` role receives both permissions by default. Other roles can be configured in Filament Shield.
+
+The default templates are:
+
+```text
+resources/views/emails/order-notification.blade.php
+resources/views/emails/marketing-lead-notification.blade.php
+```
+
+Host applications can override them without editing the package by creating files with the same names under:
+
+```text
+resources/views/vendor/commero/emails/
+```
+
+The template view names can also be changed in `config/commero.php` under `notifications`.
 
 ## What the Package Provides
 

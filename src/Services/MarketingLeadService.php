@@ -36,11 +36,12 @@ class MarketingLeadService
         ]);
 
         $admins = User::query()
-            ->whereHas('roles', fn ($query) => $query->where('name', 'admin')->where('guard_name', 'web'))
+            ->permission(MarketingLeadReceivedNotification::permissionName())
             ->get();
 
         if ($admins->isNotEmpty()) {
-            Notification::send($admins, new MarketingLeadReceivedNotification($lead));
+            Notification::locale(config('commero.locales.default', config('app.locale')))
+                ->send($admins, new MarketingLeadReceivedNotification($lead));
         }
 
         return $lead;

@@ -5,6 +5,7 @@ namespace Commero\Notifications;
 use Commero\Interfaces\Filament\Resources\MarketingLeadResource;
 use Commero\Models\MarketingLead;
 use Commero\Support\Mail\OutboundMailStatus;
+use Commero\Support\Permissions;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
@@ -33,40 +34,18 @@ class MarketingLeadReceivedNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $mail = (new MailMessage)
-            ->subject(__('New marketing lead: :type', ['type' => $this->leadTypeLabel()]))
-            ->greeting(__('New marketing lead'))
-            ->line(__('Type: :type', ['type' => $this->leadTypeLabel()]))
-            ->line(__('Submitted at: :date', ['date' => $this->lead->created_at?->format('d.m.Y H:i') ?? now()->format('d.m.Y H:i')]));
-
-        if (filled($this->lead->subject)) {
-            $mail->line(__('Subject: :subject', ['subject' => $this->lead->subject]));
-        }
-
-        if (filled($this->lead->name)) {
-            $mail->line(__('Name: :name', ['name' => $this->lead->name]));
-        }
-
-        if (filled($this->lead->phone)) {
-            $mail->line(__('Phone: :phone', ['phone' => $this->lead->phone]));
-        }
+            ->subject(__('commero::app.order_notifications.new_lead_subject', ['type' => $this->leadTypeLabel()]))
+            ->view(config('commero.notifications.marketing_lead_received_view'), [
+                'title' => __('commero::app.order_notifications.new_lead_title'),
+                'leadType' => $this->leadTypeLabel(),
+                'lead' => $this->lead,
+                'fields' => $this->fields(),
+                'adminUrl' => MarketingLeadResource::getUrl('view', ['record' => $this->lead]),
+            ]);
 
         if (filled($this->lead->email)) {
-            $mail->line(__('E-mail: :email', ['email' => $this->lead->email]));
             $mail->replyTo($this->lead->email, $this->lead->name ?: null);
         }
-
-        if (filled($this->lead->message)) {
-            $mail->line(__('Message: :message', ['message' => $this->lead->message]));
-        }
-
-        if (filled($this->lead->source_url)) {
-            $mail->line(__('Page URL: :url', ['url' => $this->lead->source_url]));
-        }
-
-        $mail->action(
-            __('Open lead in admin'),
-            MarketingLeadResource::getUrl('view', ['record' => $this->lead])
-        );
 
         return $mail;
     }
@@ -74,7 +53,7 @@ class MarketingLeadReceivedNotification extends Notification
     public function toDatabase(object $notifiable): array
     {
         return [
-            'title' => __('New marketing lead'),
+            'title' => __('commero::app.order_notifications.new_lead_title'),
             'body' => $this->leadSummary(),
             'lead_id' => $this->lead->id,
             'type' => $this->lead->type,
@@ -90,13 +69,32 @@ class MarketingLeadReceivedNotification extends Notification
     public function toFilament(): FilamentNotification
     {
         return FilamentNotification::make()
-            ->title(__('New marketing lead'))
+            ->title(__('commero::app.order_notifications.new_lead_title'))
             ->body($this->leadSummary())
             ->actions([
                 Action::make('view')
                     ->label(__('Open'))
                     ->url(MarketingLeadResource::getUrl('view', ['record' => $this->lead])),
             ]);
+    }
+
+    public static function permissionName(): string
+    {
+        return Permissions::RECEIVE_MARKETING_LEAD_NOTIFICATIONS;
+    }
+
+    /** @return array<string, string|null> */
+    private function fields(): array
+    {
+        return [
+            __('commero::admin.marketing_lead.subject') => $this->lead->subject,
+            __('commero::admin.marketing_lead.name') => $this->lead->name,
+            __('commero::admin.common.phone') => $this->lead->phone,
+            __('commero::admin.common.email') => $this->lead->email,
+            __('commero::admin.common.message') => $this->lead->message,
+            __('commero::admin.marketing_lead.source_url') => $this->lead->source_url,
+            __('commero::admin.common.created_at') => $this->lead->created_at?->format('d.m.Y H:i'),
+        ];
     }
 
     private function leadTypeLabel(): string

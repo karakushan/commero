@@ -6,6 +6,12 @@ use Commero\Support\ContentBlocks\NullContentBlockHydrator;
 return [
     'theme_view_path' => resource_path('views/shophats'),
 
+    'notifications' => [
+        'order_received_view' => 'commero::emails.order-notification',
+        'order_status_changed_view' => 'commero::emails.order-notification',
+        'marketing_lead_received_view' => 'commero::emails.marketing-lead-notification',
+    ],
+
     'content_blocks' => [
         'registry' => EmptyContentBlockRegistry::class,
         'hydrator' => NullContentBlockHydrator::class,
