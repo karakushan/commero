@@ -3,6 +3,15 @@
     $footerSiteName = config('app.name', 'ShopHats');
     $footerContacts = [];
     $footerSocialLinks = [];
+    $footerDefaultIconUrls = [
+        'telegram' => 'https://cdn.simpleicons.org/telegram/229ED9',
+        'viber' => 'https://cdn.simpleicons.org/viber/7360F2',
+        'whatsapp' => 'https://cdn.simpleicons.org/whatsapp/25D366',
+        'facebook' => 'https://cdn.simpleicons.org/facebook/1877F2',
+        'instagram' => 'https://cdn.simpleicons.org/instagram/E4405F',
+        'youtube' => 'https://cdn.simpleicons.org/youtube/FF0000',
+        'tiktok' => 'https://cdn.simpleicons.org/tiktok/000000',
+    ];
 
     try {
         $footerSetting = \Commero\Models\SiteSetting::query()->first();
@@ -36,8 +45,12 @@
         return 'https://'.$value;
     };
 
-    $footerIconUrl = static function (?string $path): ?string {
-        return filled($path) ? url(Storage::disk('public')->url($path)) : null;
+    $footerIconUrl = static function (?string $path, ?string $identifier = null) use ($footerDefaultIconUrls): ?string {
+        if (filled($path)) {
+            return url(Storage::disk('public')->url($path));
+        }
+
+        return $footerDefaultIconUrls[strtolower(trim((string) $identifier))] ?? null;
     };
 @endphp
 
@@ -46,7 +59,7 @@
         <div style="margin:0 0 12px">
             @foreach($footerContacts as $contact)
                 @php($contactHref = $footerContactHref($contact))
-                @php($contactIcon = $footerIconUrl($contact['icon'] ?? null))
+                @php($contactIcon = $footerIconUrl($contact['icon'] ?? null, $contact['identifier'] ?? null))
                 @if(filled($contactHref))
                     <a href="{{ $contactHref }}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;margin:0 8px 8px;color:#444;text-decoration:none">
                         @if(filled($contactIcon))
@@ -63,7 +76,7 @@
         <div style="margin:0 0 12px">
             @foreach($footerSocialLinks as $social)
                 @php($socialUrl = trim((string) ($social['url'] ?? '')))
-                @php($socialIcon = $footerIconUrl($social['icon'] ?? null))
+                @php($socialIcon = $footerIconUrl($social['icon'] ?? null, $social['identifier'] ?? null))
                 @if(filled($socialUrl))
                     <a href="{{ $socialUrl }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:0 5px;color:#444;text-decoration:none">
                         @if(filled($socialIcon))
