@@ -9,6 +9,7 @@ use Commero\Notifications\OrderReceivedNotification;
 use Commero\Notifications\OrderStatusChangedNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Throwable;
 
 class OrderNotificationService
@@ -45,8 +46,10 @@ class OrderNotificationService
 
         try {
             Notification::locale($order->locale ?: config('commero.locales.fallback', config('app.fallback_locale')))
-                ->route('mail', $customerEmail)
-                ->notify(new OrderConfirmationNotification($this->loadOrderForEmail($order)));
+                ->send(
+                    (new AnonymousNotifiable)->route('mail', $customerEmail),
+                    new OrderConfirmationNotification($this->loadOrderForEmail($order)),
+                );
         } catch (Throwable $exception) {
             Log::error('Order confirmation notification failed.', [
                 'order_id' => $order->id,
@@ -67,8 +70,10 @@ class OrderNotificationService
 
         try {
             Notification::locale($order->locale ?: config('commero.locales.fallback', config('app.fallback_locale')))
-                ->route('mail', $customerEmail)
-                ->notify(new OrderStatusChangedNotification($this->loadOrderForEmail($order), $previousStatus));
+                ->send(
+                    (new AnonymousNotifiable)->route('mail', $customerEmail),
+                    new OrderStatusChangedNotification($this->loadOrderForEmail($order), $previousStatus),
+                );
         } catch (Throwable $exception) {
             Log::error('Order status notification failed.', [
                 'order_id' => $order->id,
