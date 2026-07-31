@@ -309,6 +309,11 @@ return [
     ],
     'site_setting' => [
         'general_section' => 'General settings',
+        'mail_section' => 'Email sending settings',
+        'mail_from_email' => 'Sender address',
+        'mail_from_email_hint' => 'If empty, the address from the mail configuration is used.',
+        'mail_from_name' => 'Sender name',
+        'mail_from_name_hint' => 'If empty, the name from the mail configuration is used.',
         'delivery_section' => 'Delivery settings',
         'site_name' => 'Site name',
         'logo_path' => 'Logo',

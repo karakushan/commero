@@ -12,6 +12,8 @@ class SiteSetting extends Model
 
     protected $fillable = [
         'site_name',
+        'mail_from_email',
+        'mail_from_name',
         'site_name_translations',
         'logo_path',
         'logo_path_translations',

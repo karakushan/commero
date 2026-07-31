@@ -8,6 +8,7 @@
 <body style="margin:0;background:#f4f4f4;color:#202020;font-family:Arial,sans-serif;line-height:1.5">
 <div style="max-width:680px;margin:0 auto;padding:32px 16px">
     <div style="background:#fff;border:1px solid #e5e5e5;padding:28px">
+        @include('commero::emails.partials.brand')
         <h1 style="margin:0 0 12px;font-size:24px;line-height:1.25">{{ $title }}</h1>
         <p style="margin:0 0 24px">{{ $intro }}</p>
 
@@ -34,6 +35,9 @@
             @foreach($order->items as $item)
                 <tr>
                     <td style="padding:10px 4px;border-bottom:1px solid #eee">
+                        @if(filled($item->product?->primaryImage?->path))
+                            <img src="{{ url(Storage::disk('public')->url($item->product->primaryImage->path)) }}" alt="{{ $item->product_name }}" width="72" height="72" style="display:block;width:72px;height:72px;object-fit:contain;margin:0 0 8px;border:1px solid #eee">
+                        @endif
                         <strong>{{ $item->product_name }}</strong>
                         @if(filled($item->variant_name))<br><span style="color:#666;font-size:13px">{{ $item->variant_name }}</span>@endif
                         @if(filled($item->product_sku))<br><span style="color:#888;font-size:12px">SKU: {{ $item->product_sku }}</span>@endif

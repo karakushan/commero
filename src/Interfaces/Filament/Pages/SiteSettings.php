@@ -99,6 +99,20 @@ class SiteSettings extends Page
                                 ->helperText(__('commero::admin.site_setting.favicon_png_path_hint')),
                         ])
                         ->columns(2),
+                    Section::make(__('commero::admin.site_setting.mail_section'))
+                        ->visible(fn (): bool => $this->activeLocale === Locales::default())
+                        ->schema([
+                            TextInput::make('mail_from_email')
+                                ->label(__('commero::admin.site_setting.mail_from_email'))
+                                ->email()
+                                ->maxLength(255)
+                                ->helperText(__('commero::admin.site_setting.mail_from_email_hint')),
+                            TextInput::make('mail_from_name')
+                                ->label(__('commero::admin.site_setting.mail_from_name'))
+                                ->maxLength(255)
+                                ->helperText(__('commero::admin.site_setting.mail_from_name_hint')),
+                        ])
+                        ->columns(2),
                     Section::make(__('commero::admin.site_setting.delivery_section'))
                         ->schema([
                             TextInput::make('nova_poshta_api_key')
@@ -302,6 +316,8 @@ class SiteSettings extends Page
         return [
             static::ACTIVE_LOCALE_FIELD => $activeLocale,
             'site_name' => $record?->getSiteNameForLocale($activeLocale, false),
+            'mail_from_email' => $record?->getRawOriginal('mail_from_email'),
+            'mail_from_name' => $record?->getRawOriginal('mail_from_name'),
             'logo_path' => $record?->getLogoPathForLocale($activeLocale, false),
             'footer_logo_path' => $record?->getFooterLogoPathForLocale($activeLocale, false),
             'favicon_svg_path' => $record?->getRawOriginal('favicon_svg_path'),
@@ -330,6 +346,8 @@ class SiteSettings extends Page
     protected function prepareRecordData(SiteSetting $record, array $data, string $activeLocale): array
     {
         $preparedData = [
+            'mail_from_email' => $this->normalizeTextValue($data['mail_from_email'] ?? $record->getRawOriginal('mail_from_email')),
+            'mail_from_name' => $this->normalizeTextValue($data['mail_from_name'] ?? $record->getRawOriginal('mail_from_name')),
             'favicon_svg_path' => $this->normalizeTextValue($data['favicon_svg_path'] ?? null),
             'favicon_png_path' => $this->normalizeTextValue($data['favicon_png_path'] ?? null),
             'nova_poshta_api_key' => $data['nova_poshta_api_key'] ?? null,

@@ -59,7 +59,8 @@ Commero uses `config/commero.php` as the source of truth for locales:
 Commero includes default email notifications for:
 
 - new orders for users with `Receive:OrderNotifications`
-- order status changes for the customer email saved on the order
+- order confirmations for every customer email saved on the order, regardless of role or permissions
+- order status changes for every customer email saved on the order, regardless of role or permissions
 - new marketing leads for users with `Receive:MarketingLeadNotifications`
 - new product reviews for users with `Receive:ProductReviewNotifications`
 
@@ -80,6 +81,11 @@ resources/views/vendor/commero/emails/
 ```
 
 The template view names can also be changed in `config/commero.php` under `notifications`.
+
+The sender address and sender name can be configured in the admin panel under
+`Site settings -> Налаштування відправки пошти`. If either field is empty, Commero
+uses the corresponding `mail.from` value from the host application's mail configuration.
+The default email templates also use the store logo configured in Site settings.
 
 ## What the Package Provides
 

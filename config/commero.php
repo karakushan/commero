@@ -7,7 +7,9 @@ return [
     'theme_view_path' => resource_path('views/shophats'),
 
     'notifications' => [
+        'logo_url' => null,
         'order_received_view' => 'commero::emails.order-notification',
+        'order_confirmation_view' => 'commero::emails.order-notification',
         'order_status_changed_view' => 'commero::emails.order-notification',
         'marketing_lead_received_view' => 'commero::emails.marketing-lead-notification',
         'product_review_received_view' => 'commero::emails.product-review-notification',

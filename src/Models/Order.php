@@ -57,11 +57,12 @@ class Order extends Model
         static::created(function (self $order): void {
             DB::afterCommit(function () use ($order): void {
                 app(OrderNotificationService::class)->notifyAboutNewOrder($order);
+                app(OrderNotificationService::class)->notifyCustomerAboutNewOrder($order);
             });
         });
 
         static::updated(function (self $order): void {
-            if (! $order->wasChanged('status') || ! filled($order->customer_email)) {
+            if (! $order->wasChanged('status')) {
                 return;
             }
 

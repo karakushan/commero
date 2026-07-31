@@ -13,6 +13,7 @@ use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentCategoryRepositor
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentProductRepository;
 use Commero\Http\Middleware\SetCountryFromUrl;
 use Commero\Models\User as CommeroUser;
+use Commero\Models\SiteSetting;
 use Commero\Providers\Filament\AdminPanelProvider;
 use Commero\Support\ContentBlocks\EmptyContentBlockRegistry;
 use Commero\Support\ContentBlocks\NullContentBlockHydrator;
@@ -48,6 +49,7 @@ class CommeroServiceProvider extends ServiceProvider
     {
         $this->app->setLocale(Locales::default());
         $this->configureShieldNotificationPermissions();
+        $this->configureMailSender();
         $this->registerSchemaMacros();
         $this->registerPolicies();
         $this->registerMiddleware();
@@ -113,6 +115,27 @@ class CommeroServiceProvider extends ServiceProvider
         config([
             'filament-shield.custom_permissions' => array_replace($packagePermissions, $hostPermissions),
             'filament-shield.shield_resource.tabs.custom_permissions' => true,
+        ]);
+    }
+
+    private function configureMailSender(): void
+    {
+        try {
+            $setting = SiteSetting::query()->first();
+        } catch (\Throwable) {
+            return;
+        }
+
+        if (! $setting instanceof SiteSetting) {
+            return;
+        }
+
+        $fromAddress = $setting->getRawOriginal('mail_from_email');
+        $fromName = $setting->getRawOriginal('mail_from_name');
+
+        config([
+            'mail.from.address' => filled($fromAddress) ? $fromAddress : config('mail.from.address'),
+            'mail.from.name' => filled($fromName) ? $fromName : config('mail.from.name'),
         ]);
     }
 

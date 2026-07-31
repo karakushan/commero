@@ -8,6 +8,7 @@
 <body style="margin:0;background:#f4f4f4;color:#202020;font-family:Arial,sans-serif;line-height:1.5">
 <div style="max-width:680px;margin:0 auto;padding:32px 16px">
     <div style="background:#fff;border:1px solid #e5e5e5;padding:28px">
+        @include('commero::emails.partials.brand')
         <h1 style="margin:0 0 12px;font-size:24px;line-height:1.25">{{ $title }}</h1>
         <p style="margin:0 0 24px">{{ $intro }}</p>
 
