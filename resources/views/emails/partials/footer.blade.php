@@ -1,5 +1,6 @@
 @php
-    $footerLocale = $settingsLocale ?? $emailLocale ?? $order->locale ?? app()->getLocale();
+    $footerLocale = $emailLocale ?? $settingsLocale ?? $order->locale ?? app()->getLocale();
+    $footerEmailLocale = $emailLocale ?? app()->getLocale();
     $footerSiteName = config('app.name', 'ShopHats');
     $footerContacts = [];
     $footerSocialLinks = [];
@@ -52,6 +53,16 @@
 
         return $footerDefaultIconUrls[strtolower(trim((string) $identifier))] ?? null;
     };
+
+    $footerContactLabels = [
+        'phone' => __('commero::app.order_notifications.contact_phone', [], $footerEmailLocale),
+        'tel' => __('commero::app.order_notifications.contact_phone', [], $footerEmailLocale),
+        'mobile' => __('commero::app.order_notifications.contact_phone', [], $footerEmailLocale),
+        'address' => __('commero::app.order_notifications.contact_address', [], $footerEmailLocale),
+        'working_hours' => __('commero::app.order_notifications.contact_working_hours', [], $footerEmailLocale),
+        'email' => __('commero::app.order_notifications.contact_email', [], $footerEmailLocale),
+        'mail' => __('commero::app.order_notifications.contact_email', [], $footerEmailLocale),
+    ];
 @endphp
 
 <div style="padding:22px 8px 0;text-align:center;color:#666;font-size:12px;line-height:1.5">
@@ -60,12 +71,13 @@
             @foreach($footerContacts as $contact)
                 @php($contactHref = $footerContactHref($contact))
                 @php($contactIcon = $footerIconUrl($contact['icon'] ?? null, $contact['identifier'] ?? null))
+                @php($contactIdentifier = strtolower(trim((string) ($contact['identifier'] ?? ''))))
                 @if(filled($contactHref))
                     <a href="{{ $contactHref }}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;margin:0 8px 8px;color:#444;text-decoration:none">
                         @if(filled($contactIcon))
                             <img src="{{ $contactIcon }}" alt="" width="22" height="22" style="display:inline-block;width:22px;height:22px;object-fit:contain;margin-right:5px;vertical-align:middle">
                         @endif
-                        <span>{{ $contact['label'] ?? $contact['value'] }}</span>
+                        <span>{{ $footerContactLabels[$contactIdentifier] ?? $contact['label'] ?? $contact['value'] }}</span>
                     </a>
                 @endif
             @endforeach
@@ -90,5 +102,5 @@
         </div>
     @endif
 
-    <div>{{ __('commero::app.order_notifications.copyright', ['year' => now()->year, 'site' => $footerSiteName], $emailLocale ?? app()->getLocale()) }}</div>
+    <div>{{ __('commero::app.order_notifications.copyright', ['year' => now()->year, 'site' => $footerSiteName], $footerEmailLocale) }}</div>
 </div>
