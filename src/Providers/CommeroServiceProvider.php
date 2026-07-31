@@ -103,9 +103,9 @@ class CommeroServiceProvider extends ServiceProvider
     private function configureShieldNotificationPermissions(): void
     {
         $packagePermissions = [
-            Permissions::RECEIVE_ORDER_NOTIFICATIONS => 'Receive order notifications',
-            Permissions::RECEIVE_MARKETING_LEAD_NOTIFICATIONS => 'Receive marketing lead notifications',
-            Permissions::RECEIVE_PRODUCT_REVIEW_NOTIFICATIONS => 'Receive product review notifications',
+            Permissions::RECEIVE_ORDER_NOTIFICATIONS => __('commero::app.order_notifications.permission_order'),
+            Permissions::RECEIVE_MARKETING_LEAD_NOTIFICATIONS => __('commero::app.order_notifications.permission_lead'),
+            Permissions::RECEIVE_PRODUCT_REVIEW_NOTIFICATIONS => __('commero::app.order_notifications.permission_review'),
         ];
 
         $hostPermissions = (array) config('filament-shield.custom_permissions', []);
