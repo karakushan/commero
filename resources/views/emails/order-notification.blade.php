@@ -39,7 +39,7 @@
                 <th style="padding:10px 4px;text-align:right;border-bottom:1px solid #ddd">{{ __('commero::app.order_notifications.total_amount', [], $emailLocale) }}</th>
             </tr></thead>
             <tbody>
-            @foreach($order->items as $item)
+            <?php foreach ($order->items as $item): ?>
                 @php
                     $productLocale = $order->locale ?: $emailLocale;
                     $productSlug = $item->product?->localizedSlug($productLocale, $item->product_sku ?: (string) $item->product_id);
@@ -67,7 +67,7 @@
                     <td style="padding:10px 4px;text-align:right;border-bottom:1px solid #eee">{{ $item->quantity }}</td>
                     <td style="padding:10px 4px;text-align:right;border-bottom:1px solid #eee">{{ number_format((float) $item->unit_price * (int) $item->quantity, 2, '.', ' ') }}</td>
                 </tr>
-            @endforeach
+            <?php endforeach; ?>
             </tbody>
             <tfoot><tr>
                 <td colspan="2" style="padding:14px 4px;text-align:right;font-weight:700">{{ __('commero::app.order_notifications.total_amount', [], $emailLocale) }}</td>
