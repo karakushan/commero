@@ -18,7 +18,7 @@
         $footerSetting = \Commero\Models\SiteSetting::query()->first();
         $footerSiteName = $footerSetting?->getSiteNameForLocale($footerLocale) ?: $footerSiteName;
         $footerContacts = $footerSetting?->getContactsForLocale($footerLocale) ?? [];
-        $footerSocialLinks = $footerSetting?->getSocialLinksForLocale($footerLocale) ?? [];
+        $footerSocialLinks = $footerSetting?->getSocialLinksForLocale($footerLocale, false) ?? [];
     } catch (\Throwable) {
         // Keep email rendering available before site settings are installed.
     }
