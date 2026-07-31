@@ -12,6 +12,7 @@ return new class extends Migration
         $permissions = [
             Permissions::RECEIVE_ORDER_NOTIFICATIONS,
             Permissions::RECEIVE_MARKETING_LEAD_NOTIFICATIONS,
+            Permissions::RECEIVE_PRODUCT_REVIEW_NOTIFICATIONS,
         ];
 
         $admin = Role::query()->where('name', 'admin')->where('guard_name', 'web')->first();
@@ -30,6 +31,7 @@ return new class extends Migration
         $permissions = [
             Permissions::RECEIVE_ORDER_NOTIFICATIONS,
             Permissions::RECEIVE_MARKETING_LEAD_NOTIFICATIONS,
+            Permissions::RECEIVE_PRODUCT_REVIEW_NOTIFICATIONS,
         ];
 
         foreach ($permissions as $permissionName) {

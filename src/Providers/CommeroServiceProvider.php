@@ -17,6 +17,7 @@ use Commero\Providers\Filament\AdminPanelProvider;
 use Commero\Support\ContentBlocks\EmptyContentBlockRegistry;
 use Commero\Support\ContentBlocks\NullContentBlockHydrator;
 use Commero\Support\Locales;
+use Commero\Support\Permissions;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
@@ -46,6 +47,7 @@ class CommeroServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->app->setLocale(Locales::default());
+        $this->configureShieldNotificationPermissions();
         $this->registerSchemaMacros();
         $this->registerPolicies();
         $this->registerMiddleware();
@@ -95,6 +97,22 @@ class CommeroServiceProvider extends ServiceProvider
 
         config([
             'commero' => array_replace_recursive($defaults, $overrides),
+        ]);
+    }
+
+    private function configureShieldNotificationPermissions(): void
+    {
+        $packagePermissions = [
+            Permissions::RECEIVE_ORDER_NOTIFICATIONS => 'Receive order notifications',
+            Permissions::RECEIVE_MARKETING_LEAD_NOTIFICATIONS => 'Receive marketing lead notifications',
+            Permissions::RECEIVE_PRODUCT_REVIEW_NOTIFICATIONS => 'Receive product review notifications',
+        ];
+
+        $hostPermissions = (array) config('filament-shield.custom_permissions', []);
+
+        config([
+            'filament-shield.custom_permissions' => array_replace($packagePermissions, $hostPermissions),
+            'filament-shield.shield_resource.tabs.custom_permissions' => true,
         ]);
     }
 

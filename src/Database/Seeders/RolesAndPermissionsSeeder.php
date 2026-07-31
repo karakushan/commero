@@ -132,6 +132,7 @@ class RolesAndPermissionsSeeder extends Seeder
             ...$this->pagePermissionNames(),
             Permissions::RECEIVE_ORDER_NOTIFICATIONS,
             Permissions::RECEIVE_MARKETING_LEAD_NOTIFICATIONS,
+            Permissions::RECEIVE_PRODUCT_REVIEW_NOTIFICATIONS,
         ];
 
         foreach (array_unique($permissions) as $permission) {

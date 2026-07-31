@@ -61,14 +61,16 @@ Commero includes default email notifications for:
 - new orders for users with `Receive:OrderNotifications`
 - order status changes for the customer email saved on the order
 - new marketing leads for users with `Receive:MarketingLeadNotifications`
+- new product reviews for users with `Receive:ProductReviewNotifications`
 
-The `admin` role receives both permissions by default. Other roles can be configured in Filament Shield.
+The `admin` role receives all three notification permissions by default. They are available in the Filament Shield custom permissions tab; other roles can be configured there.
 
 The default templates are:
 
 ```text
 resources/views/emails/order-notification.blade.php
 resources/views/emails/marketing-lead-notification.blade.php
+resources/views/emails/product-review-notification.blade.php
 ```
 
 Host applications can override them without editing the package by creating files with the same names under:

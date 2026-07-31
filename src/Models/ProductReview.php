@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Validation\ValidationException;
+use Commero\Services\ReviewNotificationService;
+use Illuminate\Support\Facades\DB;
 
 class ProductReview extends Model
 {
@@ -36,6 +38,16 @@ class ProductReview extends Model
 
     protected static function booted(): void
     {
+        static::created(function (self $review): void {
+            if ($review->parent_id !== null) {
+                return;
+            }
+
+            DB::afterCommit(function () use ($review): void {
+                app(ReviewNotificationService::class)->notifyAboutNewReview($review);
+            });
+        });
+
         static::saving(function (self $review): void {
             $review->locale = $review->locale ?: app()->getLocale();
 

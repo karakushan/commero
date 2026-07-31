@@ -10,6 +10,7 @@ return [
         'order_received_view' => 'commero::emails.order-notification',
         'order_status_changed_view' => 'commero::emails.order-notification',
         'marketing_lead_received_view' => 'commero::emails.marketing-lead-notification',
+        'product_review_received_view' => 'commero::emails.product-review-notification',
     ],
 
     'content_blocks' => [
