@@ -40,7 +40,7 @@
             </tr></thead>
             <tbody>
             <?php foreach ($order->items as $item): ?>
-                @php
+                <?php
                     $productLocale = $order->locale ?: $emailLocale;
                     $productSlug = $item->product?->localizedSlug($productLocale, $item->product_sku ?: (string) $item->product_id);
                     $productUrl = null;
@@ -50,7 +50,7 @@
                             ? route('product.show', ['slug' => $productSlug])
                             : route('localized.product.show', ['locale' => $productLocale, 'slug' => $productSlug]);
                     }
-                @endphp
+                ?>
                 <tr>
                     <td style="padding:10px 4px;border-bottom:1px solid #eee">
                         @if(filled($item->product?->primaryImage?->path))
