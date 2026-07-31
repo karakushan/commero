@@ -6,6 +6,7 @@ use Commero\Interfaces\Filament\Resources\OrderResource;
 use Commero\Models\Order;
 use Commero\Models\OrderStatus;
 use Commero\Support\Mail\OutboundMailStatus;
+use Commero\Support\Locales;
 use Commero\Support\Permissions;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification as FilamentNotification;
@@ -32,11 +33,15 @@ class OrderReceivedNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
+        $emailLocale = Locales::emailLocale(config('commero.locales.default', config('app.locale')));
+
         return (new MailMessage)
-            ->subject(__('commero::app.order_notifications.new_order_subject', ['number' => $this->order->number]))
+            ->subject(__('commero::app.order_notifications.new_order_subject', ['number' => $this->order->number], $emailLocale))
             ->view(config('commero.notifications.order_received_view'), [
-                'title' => __('commero::app.order_notifications.new_order_title'),
-                'intro' => __('commero::app.order_notifications.new_order_intro'),
+                'emailLocale' => $emailLocale,
+                'settingsLocale' => config('commero.locales.default', config('app.locale')),
+                'title' => __('commero::app.order_notifications.new_order_title', [], $emailLocale),
+                'intro' => __('commero::app.order_notifications.new_order_intro', [], $emailLocale),
                 'order' => $this->order,
                 'statusLabel' => $this->statusLabel($this->order->status),
                 'adminUrl' => OrderResource::getUrl('view', ['record' => $this->order]),

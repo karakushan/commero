@@ -1,0 +1,79 @@
+@php
+    $footerLocale = $settingsLocale ?? $emailLocale ?? $order->locale ?? app()->getLocale();
+    $footerSiteName = config('app.name', 'ShopHats');
+    $footerContacts = [];
+    $footerSocialLinks = [];
+
+    try {
+        $footerSetting = \Commero\Models\SiteSetting::query()->first();
+        $footerSiteName = $footerSetting?->getSiteNameForLocale($footerLocale) ?: $footerSiteName;
+        $footerContacts = $footerSetting?->getContactsForLocale($footerLocale) ?? [];
+        $footerSocialLinks = $footerSetting?->getSocialLinksForLocale($footerLocale) ?? [];
+    } catch (\Throwable) {
+        // Keep email rendering available before site settings are installed.
+    }
+
+    $footerContactHref = static function (array $contact): ?string {
+        $value = trim((string) ($contact['value'] ?? ''));
+        $identifier = strtolower(trim((string) ($contact['identifier'] ?? '')));
+
+        if ($value === '') {
+            return null;
+        }
+
+        if (str_contains($value, '://')) {
+            return $value;
+        }
+
+        if (in_array($identifier, ['phone', 'tel', 'mobile', 'viber', 'whatsapp', 'telegram'], true)) {
+            return 'tel:'.preg_replace('/[^+\d]/', '', $value);
+        }
+
+        if (in_array($identifier, ['email', 'mail'], true) || filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            return 'mailto:'.$value;
+        }
+
+        return 'https://'.$value;
+    };
+
+    $footerIconUrl = static function (?string $path): ?string {
+        return filled($path) ? url(Storage::disk('public')->url($path)) : null;
+    };
+@endphp
+
+<div style="padding:22px 8px 0;text-align:center;color:#666;font-size:12px;line-height:1.5">
+    @if($footerContacts !== [])
+        <div style="margin:0 0 12px">
+            @foreach($footerContacts as $contact)
+                @php($contactHref = $footerContactHref($contact))
+                @if(filled($contactHref))
+                    <a href="{{ $contactHref }}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;margin:0 8px 8px;color:#444;text-decoration:none">
+                        @if($icon = $footerIconUrl($contact['icon'] ?? null))
+                            <img src="{{ $icon }}" alt="" width="22" height="22" style="display:inline-block;width:22px;height:22px;object-fit:contain;margin-right:5px;vertical-align:middle">
+                        @endif
+                        <span>{{ $contact['label'] ?? $contact['value'] }}</span>
+                    </a>
+                @endif
+            @endforeach
+        </div>
+    @endif
+
+    @if($footerSocialLinks !== [])
+        <div style="margin:0 0 12px">
+            @foreach($footerSocialLinks as $social)
+                @php($socialUrl = trim((string) ($social['url'] ?? '')))
+                @if(filled($socialUrl))
+                    <a href="{{ $socialUrl }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:0 5px;color:#444;text-decoration:none">
+                        @if($icon = $footerIconUrl($social['icon'] ?? null))
+                            <img src="{{ $icon }}" alt="{{ $social['label'] ?? $social['identifier'] ?? '' }}" width="28" height="28" style="display:inline-block;width:28px;height:28px;object-fit:contain;vertical-align:middle">
+                        @else
+                            <span>{{ $social['label'] ?? $social['identifier'] ?? $socialUrl }}</span>
+                        @endif
+                    </a>
+                @endif
+            @endforeach
+        </div>
+    @endif
+
+    <div>{{ __('commero::app.order_notifications.copyright', ['year' => now()->year, 'site' => $footerSiteName], $emailLocale ?? app()->getLocale()) }}</div>
+</div>

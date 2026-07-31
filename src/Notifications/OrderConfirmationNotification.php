@@ -23,11 +23,15 @@ class OrderConfirmationNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
+        $emailLocale = Locales::emailLocale($this->order->locale ?: Locales::fallback());
+
         return (new MailMessage)
-            ->subject(__('commero::app.order_notifications.customer_order_subject', ['number' => $this->order->number]))
+            ->subject(__('commero::app.order_notifications.customer_order_subject', ['number' => $this->order->number], $emailLocale))
             ->view(config('commero.notifications.order_confirmation_view'), [
-                'title' => __('commero::app.order_notifications.customer_order_title'),
-                'intro' => __('commero::app.order_notifications.customer_order_intro', ['number' => $this->order->number]),
+                'emailLocale' => $emailLocale,
+                'settingsLocale' => $this->order->locale ?: Locales::fallback(),
+                'title' => __('commero::app.order_notifications.customer_order_title', [], $emailLocale),
+                'intro' => __('commero::app.order_notifications.customer_order_intro', ['number' => $this->order->number], $emailLocale),
                 'order' => $this->order,
                 'statusLabel' => $this->statusLabel($this->order->status),
                 'adminUrl' => null,
