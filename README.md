@@ -82,6 +82,10 @@ resources/views/vendor/commero/emails/
 
 The template view names can also be changed in `config/commero.php` under `notifications`.
 
+Customer order emails normalize the storefront's combined locale codes to the
+email language (`ua-ru` to Russian, `ua-en` to English, `es-es` to Spanish,
+and `pl-pl` to Polish). Admin notifications continue to use the default site locale.
+
 The sender address and sender name can be configured in the admin panel under
 `Site settings -> Налаштування відправки пошти`. If either field is empty, Commero
 uses the corresponding `mail.from` value from the host application's mail configuration.

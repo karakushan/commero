@@ -7,6 +7,7 @@ use Commero\Models\User;
 use Commero\Notifications\OrderConfirmationNotification;
 use Commero\Notifications\OrderReceivedNotification;
 use Commero\Notifications\OrderStatusChangedNotification;
+use Commero\Support\Locales;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Notifications\AnonymousNotifiable;
@@ -45,7 +46,7 @@ class OrderNotificationService
         }
 
         try {
-            Notification::locale($order->locale ?: config('commero.locales.fallback', config('app.fallback_locale')))
+            Notification::locale(Locales::emailLocale($order->locale ?: Locales::fallback()))
                 ->send(
                     (new AnonymousNotifiable)->route('mail', $customerEmail),
                     new OrderConfirmationNotification($this->loadOrderForEmail($order)),
@@ -69,7 +70,7 @@ class OrderNotificationService
         }
 
         try {
-            Notification::locale($order->locale ?: config('commero.locales.fallback', config('app.fallback_locale')))
+            Notification::locale(Locales::emailLocale($order->locale ?: Locales::fallback()))
                 ->send(
                     (new AnonymousNotifiable)->route('mail', $customerEmail),
                     new OrderStatusChangedNotification($this->loadOrderForEmail($order), $previousStatus),

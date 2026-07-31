@@ -5,6 +5,7 @@ namespace Commero\Notifications;
 use Commero\Models\Order;
 use Commero\Models\OrderStatus;
 use Commero\Support\Mail\OutboundMailStatus;
+use Commero\Support\Locales;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -39,7 +40,11 @@ class OrderStatusChangedNotification extends Notification
 
     private function statusLabel(string $status): string
     {
-        $statusName = OrderStatus::query()->where('code', $status)->first()?->name;
+        $statusModel = OrderStatus::query()->with('translations')->where('code', $status)->first();
+        $requestedLocale = $this->order->locale ?: Locales::fallback();
+        $statusName = $statusModel?->translations->firstWhere('locale', $requestedLocale)?->name
+            ?? $statusModel?->translations->firstWhere('locale', Locales::emailLocale($requestedLocale))?->name
+            ?? $statusModel?->getRawOriginal('name');
 
         if (filled($statusName)) {
             return $statusName;

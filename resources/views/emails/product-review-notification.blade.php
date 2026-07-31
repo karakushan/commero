@@ -13,19 +13,19 @@
         <p style="margin:0 0 24px">{{ $intro }}</p>
 
         <table style="width:100%;border-collapse:collapse;margin:0 0 24px">
-            <tr><td style="padding:7px 0;color:#666">{{ __('commero::admin.order.product') }}</td><td style="padding:7px 0;text-align:right;font-weight:700">{{ $productName }}</td></tr>
-            <tr><td style="padding:7px 0;color:#666">{{ __('commero::admin.product_review.display_name') }}</td><td style="padding:7px 0;text-align:right">{{ $review->display_name }}</td></tr>
+            <tr><td style="padding:7px 0;color:#666">{{ __('commero::app.order_notifications.product') }}</td><td style="padding:7px 0;text-align:right;font-weight:700">{{ $productName }}</td></tr>
+            <tr><td style="padding:7px 0;color:#666">{{ __('commero::app.order_notifications.review_author') }}</td><td style="padding:7px 0;text-align:right">{{ $review->display_name }}</td></tr>
             @if(filled($review->email))
-                <tr><td style="padding:7px 0;color:#666">{{ __('commero::admin.common.email') }}</td><td style="padding:7px 0;text-align:right">{{ $review->email }}</td></tr>
+                <tr><td style="padding:7px 0;color:#666">{{ __('commero::app.order_notifications.email') }}</td><td style="padding:7px 0;text-align:right">{{ $review->email }}</td></tr>
             @endif
-            <tr><td style="padding:7px 0;color:#666">{{ __('commero::admin.product_review.rating') }}</td><td style="padding:7px 0;text-align:right;font-weight:700">{{ $review->rating }}/5</td></tr>
+            <tr><td style="padding:7px 0;color:#666">{{ __('commero::app.order_notifications.rating') }}</td><td style="padding:7px 0;text-align:right;font-weight:700">{{ $review->rating }}/5</td></tr>
             @if(filled($review->title))
-                <tr><td style="padding:7px 0;color:#666">{{ __('commero::admin.common.title') }}</td><td style="padding:7px 0;text-align:right">{{ $review->title }}</td></tr>
+                <tr><td style="padding:7px 0;color:#666">{{ __('commero::app.order_notifications.review_title') }}</td><td style="padding:7px 0;text-align:right">{{ $review->title }}</td></tr>
             @endif
         </table>
 
         @if(filled($review->comment))
-            <p style="margin:0 0 24px"><strong>{{ __('commero::admin.common.message') }}:</strong><br>{{ $review->comment }}</p>
+            <p style="margin:0 0 24px"><strong>{{ __('commero::app.order_notifications.message') }}:</strong><br>{{ $review->comment }}</p>
         @endif
 
         @if(filled($adminUrl))

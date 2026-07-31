@@ -44,6 +44,24 @@ class Locales
         return self::default();
     }
 
+    public static function emailLocale(?string $locale = null): string
+    {
+        $resolvedLocale = self::resolve($locale ?? self::fallback());
+        $parts = explode('-', strtolower($resolvedLocale));
+        $language = end($parts) ?: $resolvedLocale;
+
+        return match ($language) {
+            'ua', 'uk' => 'uk',
+            'en' => 'en',
+            'ru' => 'ru',
+            'es' => 'es',
+            'pl' => 'pl',
+            default => self::resolve(self::fallback()) === $resolvedLocale
+                ? 'uk'
+                : self::emailLocale(self::fallback()),
+        };
+    }
+
     public static function path(string $path = '/', ?string $locale = null): string
     {
         $normalizedPath = '/'.ltrim($path, '/');
