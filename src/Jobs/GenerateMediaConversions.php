@@ -45,6 +45,10 @@ class GenerateMediaConversions implements ShouldQueue
             $collection = $mediaService->onlyMissingConversions($media, $collection);
         }
 
+        if (! $this->onlyMissing) {
+            $mediaService->removeConversions($media, $collection);
+        }
+
         $fileManipulator->performConversions($collection, $media);
     }
 }

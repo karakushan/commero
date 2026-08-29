@@ -68,6 +68,10 @@ class GenerateMediaCommand extends Command
                 }
 
                 if ($this->option('sync')) {
+                    if (! $onlyMissing) {
+                        $mediaService->removeConversions($media, $conversions);
+                    }
+
                     $fileManipulator->performConversions($conversions, $media);
                     $generated++;
                 } else {

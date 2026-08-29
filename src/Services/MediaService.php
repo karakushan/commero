@@ -22,6 +22,38 @@ class MediaService
         });
     }
 
+    public function removeConversions(Media $media, ConversionCollection $conversions): void
+    {
+        $disk = Storage::disk($media->conversions_disk ?: $media->disk);
+        $generatedConversions = (array) $media->generated_conversions;
+
+        foreach ($conversions as $conversion) {
+            $name = $conversion->getName();
+            $path = $media->getPathRelativeToRoot($name);
+            $disk->delete($path);
+
+            // Remove previous files with the same conversion name even when
+            // the output format changed (for example, old JPG -> new WebP).
+            $conversionFile = basename($path);
+            $marker = '-'.$name.'.';
+            $prefix = Str::before($conversionFile, $marker);
+
+            if ($prefix !== $conversionFile) {
+                $directory = trim(dirname($path), '/').'/';
+
+                foreach ($disk->files($directory) as $file) {
+                    if (Str::startsWith(basename($file), $prefix.$marker)) {
+                        $disk->delete($file);
+                    }
+                }
+            }
+
+            $generatedConversions[$name] = false;
+        }
+
+        $media->forceFill(['generated_conversions' => $generatedConversions])->save();
+    }
+
     public function importLegacy(Model $model, string $collection, ?string $legacyPath = null): ?Media
     {
         if (! config('commero.media.legacy_compatibility.enabled', true)) {
