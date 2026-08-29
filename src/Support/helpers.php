@@ -6,6 +6,8 @@ use Commero\Models\Page;
 use Commero\Models\SiteSetting;
 use Commero\Support\EntityLinkService;
 use Commero\Support\MenuManager;
+use Commero\Services\MediaUrlResolver;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 if (! function_exists('site_menu')) {
@@ -49,6 +51,13 @@ if (! function_exists('category_url')) {
         }
 
         return app(EntityLinkService::class)->categoryUrl($category, $locale ?? app()->getLocale());
+    }
+}
+
+if (! function_exists('commero_media_url')) {
+    function commero_media_url(Model $model, string $collection, ?string $conversion = null): ?string
+    {
+        return MediaUrlResolver::url($model, $collection, $conversion);
     }
 }
 

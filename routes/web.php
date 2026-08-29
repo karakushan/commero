@@ -14,6 +14,7 @@ use Commero\Http\Controllers\PageController;
 use Commero\Http\Controllers\ProductController;
 use Commero\Http\Controllers\ThankYouController;
 use Commero\Http\Controllers\WishlistController;
+use Commero\Http\Controllers\MediaController;
 use Commero\Interfaces\Http\Livewire\CatalogPage;
 use Commero\Interfaces\Http\Livewire\CheckoutPage;
 use Commero\Interfaces\Http\Livewire\SaleProductsPage;
@@ -35,6 +36,10 @@ Route::redirect('/'.Locales::default(), '/');
 Route::redirect('/'.Locales::default().'/catalog', '/catalog');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/commero/media/{media}/original', [MediaController::class, 'original'])
+    ->where('media', '[0-9a-fA-F-]+')
+    ->name('commero.media.original');
 
 Route::get('/catalog', CatalogPage::class)->name('catalog.index');
 Route::get('/catalog/filter-preview', CatalogFilterPreviewController::class)->name('catalog.preview-count');

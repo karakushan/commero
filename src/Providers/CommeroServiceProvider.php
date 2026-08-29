@@ -3,6 +3,7 @@
 namespace Commero\Providers;
 
 use Commero\Commands\InstallCommand;
+use Commero\Commands\GenerateMediaCommand;
 use Commero\Contracts\ContentBlockHydrator;
 use Commero\Contracts\ContentBlockRegistry;
 use Commero\Domain\Catalog\Domain\Contracts\AttributeRepositoryInterface;
@@ -34,6 +35,7 @@ class CommeroServiceProvider extends ServiceProvider
 
         $this->loadTranslationsFrom($this->packagePath('lang'), 'commero');
         $this->mergePackageConfig();
+        $this->configureMediaLibrary();
         $this->synchronizeAuthModel();
         $this->synchronizeApplicationLocales();
         $this->registerContentBlockInfrastructure();
@@ -53,6 +55,7 @@ class CommeroServiceProvider extends ServiceProvider
         $this->registerSchemaMacros();
         $this->registerPolicies();
         $this->registerMiddleware();
+        $this->configureMediaLibrary();
 
         if (! $this->app->routesAreCached()) {
             Route::middleware('web')->group($this->packagePath('routes/web.php'));
@@ -180,6 +183,24 @@ class CommeroServiceProvider extends ServiceProvider
 
         $this->commands([
             InstallCommand::class,
+            GenerateMediaCommand::class,
+        ]);
+    }
+
+    private function configureMediaLibrary(): void
+    {
+        if (! is_array(config('filesystems.disks.private'))) {
+            $privateDisk = (array) config('filesystems.disks.local', []);
+            unset($privateDisk['url'], $privateDisk['serve']);
+            $privateDisk['visibility'] = 'private';
+            config(['filesystems.disks.private' => $privateDisk]);
+        }
+
+        config([
+            'media-library.disk_name' => config('commero.media.original_disk', 'private'),
+            'media-library.conversions_disk_name' => config('commero.media.conversion_disk', 'public'),
+            'media-library.queue_connection_name' => config('commero.media.queue.connection') ?: config('queue.default'),
+            'media-library.queue_name' => config('commero.media.queue.queue', 'media'),
         ]);
     }
 

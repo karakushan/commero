@@ -3,6 +3,7 @@
 namespace Commero\Models;
 
 use Commero\Support\Concerns\HasLocalizedTranslations;
+use Commero\Support\Concerns\HasCommeroMedia;
 use Commero\Support\EntityLinkService;
 use Commero\Support\Locales;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,11 +11,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\HasMedia;
 
-class Category extends Model
+class Category extends Model implements HasMedia
 {
     use HasFactory;
     use HasLocalizedTranslations;
+    use HasCommeroMedia;
 
     protected $fillable = ['parent_id', 'path', 'depth', 'sort', 'icon_path', 'thumbnail_path'];
 
@@ -53,5 +56,19 @@ class Category extends Model
     public function getUrlAttribute(): ?string
     {
         return $this->frontendUrl();
+    }
+
+    public function commeroMediaCollections(): array
+    {
+        return [
+            'category_thumbnail' => 'thumbnail_path',
+            'category_icon' => 'icon_path',
+        ];
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addConfiguredMediaCollection('category_thumbnail');
+        $this->addConfiguredMediaCollection('category_icon');
     }
 }

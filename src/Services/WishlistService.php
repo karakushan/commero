@@ -311,7 +311,7 @@ class WishlistService
         $gallery = [];
 
         foreach ($product->images as $image) {
-            $imageUrl = Storage::disk('public')->url($image->path);
+            $imageUrl = MediaUrlResolver::url($image, 'product_gallery');
 
             $gallery[] = [
                 'id' => $image->id,
@@ -321,7 +321,7 @@ class WishlistService
         }
 
         if ($gallery === [] && filled($product->primaryImage?->path)) {
-            $imageUrl = Storage::disk('public')->url($product->primaryImage->path);
+            $imageUrl = MediaUrlResolver::url($product->primaryImage, 'product_gallery');
 
             $gallery[] = [
                 'id' => $product->primaryImage->id,
@@ -338,7 +338,7 @@ class WishlistService
             'price' => (float) ($primaryVariant?->price ?? 0),
             'old_price' => $primaryVariant?->old_price !== null ? (float) $primaryVariant->old_price : null,
             'image' => filled($product->primaryImage?->path)
-                ? Storage::disk('public')->url($product->primaryImage->path)
+                ? MediaUrlResolver::url($product->primaryImage, 'product_gallery')
                 : asset('images/shophats/products/placeholder.jpg'),
             'gallery' => $gallery,
             'stock_status' => $product->stock_status ?? 'in_stock',

@@ -6,6 +6,7 @@ use Commero\Application\Catalog\Queries\CatalogFiltersQuery;
 use Commero\Application\Catalog\Queries\CatalogProductListQuery;
 use Commero\Models\Product;
 use Commero\Models\ProductVariant;
+use Commero\Services\MediaUrlResolver;
 use Commero\Support\Locales;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -316,8 +317,8 @@ class SaleProductsPage extends Component
         foreach ($product->images as $image) {
             $galleryImages[] = [
                 'id' => $image->id,
-                'full' => Storage::disk('public')->url($image->path),
-                'thumb' => Storage::disk('public')->url($image->path),
+                'full' => MediaUrlResolver::url($image, 'product_gallery'),
+                'thumb' => MediaUrlResolver::url($image, 'product_gallery', 'thumb'),
             ];
         }
 
@@ -325,8 +326,8 @@ class SaleProductsPage extends Component
         if (empty($galleryImages) && $product->primaryImage) {
             $galleryImages[] = [
                 'id' => $product->primaryImage->id,
-                'full' => Storage::disk('public')->url($product->primaryImage->path),
-                'thumb' => Storage::disk('public')->url($product->primaryImage->path),
+                'full' => MediaUrlResolver::url($product->primaryImage, 'product_gallery'),
+                'thumb' => MediaUrlResolver::url($product->primaryImage, 'product_gallery', 'thumb'),
             ];
         }
 
@@ -342,8 +343,8 @@ class SaleProductsPage extends Component
             description: $translation?->description,
             sku: $product->sku,
             brand: $product->brand?->name,
-            primaryImageUrl: filled($product->primaryImage?->path)
-                ? Storage::disk('public')->url($product->primaryImage->path)
+            primaryImageUrl: $product->primaryImage
+                ? MediaUrlResolver::url($product->primaryImage, 'product_gallery', 'thumb')
                 : null,
             primaryImageAlt: $product->primaryImage?->alt,
             price: $price,

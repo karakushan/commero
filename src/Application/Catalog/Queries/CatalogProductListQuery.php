@@ -6,10 +6,10 @@ use Commero\Application\Catalog\DTOs\CatalogProductCardData;
 use Commero\Models\ProductAttribute;
 use Commero\Models\Product;
 use Commero\Models\ProductVariant;
+use Commero\Services\MediaUrlResolver;
 use Commero\Support\Locales;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 
 class CatalogProductListQuery
 {
@@ -158,8 +158,8 @@ class CatalogProductListQuery
         foreach ($product->images as $image) {
             $galleryImages[] = [
                 'id' => $image->id,
-                'full' => Storage::disk('public')->url($image->path),
-                'thumb' => Storage::disk('public')->url($image->path),
+                'full' => MediaUrlResolver::url($image, 'product_gallery'),
+                'thumb' => MediaUrlResolver::url($image, 'product_gallery', 'thumb'),
             ];
         }
 
@@ -167,8 +167,8 @@ class CatalogProductListQuery
         if (empty($galleryImages) && $product->primaryImage) {
             $galleryImages[] = [
                 'id' => $product->primaryImage->id,
-                'full' => Storage::disk('public')->url($product->primaryImage->path),
-                'thumb' => Storage::disk('public')->url($product->primaryImage->path),
+                'full' => MediaUrlResolver::url($product->primaryImage, 'product_gallery'),
+                'thumb' => MediaUrlResolver::url($product->primaryImage, 'product_gallery', 'thumb'),
             ];
         }
 
@@ -184,8 +184,8 @@ class CatalogProductListQuery
             description: $translation?->description,
             sku: $product->sku,
             brand: $product->brand?->name,
-            primaryImageUrl: filled($product->primaryImage?->path)
-                ? Storage::disk('public')->url($product->primaryImage->path)
+            primaryImageUrl: $product->primaryImage
+                ? MediaUrlResolver::url($product->primaryImage, 'product_gallery', 'thumb')
                 : null,
             primaryImageAlt: $product->primaryImage?->alt,
             price: $price,

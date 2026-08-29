@@ -5,6 +5,7 @@ namespace Commero\Services;
 use Commero\Models\Currency;
 use Commero\Models\Product;
 use Commero\Models\ProductVariant;
+use Commero\Services\MediaUrlResolver;
 use Commero\Support\Locales;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
@@ -64,7 +65,7 @@ class CartService
                     'name' => $this->productName($product),
                     'url' => $this->productUrl($product),
                     'image' => filled($product->primaryImage?->path)
-                        ? Storage::disk('public')->url($product->primaryImage->path)
+                        ? MediaUrlResolver::url($product->primaryImage, 'product_gallery')
                         : ($sessionProduct['image'] ?? asset('images/shophats/products/placeholder.jpg')),
                     'sku' => $product->sku ?? ($sessionProduct['sku'] ?? ''),
                 ],
@@ -158,7 +159,7 @@ class CartService
                 'name' => $this->productName($product),
                 'url' => $this->productUrl($product),
                 'image' => filled($product->primaryImage?->path)
-                    ? Storage::disk('public')->url($product->primaryImage->path)
+                    ? MediaUrlResolver::url($product->primaryImage, 'product_gallery')
                     : asset('images/shophats/products/placeholder.jpg'),
                 'sku' => $product->sku ?? '',
             ],
@@ -407,7 +408,7 @@ class CartService
             'name' => $this->productName($product),
             'url' => $this->productUrl($product),
             'image' => filled($product->primaryImage?->path)
-                ? Storage::disk('public')->url($product->primaryImage->path)
+                ? MediaUrlResolver::url($product->primaryImage, 'product_gallery')
                 : asset('images/shophats/products/placeholder.jpg'),
         ];
     }

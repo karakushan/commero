@@ -6,6 +6,7 @@ use Commero\Http\Requests\StoreProductReviewRequest;
 use Commero\Models\Product;
 use Commero\Models\ProductReview;
 use Commero\Models\ProductViewSession;
+use Commero\Services\MediaUrlResolver;
 use Commero\Support\Locales;
 use Commero\Support\Seo\LocalizedSeoResolver;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -57,11 +58,11 @@ class ProductController extends Controller
         // Build gallery images array with proper URLs
         $galleryImages = [];
         foreach ($product->images as $image) {
-            $imageUrl = Storage::disk('public')->url($image->path);
+            $imageUrl = MediaUrlResolver::url($image, 'product_gallery');
             $galleryImages[] = [
                 'id' => $image->id,
                 'full' => $imageUrl,
-                'thumb' => $imageUrl,
+                'thumb' => MediaUrlResolver::url($image, 'product_gallery', 'thumb') ?? $imageUrl,
             ];
         }
 
@@ -103,7 +104,7 @@ class ProductController extends Controller
             'price' => $primaryVariant?->price ?? 0,
             'old_price' => $primaryVariant?->old_price ?? null,
             'image' => $product->primaryImage
-                ? Storage::disk('public')->url($product->primaryImage->path)
+                ? MediaUrlResolver::url($product->primaryImage, 'product_gallery', 'thumb')
                 : asset('images/shophats/products/placeholder.jpg'),
             'gallery' => $galleryImages,
             'stock_status' => $product->effectiveStockStatus(),
@@ -261,7 +262,7 @@ class ProductController extends Controller
             'price' => $primaryVariant?->price ?? 0,
             'old_price' => $primaryVariant?->old_price,
             'image' => $product->primaryImage
-                ? Storage::disk('public')->url($product->primaryImage->path)
+                ? MediaUrlResolver::url($product->primaryImage, 'product_gallery')
                 : asset('images/shophats/products/placeholder.jpg'),
             'is_current' => $isCurrent,
         ];
@@ -410,17 +411,17 @@ class ProductController extends Controller
         $gallery = [];
 
         foreach ($product->images as $image) {
-            $imageUrl = Storage::disk('public')->url($image->path);
+            $imageUrl = MediaUrlResolver::url($image, 'product_gallery');
 
             $gallery[] = [
                 'id' => $image->id,
                 'full' => $imageUrl,
-                'thumb' => $imageUrl,
+                'thumb' => MediaUrlResolver::url($image, 'product_gallery', 'thumb') ?? $imageUrl,
             ];
         }
 
         if ($gallery === [] && $product->primaryImage) {
-            $imageUrl = Storage::disk('public')->url($product->primaryImage->path);
+            $imageUrl = MediaUrlResolver::url($product->primaryImage, 'product_gallery');
 
             $gallery[] = [
                 'id' => $product->primaryImage->id,
@@ -437,7 +438,7 @@ class ProductController extends Controller
             'price' => $primaryVariant?->price ?? 0,
             'old_price' => $primaryVariant?->old_price,
             'image' => $product->primaryImage
-                ? Storage::disk('public')->url($product->primaryImage->path)
+                ? MediaUrlResolver::url($product->primaryImage, 'product_gallery', 'thumb')
                 : asset('images/shophats/products/placeholder.jpg'),
             'gallery' => $gallery,
             'stock_status' => $product->effectiveStockStatus(),

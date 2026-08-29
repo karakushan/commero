@@ -4,6 +4,7 @@ namespace Commero\Http\Controllers;
 
 use Commero\Models\Post;
 use Commero\Models\PostCategory;
+use Commero\Services\MediaUrlResolver;
 use Commero\Support\Locales;
 use Commero\Support\Seo\LocalizedSeoResolver;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -105,9 +106,8 @@ class BlogController extends Controller
                     'id' => $relatedPost->id,
                     'title' => $translation?->title ?? __('Blog post'),
                     'excerpt' => $translation?->excerpt,
-                    'thumbnail_url' => $relatedPost->thumbnail_path
-                        ? Storage::disk('public')->url($relatedPost->thumbnail_path)
-                        : asset(self::POST_PLACEHOLDER_IMAGE),
+                    'thumbnail_url' => MediaUrlResolver::url($relatedPost, 'post_thumbnail', 'card')
+                        ?? asset(self::POST_PLACEHOLDER_IMAGE),
                     'category' => $categoryTranslation?->name,
                     'category_slug' => $relatedPost->category?->localizedSlug($locale, $relatedPost->category?->path),
                     'date' => $relatedPost->published_at?->format('d.m.Y') ?? $relatedPost->created_at?->format('d.m.Y'),
@@ -139,9 +139,8 @@ class BlogController extends Controller
                 'slug' => $translation?->slug ?? $post->id,
                 'content' => $translation?->content ?? '',
                 'excerpt' => $translation?->excerpt,
-                'thumbnail_url' => $post->thumbnail_path
-                    ? Storage::disk('public')->url($post->thumbnail_path)
-                    : asset(self::POST_PLACEHOLDER_IMAGE),
+                'thumbnail_url' => MediaUrlResolver::url($post, 'post_thumbnail', 'card')
+                    ?? asset(self::POST_PLACEHOLDER_IMAGE),
                 'category' => $categoryTranslation?->name,
                 'category_slug' => $post->category?->localizedSlug($locale, $post->category?->path),
                 'date' => $post->published_at?->format('d.m.Y') ?? $post->created_at?->format('d.m.Y'),
@@ -202,9 +201,8 @@ class BlogController extends Controller
                     'id' => $post->id,
                     'title' => $translation?->title ?? __('Blog post'),
                     'excerpt' => $translation?->excerpt,
-                    'thumbnail_url' => $post->thumbnail_path
-                        ? Storage::disk('public')->url($post->thumbnail_path)
-                        : asset(self::POST_PLACEHOLDER_IMAGE),
+                    'thumbnail_url' => MediaUrlResolver::url($post, 'post_thumbnail', 'card')
+                        ?? asset(self::POST_PLACEHOLDER_IMAGE),
                     'category' => $categoryTranslation?->name,
                     'category_slug' => $post->category?->localizedSlug($locale, $post->category?->path),
                     'date' => $post->published_at?->format('d.m.Y') ?? $post->created_at?->format('d.m.Y'),
