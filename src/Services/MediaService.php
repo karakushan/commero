@@ -44,6 +44,17 @@ class MediaService
             ->orderBy('id')
             ->first() ?? $model->getFirstMedia($collection);
 
+        if ($media && $legacy && Storage::disk($legacyDisk)->exists($legacy)) {
+            $incomingChecksum = hash('sha256', Storage::disk($legacyDisk)->get($legacy));
+            $knownChecksum = $media->getCustomProperty('legacy_checksum')
+                ?: $this->mediaChecksum($media);
+
+            if ($knownChecksum !== null && ! hash_equals($knownChecksum, $incomingChecksum)) {
+                $media->delete();
+                $media = null;
+            }
+        }
+
         if (! $media && $legacy && Storage::disk($legacyDisk)->exists($legacy)) {
             $media = $this->withoutAutomaticConversions(fn () => $model
                 ->addMediaFromDisk($legacy, $legacyDisk)
@@ -109,6 +120,22 @@ class MediaService
 
         $media->setCustomProperty('legacy_checksum', hash_file('sha256', $sourcePath));
         $media->save();
+    }
+
+    private function mediaChecksum(Media $media): ?string
+    {
+        $disk = Storage::disk($media->disk);
+        $stream = $disk->readStream($media->getPathRelativeToRoot());
+
+        if (! is_resource($stream)) {
+            return null;
+        }
+
+        $context = hash_init('sha256');
+        hash_update_stream($context, $stream);
+        fclose($stream);
+
+        return hash_final($context);
     }
 
     private function withoutAutomaticConversions(callable $callback): mixed
