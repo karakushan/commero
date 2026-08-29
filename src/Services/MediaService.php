@@ -31,7 +31,18 @@ class MediaService
         $legacyDisk = (string) config('commero.media.legacy_disk', 'public');
         $originalDisk = (string) config('commero.media.original_disk', 'private');
         $legacy = $legacyPath ? ltrim($legacyPath, '/') : null;
-        $media = $model->getFirstMedia($collection);
+        $mediaTypes = array_values(array_unique([
+            $model->getMorphClass(),
+            get_class($model),
+            'Commero\\Models\\'.class_basename($model),
+        ]));
+        $media = Media::query()
+            ->whereIn('model_type', $mediaTypes)
+            ->where('model_id', $model->getKey())
+            ->where('collection_name', $collection)
+            ->orderBy('order_column')
+            ->orderBy('id')
+            ->first() ?? $model->getFirstMedia($collection);
 
         if (! $media && $legacy && Storage::disk($legacyDisk)->exists($legacy)) {
             $media = $this->withoutAutomaticConversions(fn () => $model
