@@ -15,12 +15,13 @@ return [
             'quality' => 82,
         ],
         'sizes' => [
-            'thumb' => ['width' => 320, 'height' => 320, 'fit' => 'crop', 'quality' => 80, 'format' => 'webp'],
-            'card' => ['width' => 640, 'height' => 800, 'fit' => 'crop', 'quality' => 82, 'format' => 'webp'],
-            'detail' => ['width' => 1600, 'height' => null, 'fit' => 'contain', 'quality' => 85, 'format' => 'webp'],
+            'thumb' => ['width' => 320, 'height' => null, 'quality' => 80, 'format' => 'webp'],
+            'slider' => ['width' => 345, 'height' => null, 'quality' => 82, 'format' => 'webp'],
+            'card' => ['width' => 640, 'height' => null, 'quality' => 82, 'format' => 'webp'],
+            'detail' => ['width' => 1600, 'height' => null, 'quality' => 85, 'format' => 'webp'],
         ],
         'collections' => [
-            'product_gallery' => ['thumb', 'card', 'detail'],
+            'product_gallery' => ['thumb', 'slider', 'card', 'detail'],
             'category_thumbnail' => ['thumb'],
             'category_icon' => ['thumb'],
             'post_thumbnail' => ['card'],

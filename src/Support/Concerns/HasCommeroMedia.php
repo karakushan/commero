@@ -5,7 +5,6 @@ namespace Commero\Support\Concerns;
 use Commero\Jobs\GenerateMediaConversions;
 use Commero\Services\MediaService;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\Conversions\Conversion;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -71,10 +70,11 @@ trait HasCommeroMedia
     {
         $width = isset($definition['width']) ? (int) $definition['width'] : null;
         $height = isset($definition['height']) ? (int) $definition['height'] : null;
-        $fit = (string) ($definition['fit'] ?? 'contain');
 
-        if ($width !== null || $height !== null) {
-            $conversion->fit(Fit::tryFrom($fit) ?? Fit::Contain, $width, $height);
+        if ($width !== null) {
+            $conversion->width($width);
+        } elseif ($height !== null) {
+            $conversion->height($height);
         }
 
         $format = config('commero.media.webp.enabled', true)
