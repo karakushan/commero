@@ -17,11 +17,12 @@ return [
         'sizes' => [
             'thumb' => ['width' => 320, 'height' => null, 'quality' => 80, 'format' => 'webp'],
             'slider' => ['width' => 345, 'height' => null, 'quality' => 82, 'format' => 'webp'],
+            'slider_large' => ['width' => 571, 'height' => null, 'quality' => 85, 'format' => 'webp'],
             'card' => ['width' => 640, 'height' => null, 'quality' => 82, 'format' => 'webp'],
             'detail' => ['width' => 1600, 'height' => null, 'quality' => 85, 'format' => 'webp'],
         ],
         'collections' => [
-            'product_gallery' => ['thumb', 'slider', 'card', 'detail'],
+            'product_gallery' => ['thumb', 'slider', 'slider_large', 'card', 'detail'],
             'category_thumbnail' => ['thumb'],
             'category_icon' => ['thumb'],
             'post_thumbnail' => ['card'],

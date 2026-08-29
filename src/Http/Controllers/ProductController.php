@@ -63,6 +63,7 @@ class ProductController extends Controller
                 'id' => $image->id,
                 'full' => $imageUrl,
                 'thumb' => MediaUrlResolver::url($image, 'product_gallery', 'thumb') ?? $imageUrl,
+                'slider_large' => MediaUrlResolver::url($image, 'product_gallery', 'slider_large') ?? $imageUrl,
                 'detail' => MediaUrlResolver::url($image, 'product_gallery', 'detail') ?? $imageUrl,
             ];
         }
@@ -105,7 +106,8 @@ class ProductController extends Controller
             'price' => $primaryVariant?->price ?? 0,
             'old_price' => $primaryVariant?->old_price ?? null,
             'image' => $product->primaryImage
-                ? (MediaUrlResolver::url($product->primaryImage, 'product_gallery', 'detail')
+                ? (MediaUrlResolver::url($product->primaryImage, 'product_gallery', 'slider_large')
+                    ?? MediaUrlResolver::url($product->primaryImage, 'product_gallery', 'detail')
                     ?? MediaUrlResolver::url($product->primaryImage, 'product_gallery', 'thumb'))
                 : asset('images/shophats/products/placeholder.jpg'),
             'gallery' => $galleryImages,
