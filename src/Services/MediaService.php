@@ -5,10 +5,23 @@ namespace Commero\Services;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Spatie\MediaLibrary\Conversions\ConversionCollection;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class MediaService
 {
+    public function onlyMissingConversions(Media $media, ConversionCollection $conversions): ConversionCollection
+    {
+        return $conversions->reject(function ($conversion) use ($media): bool {
+            if (! $media->hasGeneratedConversion($conversion->getName())) {
+                return false;
+            }
+
+            return Storage::disk($media->conversions_disk ?: $media->disk)
+                ->exists($media->getPathRelativeToRoot($conversion->getName()));
+        });
+    }
+
     public function importLegacy(Model $model, string $collection, ?string $legacyPath = null): ?Media
     {
         if (! config('commero.media.legacy_compatibility.enabled', true)) {

@@ -58,13 +58,17 @@ class GenerateMediaCommand extends Command
                 $conversions = ConversionCollection::createForMedia($media)
                     ->filter(fn ($conversion): bool => in_array($conversion->getName(), $conversionNames, true));
 
+                if ($onlyMissing) {
+                    $conversions = $mediaService->onlyMissingConversions($media, $conversions);
+                }
+
                 if ($conversions->isEmpty()) {
                     $skipped++;
                     continue;
                 }
 
                 if ($this->option('sync')) {
-                    $fileManipulator->performConversions($conversions, $media, $onlyMissing);
+                    $fileManipulator->performConversions($conversions, $media);
                     $generated++;
                 } else {
                     GenerateMediaConversions::dispatch($media->getKey(), $conversionNames, $onlyMissing)

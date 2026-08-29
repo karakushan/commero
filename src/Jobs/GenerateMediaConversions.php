@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Spatie\MediaLibrary\Conversions\ConversionCollection;
 use Spatie\MediaLibrary\Conversions\FileManipulator;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Commero\Services\MediaService;
 
 class GenerateMediaConversions implements ShouldQueue
 {
@@ -29,7 +30,7 @@ class GenerateMediaConversions implements ShouldQueue
         public bool $onlyMissing = true,
     ) {}
 
-    public function handle(FileManipulator $fileManipulator): void
+    public function handle(FileManipulator $fileManipulator, MediaService $mediaService): void
     {
         $media = Media::query()->find($this->mediaId);
 
@@ -40,6 +41,10 @@ class GenerateMediaConversions implements ShouldQueue
         $collection = ConversionCollection::createForMedia($media)
             ->filter(fn ($conversion): bool => $this->conversions === [] || in_array($conversion->getName(), $this->conversions, true));
 
-        $fileManipulator->performConversions($collection, $media, $this->onlyMissing);
+        if ($this->onlyMissing) {
+            $collection = $mediaService->onlyMissingConversions($media, $collection);
+        }
+
+        $fileManipulator->performConversions($collection, $media);
     }
 }
