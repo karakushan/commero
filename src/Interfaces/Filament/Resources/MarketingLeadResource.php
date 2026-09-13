@@ -4,6 +4,7 @@ namespace Commero\Interfaces\Filament\Resources;
 
 use Commero\Interfaces\Filament\Resources\MarketingLeadResource\Pages;
 use Commero\Models\MarketingLead;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DateTimePicker;
@@ -77,7 +78,7 @@ class MarketingLeadResource extends AdminResource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('id', 'desc')
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('product.translations'))
             ->columns([
                 TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
@@ -118,6 +119,7 @@ class MarketingLeadResource extends AdminResource
             ->recordActions([
                 ViewAction::make()->iconButton(),
                 EditAction::make()->iconButton(),
+                DeleteAction::make()->iconButton(),
             ]);
     }
 

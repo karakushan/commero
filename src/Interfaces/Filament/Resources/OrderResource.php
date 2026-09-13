@@ -13,6 +13,7 @@ use Commero\Models\ShippingMethod;
 use Commero\Models\User;
 use Commero\Support\Phone;
 use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -268,7 +269,7 @@ class OrderResource extends AdminResource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('number')->label(__('commero::admin.order.number'))->searchable(),
                 TextColumn::make('customer_name')->label(__('commero::admin.order.customer_name'))->searchable(),
@@ -293,6 +294,7 @@ class OrderResource extends AdminResource
             ->recordActions([
                 ViewAction::make()->iconButton(),
                 EditAction::make()->iconButton(),
+                DeleteAction::make()->iconButton(),
             ])
             ->toolbarActions([
                 CreateAction::make(),

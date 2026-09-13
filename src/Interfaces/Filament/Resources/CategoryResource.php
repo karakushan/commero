@@ -103,6 +103,7 @@ class CategoryResource extends AdminResource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable(),
                 ImageColumn::make('icon_path')
@@ -145,6 +146,7 @@ class CategoryResource extends AdminResource
                     ->counts('products'),
             ])
             ->recordActions([
+                static::getCloneAction(),
                 Action::make('viewCategory')
                     ->label(__('commero::admin.category.actions.view_on_site'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
@@ -170,8 +172,7 @@ class CategoryResource extends AdminResource
                 CreateAction::make(),
                 DeleteBulkAction::make(),
             ])
-            ->reorderable('sort')
-            ->defaultSort('path');
+            ->reorderable('sort');
     }
 
     public static function getEloquentQuery(): Builder

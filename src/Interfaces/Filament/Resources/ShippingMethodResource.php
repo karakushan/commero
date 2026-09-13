@@ -7,6 +7,7 @@ use Commero\Models\ShippingMethod;
 use Commero\Support\Filament\AdminLocales;
 use Commero\Support\Locales;
 use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
@@ -70,7 +71,7 @@ class ShippingMethodResource extends AdminResource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('sort')
+            ->defaultSort('id', 'desc')
             ->columns([
                 ImageColumn::make('icon')
                     ->label(__('commero::admin.common.icon'))
@@ -92,7 +93,9 @@ class ShippingMethodResource extends AdminResource
                 TextColumn::make('updated_at')->label(__('commero::admin.common.updated_at'))->dateTime()->sortable(),
             ])
             ->recordActions([
-                EditAction::make(),
+                static::getCloneAction(),
+                EditAction::make()->iconButton(),
+                DeleteAction::make()->iconButton(),
             ])
             ->toolbarActions([
                 CreateAction::make(),

@@ -482,6 +482,7 @@ class ProductResource extends AdminResource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('id')->label(__('commero::admin.common.id'))->searchable()->sortable(),
                 ImageColumn::make('primaryImage.path')
@@ -559,6 +560,7 @@ class ProductResource extends AdminResource
                     ->getOptionLabelFromRecordUsing(fn (Category $record): string => $record->translation(app()->getLocale())?->name ?? (string) $record->id),
             ])
             ->recordActions([
+                static::getCloneAction(),
                 Action::make('reviews')
                     ->label(__('commero::admin.product_review.actions.view_reviews'))
                     ->icon('heroicon-o-chat-bubble-left-right')

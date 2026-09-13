@@ -51,6 +51,20 @@ return [
         'message' => 'Сообщение',
         'save' => 'Сохранить',
     ],
+    'actions' => [
+        'clone' => [
+            'label' => 'Клонировать',
+            'copy_suffix' => 'Копия :number',
+            'status' => 'Статус копии',
+            'modal' => [
+                'heading' => 'Клонировать :label',
+                'submit' => 'Клонировать',
+            ],
+            'notifications' => [
+                'success' => 'Запись клонирована',
+            ],
+        ],
+    ],
     'resources' => [
         'attribute_group' => [
             'singular' => 'группа атрибутов',

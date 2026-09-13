@@ -51,6 +51,20 @@ return [
         'message' => 'Message',
         'save' => 'Save',
     ],
+    'actions' => [
+        'clone' => [
+            'label' => 'Clone',
+            'copy_suffix' => 'Copy :number',
+            'status' => 'Copy status',
+            'modal' => [
+                'heading' => 'Clone :label',
+                'submit' => 'Clone',
+            ],
+            'notifications' => [
+                'success' => 'Record cloned',
+            ],
+        ],
+    ],
     'resources' => [
         'attribute_group' => [
             'singular' => 'attribute group',

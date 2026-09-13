@@ -76,7 +76,7 @@ class OrderStatusResource extends AdminResource
     {
         return $table
             ->reorderable('sort')
-            ->defaultSort('sort')
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('code')->label(__('commero::admin.common.code'))->searchable()->sortable(),
                 TextColumn::make('translation_name')
@@ -94,6 +94,7 @@ class OrderStatusResource extends AdminResource
                 IconColumn::make('is_default_for_new_order')->label(__('commero::admin.resources.order_status.is_default_for_new_order'))->boolean(),
             ])
             ->recordActions([
+                static::getCloneAction(),
                 EditAction::make()->iconButton(),
                 DeleteAction::make()->iconButton()
                     ->modalHeading(__('commero::admin.resources.order_status.delete_confirm')),

@@ -51,6 +51,20 @@ return [
         'message' => 'Повідомлення',
         'save' => 'Зберегти',
     ],
+    'actions' => [
+        'clone' => [
+            'label' => 'Клонувати',
+            'copy_suffix' => 'Копія :number',
+            'status' => 'Статус копії',
+            'modal' => [
+                'heading' => 'Клонувати :label',
+                'submit' => 'Клонувати',
+            ],
+            'notifications' => [
+                'success' => 'Запис клоновано',
+            ],
+        ],
+    ],
     'resources' => [
         'attribute_group' => [
             'singular' => 'група атрибутів',

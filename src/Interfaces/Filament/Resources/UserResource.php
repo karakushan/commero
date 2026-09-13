@@ -69,6 +69,7 @@ class UserResource extends AdminResource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
                 TextColumn::make('name')->label(__('commero::admin.common.name'))->searchable(),

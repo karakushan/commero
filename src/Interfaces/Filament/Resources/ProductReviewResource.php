@@ -159,7 +159,7 @@ class ProductReviewResource extends AdminResource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('id', 'desc')
             ->modifyQueryUsing(function (Builder $query): Builder {
                 $requestedProductId = request()->query('filters.product_id.value')
                     ?? request()->query('tableFilters.product_id.value');

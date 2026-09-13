@@ -5,6 +5,7 @@ namespace Commero\Interfaces\Filament\Resources;
 use Commero\Interfaces\Filament\Resources\BrandResource\Pages;
 use Commero\Models\Brand;
 use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
@@ -52,6 +53,7 @@ class BrandResource extends AdminResource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('code')->label(__('commero::admin.common.code'))->searchable(),
                 TextColumn::make('name')->label(__('commero::admin.common.name'))->searchable(),
@@ -59,7 +61,9 @@ class BrandResource extends AdminResource
                 TextColumn::make('updated_at')->label(__('commero::admin.common.updated_at'))->dateTime()->sortable(),
             ])
             ->recordActions([
+                static::getCloneAction(),
                 EditAction::make(),
+                DeleteAction::make()->iconButton(),
             ])
             ->toolbarActions([
                 CreateAction::make(),

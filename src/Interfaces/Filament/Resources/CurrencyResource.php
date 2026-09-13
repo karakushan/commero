@@ -85,6 +85,7 @@ class CurrencyResource extends AdminResource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('code')->label(__('commero::admin.common.code'))->searchable()->sortable(),
                 TextColumn::make('name')->label(__('commero::admin.common.name'))->searchable(),
@@ -97,6 +98,7 @@ class CurrencyResource extends AdminResource
                 TextColumn::make('sort')->label(__('commero::admin.common.sort'))->sortable(),
             ])
             ->recordActions([
+                static::getCloneAction(),
                 EditAction::make()->iconButton(),
                 DeleteAction::make()->iconButton(),
             ])

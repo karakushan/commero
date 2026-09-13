@@ -2,12 +2,24 @@
 
 namespace Commero\Interfaces\Filament\Resources;
 
+use Commero\Support\Filament\CloneAction;
 use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 
 abstract class AdminResource extends Resource
 {
+    public static function getCloneAction(): CloneAction
+    {
+        $resource = static::class;
+
+        return CloneAction::make()
+            ->iconButton()
+            ->successRedirectUrl(fn (?Model $replica): ?string => $replica
+                ? $resource::getUrl('edit', ['record' => $replica])
+                : null);
+    }
+
     public static function getAuthorizationResponse(string|\UnitEnum $action, ?Model $record = null): \Illuminate\Auth\Access\Response
     {
         static::registerPolicyIfNeeded($record ?? static::getModel());

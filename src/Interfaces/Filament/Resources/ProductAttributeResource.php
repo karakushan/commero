@@ -7,6 +7,7 @@ use Commero\Models\ProductAttribute;
 use Commero\Support\Filament\AdminLocales;
 use Commero\Support\Locales;
 use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Hidden;
@@ -85,6 +86,7 @@ class ProductAttributeResource extends AdminResource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('code')->label(__('commero::admin.common.code'))->searchable(),
                 TextColumn::make('translation_name')->label(__('commero::admin.common.name'))->state(fn (ProductAttribute $record): ?string => $record->translation(app()->getLocale())?->name),
@@ -93,7 +95,9 @@ class ProductAttributeResource extends AdminResource
                 IconColumn::make('is_variant_axis')->label(__('commero::admin.product_attribute.is_variant_axis'))->boolean(),
             ])
             ->recordActions([
+                static::getCloneAction(),
                 EditAction::make(),
+                DeleteAction::make()->iconButton(),
             ])
             ->toolbarActions([
                 CreateAction::make(),

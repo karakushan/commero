@@ -71,7 +71,7 @@ class PaymentMethodResource extends AdminResource
     {
         return $table
             ->reorderable('sort')
-            ->defaultSort('sort')
+            ->defaultSort('id', 'desc')
             ->columns([
                 ImageColumn::make('icon')
                     ->label(__('commero::admin.common.icon'))
@@ -93,6 +93,7 @@ class PaymentMethodResource extends AdminResource
                 TextColumn::make('updated_at')->label(__('commero::admin.common.updated_at'))->dateTime()->sortable(),
             ])
             ->recordActions([
+                static::getCloneAction(),
                 EditAction::make()->iconButton(),
                 DeleteAction::make()->iconButton(),
             ])

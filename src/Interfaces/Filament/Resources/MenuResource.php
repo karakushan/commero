@@ -123,6 +123,7 @@ class MenuResource extends AdminResource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('name')
                     ->label(__('commero::admin.common.name'))
@@ -143,6 +144,7 @@ class MenuResource extends AdminResource
                     ->sortable(),
             ])
             ->recordActions([
+                static::getCloneAction(),
                 EditAction::make()->iconButton(),
                 DeleteAction::make()->iconButton(),
             ])

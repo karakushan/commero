@@ -100,6 +100,7 @@ class PostCategoryResource extends AdminResource
                 TextColumn::make('updated_at')->label(__('commero::admin.common.updated_at'))->dateTime()->sortable(),
             ])
             ->recordActions([
+                static::getCloneAction(),
                 Action::make('viewCategory')
                     ->label(__('commero::admin.category.actions.view_on_site'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
@@ -115,7 +116,7 @@ class PostCategoryResource extends AdminResource
                 DeleteBulkAction::make(),
             ])
             ->reorderable('sort')
-            ->defaultSort('sort');
+            ->defaultSort('id', 'desc');
     }
 
     public static function getEloquentQuery(): Builder

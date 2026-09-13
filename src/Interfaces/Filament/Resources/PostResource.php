@@ -127,7 +127,7 @@ class PostResource extends AdminResource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('published_at', 'desc')
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
                 ImageColumn::make('thumbnail_path')
@@ -168,6 +168,7 @@ class PostResource extends AdminResource
                     ->getOptionLabelFromRecordUsing(fn (PostCategory $record): string => $record->translation(app()->getLocale())?->name ?? (string) $record->id),
             ])
             ->recordActions([
+                static::getCloneAction(),
                 Action::make('viewPost')
                     ->label(__('commero::admin.post.actions.view_on_site'))
                     ->icon('heroicon-o-arrow-top-right-on-square')

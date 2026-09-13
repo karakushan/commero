@@ -112,7 +112,7 @@ class PageResource extends AdminResource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('published_at', 'desc')
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
                 TextColumn::make('translation_title')
@@ -138,6 +138,7 @@ class PageResource extends AdminResource
                     ]),
             ])
             ->recordActions([
+                static::getCloneAction(),
                 TableAction::make('viewPage')
                     ->label(__('commero::admin.page.actions.view_on_site'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
