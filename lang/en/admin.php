@@ -65,6 +65,19 @@ return [
             ],
         ],
     ],
+    'rich_editor' => [
+        'image' => [
+            'button' => 'Image',
+            'modal_heading' => 'Insert image',
+            'file_new' => 'Image file',
+            'file_existing' => 'Replace image',
+            'title' => 'Title',
+            'alt' => 'Alt text',
+            'width' => 'Width',
+            'height' => 'Height',
+            'dimension_hint' => 'Optional. Use pixels or CSS units such as %.',
+        ],
+    ],
     'resources' => [
         'attribute_group' => [
             'singular' => 'attribute group',
@@ -75,6 +88,7 @@ return [
             'singular' => 'brand',
             'plural' => 'brands',
             'navigation' => 'Brands',
+            'default_locale_required' => 'Fill in name for the :locale locale.',
         ],
         'category' => [
             'singular' => 'category',

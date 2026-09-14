@@ -7,6 +7,7 @@ namespace Commero\Services;
 use Closure;
 use Commero\Models\AttributeGroup;
 use Commero\Models\AttributeOption;
+use Commero\Models\Brand;
 use Commero\Models\Category;
 use Commero\Models\CityCategory;
 use Commero\Models\Currency;
@@ -47,6 +48,7 @@ final class RecordCloneService
     {
         $clone = match (true) {
             $record instanceof Product => $this->replicateProduct($record),
+            $record instanceof Brand => $this->replicateBrand($record),
             $record instanceof Category => $this->replicateCategory($record),
             $record instanceof CityCategory => $this->replicateCityCategory($record),
             $record instanceof Post => $this->replicatePost($record),
@@ -119,6 +121,18 @@ final class RecordCloneService
 
         $clone->categories()->sync($record->categories()->pluck('categories.id')->all());
         $this->cloneProductRelations($record, $clone);
+
+        return $clone->refresh();
+    }
+
+    private function replicateBrand(Brand $record): Brand
+    {
+        /** @var Brand $clone */
+        $clone = $this->replicateModel($record, [
+            'code' => $this->uniqueModelValue($record, 'code'),
+            'slug' => $this->uniqueModelValue($record, 'slug'),
+        ]);
+        $this->cloneTranslations($record, $clone);
 
         return $clone->refresh();
     }

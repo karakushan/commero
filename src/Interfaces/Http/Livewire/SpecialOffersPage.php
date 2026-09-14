@@ -6,7 +6,6 @@ use Commero\Application\Catalog\DTOs\CatalogProductCardData;
 use Commero\Models\Product;
 use Commero\Services\MediaUrlResolver;
 use Commero\Support\Locales;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -16,10 +15,13 @@ class SpecialOffersPage extends Component
     use WithPagination;
 
     private const DEFAULT_PER_PAGE = 12;
+
     private const LOAD_MORE_STEP = 3;
 
     public string $locale;
+
     public string $offerType = 'all';
+
     public int $perPage = self::DEFAULT_PER_PAGE;
 
     protected $queryString = [
@@ -29,7 +31,7 @@ class SpecialOffersPage extends Component
 
     public function mount(?string $locale = null): void
     {
-        $this->locale = \Commero\Support\Locales::resolve($locale);
+        $this->locale = Locales::resolve($locale);
         $this->offerType = $this->normalizeOfferType((string) request()->input('offerType', $this->offerType));
     }
 
@@ -71,7 +73,7 @@ class SpecialOffersPage extends Component
             ->where('products.status', 'published')
             ->withTranslationsFor($this->locale)
             ->with([
-                'brand:id,name',
+                'brand' => fn ($query) => $query->withTranslationsFor($this->locale),
                 'primaryImage:id,product_id,path,alt,is_primary,sort',
                 'images:id,product_id,path,alt,sort',
                 'categories' => fn ($query) => $query->withTranslationsFor($this->locale),
@@ -233,6 +235,7 @@ class SpecialOffersPage extends Component
     private function normalizeOfferType(string $offerType): string
     {
         $allowed = ['all', 'promotion', 'top', 'novelty'];
+
         return in_array($offerType, $allowed, true) ? $offerType : 'all';
     }
 }

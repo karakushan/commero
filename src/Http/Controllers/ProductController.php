@@ -11,6 +11,7 @@ use Commero\Support\Locales;
 use Commero\Support\Seo\LocalizedSeoResolver;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,7 @@ class ProductController extends Controller
     /**
      * Show single product page
      */
-    public function show(\Illuminate\Http\Request $request, LocalizedSeoResolver $seoResolver)
+    public function show(Request $request, LocalizedSeoResolver $seoResolver)
     {
         $locale = App::getLocale();
         $slug = (string) $request->route('slug');
@@ -33,7 +34,7 @@ class ProductController extends Controller
                 'images',
                 'variants.attributeValues.attribute',
                 'variants.attributeValues.option',
-                'brand',
+                'brand' => fn ($query) => $query->withTranslationsFor($locale),
                 'categories',
                 'attributeValues.attribute',
                 'attributeValues.option',

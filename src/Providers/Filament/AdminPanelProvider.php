@@ -5,6 +5,8 @@ namespace Commero\Providers\Filament;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Commero\Interfaces\Filament\Livewire\DatabaseNotifications;
 use Commero\Interfaces\Filament\Pages\SiteSettings;
+use Commero\Interfaces\Filament\Resources\BrandResource\Pages\CreateBrand;
+use Commero\Interfaces\Filament\Resources\BrandResource\Pages\EditBrand;
 use Commero\Interfaces\Filament\Resources\CategoryResource\Pages\CreateCategory;
 use Commero\Interfaces\Filament\Resources\CategoryResource\Pages\EditCategory;
 use Commero\Interfaces\Filament\Resources\CityCategoryResource\Pages\CreateCityCategory;
@@ -90,6 +92,8 @@ class AdminPanelProvider extends PanelProvider
                     EditCityCategory::class,
                     CreateProductAttribute::class,
                     EditProductAttribute::class,
+                    CreateBrand::class,
+                    EditBrand::class,
                     CreateMenu::class,
                     EditMenu::class,
                     CreatePost::class,

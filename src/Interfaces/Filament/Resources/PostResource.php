@@ -7,10 +7,11 @@ use Commero\Models\Post;
 use Commero\Models\PostCategory;
 use Commero\Models\PostTranslation;
 use Commero\Support\Filament\AdminLocales;
-use Commero\Support\Filament\RichEditorDocumentNormalizer;
-use Commero\Support\Filament\RichEditorCustomBlockAction;
 use Commero\Support\Filament\RichContentCustomBlocks\AccentQuoteBlock;
 use Commero\Support\Filament\RichContentCustomBlocks\VideoEmbedBlock;
+use Commero\Support\Filament\RichEditorCustomBlockAction;
+use Commero\Support\Filament\RichEditorDocumentNormalizer;
+use Commero\Support\Filament\RichEditorImageAction;
 use Commero\Support\Locales;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -21,6 +22,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\RichEditor\Actions\AttachFilesAction;
 use Filament\Forms\Components\RichEditor\RichEditorTool;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -249,7 +251,7 @@ class PostResource extends AdminResource
             ->schema([
                 TextInput::make("translations.{$locale}.title")
                     ->label(__('commero::admin.common.title'))
-                    ->required($locale === \Commero\Support\Locales::default())
+                    ->required($locale === Locales::default())
                     ->live(onBlur: true)
                     ->afterStateUpdated(function ($state, $old, $get, $set, ?Post $record) use ($locale): void {
                         $slugPath = "translations.{$locale}.slug";
@@ -284,11 +286,13 @@ class PostResource extends AdminResource
                 RichEditor::make("translations.{$locale}.content")
                     ->label(__('commero::admin.common.content'))
                     ->registerActions([
+                        AttachFilesAction::make(),
                         RichEditorCustomBlockAction::make(),
                     ])
                     ->afterStateHydrated(function (RichEditor $component, $state): void {
                         $component->state(RichEditorDocumentNormalizer::ensureTrailingParagraph($state));
                     })
+                    ->fileAttachments(true)
                     ->fileAttachmentsDisk('public')
                     ->fileAttachmentsDirectory('content/posts/editor')
                     ->fileAttachmentsVisibility('public')
@@ -297,6 +301,14 @@ class PostResource extends AdminResource
                         'image/jpeg',
                         'image/gif',
                         'image/webp',
+                    ])
+                    ->toolbarButtons([
+                        ['bold', 'italic', 'underline', 'strike', 'subscript', 'superscript', 'link'],
+                        ['h2', 'h3'],
+                        ['alignStart', 'alignCenter', 'alignEnd'],
+                        ['blockquote', 'codeBlock', 'bulletList', 'orderedList'],
+                        ['table', 'attachFiles', RichEditorImageAction::NAME],
+                        ['undo', 'redo'],
                     ])
                     ->customBlocks([
                         AccentQuoteBlock::class,
@@ -319,13 +331,14 @@ class PostResource extends AdminResource
                             ->icon(Heroicon::OutlinedPlayCircle),
                     ])
                     ->enableToolbarButtons([
+                        'attachFiles',
                         'accentQuote',
                         'videoEmbed',
                     ])
                     ->disableToolbarButtons([
                         'customBlocks',
                     ])
-                    ->resizableImages()
+                    ->resizableImages(true)
                     ->afterStateHydrated(function ($state, $set) use ($locale): void {
                         $set("translations.{$locale}.content_html_source", $state);
                     })

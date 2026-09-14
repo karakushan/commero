@@ -41,6 +41,17 @@ Route::get('/commero/media/{media}/original', [MediaController::class, 'original
     ->where('media', '[0-9a-fA-F-]+')
     ->name('commero.media.original');
 
+Route::get('/commero/filament/rich-editor/image-double-click.js', function () {
+    $path = dirname(__DIR__).'/resources/js/rich-editor-image-double-click.js';
+
+    abort_unless(is_file($path), 404);
+
+    return response()->file($path, [
+        'Content-Type' => 'application/javascript; charset=UTF-8',
+        'Cache-Control' => 'public, max-age=3600',
+    ]);
+})->name('commero.filament.rich-editor.image-double-click');
+
 Route::get('/catalog', CatalogPage::class)->name('catalog.index');
 Route::get('/catalog/filter-preview', CatalogFilterPreviewController::class)->name('catalog.preview-count');
 

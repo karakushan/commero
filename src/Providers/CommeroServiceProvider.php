@@ -2,8 +2,8 @@
 
 namespace Commero\Providers;
 
-use Commero\Commands\InstallCommand;
 use Commero\Commands\GenerateMediaCommand;
+use Commero\Commands\InstallCommand;
 use Commero\Contracts\ContentBlockHydrator;
 use Commero\Contracts\ContentBlockRegistry;
 use Commero\Domain\Catalog\Domain\Contracts\AttributeRepositoryInterface;
@@ -13,13 +13,20 @@ use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentAttributeReposito
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentCategoryRepository;
 use Commero\Domain\Catalog\Infrastructure\Repositories\EloquentProductRepository;
 use Commero\Http\Middleware\SetCountryFromUrl;
-use Commero\Models\User as CommeroUser;
+use Commero\Interfaces\Filament\Resources\BrandResource;
+use Commero\Interfaces\Filament\Resources\BrandResource\Pages\CreateBrand;
+use Commero\Interfaces\Filament\Resources\BrandResource\Pages\EditBrand;
 use Commero\Models\SiteSetting;
+use Commero\Models\User as CommeroUser;
 use Commero\Providers\Filament\AdminPanelProvider;
 use Commero\Support\ContentBlocks\EmptyContentBlockRegistry;
 use Commero\Support\ContentBlocks\NullContentBlockHydrator;
+use Commero\Support\Filament\RichEditorImagePlugin;
 use Commero\Support\Locales;
 use Commero\Support\Permissions;
+use Filament\Forms\Components\RichEditor;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
@@ -56,6 +63,8 @@ class CommeroServiceProvider extends ServiceProvider
         $this->registerPolicies();
         $this->registerMiddleware();
         $this->configureMediaLibrary();
+        $this->configureRichEditors();
+        $this->registerHostPanelBrandLanguageSwitcher();
 
         if (! $this->app->routesAreCached()) {
             Route::middleware('web')->group($this->packagePath('routes/web.php'));
@@ -93,6 +102,40 @@ class CommeroServiceProvider extends ServiceProvider
         }
 
         $this->app->register(AdminPanelProvider::class);
+    }
+
+    private function registerHostPanelBrandLanguageSwitcher(): void
+    {
+        if (! $this->hostApplicationHasPanelProvider()) {
+            return;
+        }
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::PAGE_HEADER_ACTIONS_BEFORE,
+            fn (): string => view('commero::filament.components.page-language-switcher')->render(),
+            scopes: [CreateBrand::class, EditBrand::class, BrandResource::class],
+        );
+    }
+
+    private function configureRichEditors(): void
+    {
+        RichEditor::configureUsing(function (RichEditor $editor): void {
+            $editor
+                ->fileAttachments(true)
+                ->fileAttachmentsDisk('public')
+                ->fileAttachmentsDirectory('content/editor')
+                ->fileAttachmentsVisibility('public')
+                ->fileAttachmentsAcceptedFileTypes([
+                    'image/png',
+                    'image/jpeg',
+                    'image/gif',
+                    'image/webp',
+                ])
+                ->plugins([
+                    RichEditorImagePlugin::make(),
+                ])
+                ->resizableImages(true);
+        });
     }
 
     private function mergePackageConfig(): void

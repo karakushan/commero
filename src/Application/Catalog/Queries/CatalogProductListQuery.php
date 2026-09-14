@@ -3,13 +3,12 @@
 namespace Commero\Application\Catalog\Queries;
 
 use Commero\Application\Catalog\DTOs\CatalogProductCardData;
-use Commero\Models\ProductAttribute;
 use Commero\Models\Product;
+use Commero\Models\ProductAttribute;
 use Commero\Models\ProductVariant;
 use Commero\Services\MediaUrlResolver;
 use Commero\Support\Locales;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 
 class CatalogProductListQuery
 {
@@ -19,7 +18,7 @@ class CatalogProductListQuery
             ->where('products.status', 'published')
             ->withTranslationsFor($locale)
             ->with([
-                'brand:id,name',
+                'brand' => fn ($query) => $query->withTranslationsFor($locale),
                 'primaryImage:id,product_id,path,alt,is_primary,sort',
                 'images:id,product_id,path,alt,sort',
                 'categories' => fn ($query) => $query->withTranslationsFor($locale),
@@ -73,23 +72,23 @@ class CatalogProductListQuery
     private function applyFilters($query, array $filters)
     {
         // Search filter
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $searchTerm = $filters['search'];
             $query->whereHas('translations', function ($q) use ($searchTerm) {
-                $q->where('name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('slug', 'like', '%' . $searchTerm . '%');
+                $q->where('name', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('description', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('slug', 'like', '%'.$searchTerm.'%');
             });
         }
 
         // Price filter
         if (isset($filters['price']) && is_array($filters['price'])) {
-            if (!empty($filters['price']['from'])) {
+            if (! empty($filters['price']['from'])) {
                 $query->whereHas('variants', function ($q) use ($filters) {
                     $q->where('price', '>=', $filters['price']['from']);
                 });
             }
-            if (!empty($filters['price']['to'])) {
+            if (! empty($filters['price']['to'])) {
                 $query->whereHas('variants', function ($q) use ($filters) {
                     $q->where('price', '<=', $filters['price']['to']);
                 });
@@ -97,13 +96,13 @@ class CatalogProductListQuery
         }
 
         // Categories filter
-        if (!empty($filters['categories']) && is_array($filters['categories'])) {
+        if (! empty($filters['categories']) && is_array($filters['categories'])) {
             $query->whereHas('categories', function ($q) use ($filters) {
                 $q->whereIn('categories.id', $filters['categories']);
             });
         }
 
-        if (!empty($filters['attributes']) && is_array($filters['attributes'])) {
+        if (! empty($filters['attributes']) && is_array($filters['attributes'])) {
             $attributeTypes = ProductAttribute::query()
                 ->whereIn('code', array_keys($filters['attributes']))
                 ->pluck('value_type', 'code');

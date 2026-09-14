@@ -4,14 +4,18 @@ namespace Commero\Interfaces\Filament\Resources;
 
 use Commero\Interfaces\Filament\Resources\BrandResource\Pages;
 use Commero\Models\Brand;
+use Commero\Support\Filament\AdminLocales;
+use Commero\Support\Locales;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class BrandResource extends AdminResource
 {
@@ -44,8 +48,10 @@ class BrandResource extends AdminResource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
+            Hidden::make('active_locale_context')
+                ->dehydrated(),
             TextInput::make('code')->label(__('commero::admin.common.code'))->required()->unique(ignoreRecord: true),
-            TextInput::make('name')->label(__('commero::admin.common.name'))->required(),
+            ...static::mainTranslationSections(),
             TextInput::make('slug')->label(__('commero::admin.common.slug'))->required()->unique(ignoreRecord: true),
         ])->columns(2);
     }
@@ -56,19 +62,33 @@ class BrandResource extends AdminResource
             ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('code')->label(__('commero::admin.common.code'))->searchable(),
-                TextColumn::make('name')->label(__('commero::admin.common.name'))->searchable(),
+                TextColumn::make('translation_name')
+                    ->label(__('commero::admin.common.name'))
+                    ->state(fn (Brand $record): ?string => $record->translation(app()->getLocale())?->name ?? $record->getRawOriginal('name'))
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where(function (Builder $nestedQuery) use ($search): void {
+                            $nestedQuery
+                                ->where('name', 'like', "%{$search}%")
+                                ->orWhereHas('translations', fn (Builder $translationsQuery): Builder => $translationsQuery->where('name', 'like', "%{$search}%"));
+                        });
+                    }),
                 TextColumn::make('slug')->label(__('commero::admin.common.slug'))->searchable(),
                 TextColumn::make('updated_at')->label(__('commero::admin.common.updated_at'))->dateTime()->sortable(),
             ])
             ->recordActions([
                 static::getCloneAction(),
-                EditAction::make(),
+                EditAction::make()->iconButton(),
                 DeleteAction::make()->iconButton(),
             ])
             ->toolbarActions([
                 CreateAction::make(),
                 DeleteBulkAction::make(),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->withTranslationsFor(app()->getLocale());
     }
 
     public static function getPages(): array
@@ -78,5 +98,18 @@ class BrandResource extends AdminResource
             'create' => Pages\CreateBrand::route('/create'),
             'edit' => Pages\EditBrand::route('/{record}/edit'),
         ];
+    }
+
+    /**
+     * @return array<int, TextInput>
+     */
+    protected static function mainTranslationSections(): array
+    {
+        return array_map(fn (string $locale): TextInput => TextInput::make("translations.{$locale}.name")
+            ->label(__('commero::admin.common.name'))
+            ->required($locale === Locales::default())
+            ->dehydratedWhenHidden()
+            ->columnSpanFull()
+            ->hidden(fn ($livewire): bool => data_get($livewire, 'activeLocale') !== $locale), AdminLocales::supported());
     }
 }

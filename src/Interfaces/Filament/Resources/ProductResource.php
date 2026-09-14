@@ -18,6 +18,7 @@ use Commero\Support\Filament\AdminLocales;
 use Commero\Support\Filament\RichContentCustomBlocks\VideoEmbedBlock;
 use Commero\Support\Filament\RichEditorCustomBlockAction;
 use Commero\Support\Filament\RichEditorDocumentNormalizer;
+use Commero\Support\Filament\RichEditorImageAction;
 use Commero\Support\Locales;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -88,7 +89,11 @@ class ProductResource extends AdminResource
                             ...static::mainTranslationSections(),
                             Select::make('brand_id')
                                 ->label(__('commero::admin.product.brand_id'))
-                                ->relationship('brand', 'name')
+                                ->relationship(
+                                    'brand',
+                                    'name',
+                                    fn (Builder $query): Builder => $query->withTranslationsFor(app()->getLocale()),
+                                )
                                 ->searchable()
                                 ->preload()
                                 ->columnSpan(1),
@@ -717,6 +722,14 @@ class ProductResource extends AdminResource
                     ->afterStateHydrated(function (RichEditor $component, $state): void {
                         $component->state(RichEditorDocumentNormalizer::ensureTrailingParagraph($state));
                     })
+                    ->toolbarButtons([
+                        ['bold', 'italic', 'underline', 'strike', 'subscript', 'superscript', 'link'],
+                        ['h2', 'h3'],
+                        ['alignStart', 'alignCenter', 'alignEnd'],
+                        ['blockquote', 'codeBlock', 'bulletList', 'orderedList'],
+                        ['table', 'attachFiles', RichEditorImageAction::NAME],
+                        ['undo', 'redo'],
+                    ])
                     ->customBlocks([
                         VideoEmbedBlock::class,
                     ])

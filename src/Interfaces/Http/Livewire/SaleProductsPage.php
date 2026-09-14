@@ -2,13 +2,13 @@
 
 namespace Commero\Interfaces\Http\Livewire;
 
+use Commero\Application\Catalog\DTOs\CatalogProductCardData;
 use Commero\Application\Catalog\Queries\CatalogFiltersQuery;
 use Commero\Application\Catalog\Queries\CatalogProductListQuery;
 use Commero\Models\Product;
 use Commero\Models\ProductVariant;
 use Commero\Services\MediaUrlResolver;
 use Commero\Support\Locales;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -18,7 +18,9 @@ class SaleProductsPage extends Component
     use WithPagination;
 
     private const DEFAULT_PER_PAGE = 12;
+
     private const LOAD_MORE_STEP = 3;
+
     private const ALLOWED_SORTS = [
         'popular_desc',
         'date_desc',
@@ -27,8 +29,11 @@ class SaleProductsPage extends Component
     ];
 
     public string $locale;
+
     public string $sort = 'popular_desc';
+
     public int $perPage = self::DEFAULT_PER_PAGE;
+
     public array $filters = [];
 
     protected function queryString(): array
@@ -226,7 +231,7 @@ class SaleProductsPage extends Component
             })
             ->withTranslationsFor($this->locale)
             ->with([
-                'brand:id,name',
+                'brand' => fn ($query) => $query->withTranslationsFor($this->locale),
                 'primaryImage:id,product_id,path,alt,is_primary,sort',
                 'images:id,product_id,path,alt,sort',
                 'categories' => fn ($query) => $query->withTranslationsFor($this->locale),
@@ -274,23 +279,23 @@ class SaleProductsPage extends Component
     private function applyFiltersToQuery($query, array $filters)
     {
         // Search filter
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $searchTerm = $filters['search'];
             $query->whereHas('translations', function ($q) use ($searchTerm) {
-                $q->where('name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('slug', 'like', '%' . $searchTerm . '%');
+                $q->where('name', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('description', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('slug', 'like', '%'.$searchTerm.'%');
             });
         }
 
         // Price filter
         if (isset($filters['price']) && is_array($filters['price'])) {
-            if (!empty($filters['price']['from'])) {
+            if (! empty($filters['price']['from'])) {
                 $query->whereHas('variants', function ($q) use ($filters) {
                     $q->where('price', '>=', $filters['price']['from']);
                 });
             }
-            if (!empty($filters['price']['to'])) {
+            if (! empty($filters['price']['to'])) {
                 $query->whereHas('variants', function ($q) use ($filters) {
                     $q->where('price', '<=', $filters['price']['to']);
                 });
@@ -298,7 +303,7 @@ class SaleProductsPage extends Component
         }
 
         // Categories filter
-        if (!empty($filters['categories']) && is_array($filters['categories'])) {
+        if (! empty($filters['categories']) && is_array($filters['categories'])) {
             $query->whereHas('categories', function ($q) use ($filters) {
                 $q->whereIn('categories.id', $filters['categories']);
             });
@@ -335,7 +340,7 @@ class SaleProductsPage extends Component
         $price = $primaryVariant?->price ?? 0;
         $oldPrice = $primaryVariant?->old_price ?? null;
 
-        return new \Commero\Application\Catalog\DTOs\CatalogProductCardData(
+        return new CatalogProductCardData(
             id: $product->id,
             locale: $translation?->locale ?? $locale,
             name: $translation?->name ?? $product->sku,
@@ -440,6 +445,7 @@ class SaleProductsPage extends Component
 
                 if ($attributeValues === []) {
                     unset($normalized['attributes'][$attributeCode]);
+
                     continue;
                 }
 

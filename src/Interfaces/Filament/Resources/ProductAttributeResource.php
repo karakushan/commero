@@ -96,7 +96,7 @@ class ProductAttributeResource extends AdminResource
             ])
             ->recordActions([
                 static::getCloneAction(),
-                EditAction::make(),
+                EditAction::make()->iconButton(),
                 DeleteAction::make()->iconButton(),
             ])
             ->toolbarActions([

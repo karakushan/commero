@@ -65,6 +65,19 @@ return [
             ],
         ],
     ],
+    'rich_editor' => [
+        'image' => [
+            'button' => 'Фото',
+            'modal_heading' => 'Вставити фото',
+            'file_new' => 'Файл фото',
+            'file_existing' => 'Замінити фото',
+            'title' => 'Title',
+            'alt' => 'Alt текст',
+            'width' => 'Ширина',
+            'height' => 'Висота',
+            'dimension_hint' => 'Необовʼязково. Можна вказати пікселі або CSS-одиниці, наприклад %.',
+        ],
+    ],
     'resources' => [
         'attribute_group' => [
             'singular' => 'група атрибутів',
@@ -75,6 +88,7 @@ return [
             'singular' => 'бренд',
             'plural' => 'бренди',
             'navigation' => 'Бренди',
+            'default_locale_required' => 'Для мови :locale обовʼязково заповніть name.',
         ],
         'category' => [
             'singular' => 'категорія',
