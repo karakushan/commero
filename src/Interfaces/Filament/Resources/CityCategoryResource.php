@@ -71,25 +71,14 @@ class CityCategoryResource extends AdminResource
                             ...static::mainTranslationSections(),
                             Select::make('parent_id')
                                 ->label(__('commero::admin.common.parent_category'))
-                                ->relationship('parent', 'id')
-                                ->getOptionLabelFromRecordUsing(fn (CityCategory $record) => $record->translation(app()->getLocale())?->name ?? $record->id)
+                                ->options(fn (): array => static::getLocalizedHierarchySelectOptions(CityCategory::class))
                                 ->searchable()
-                                ->getSearchResultsUsing(
-                                    fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search),
-                                ),
+                                ->preload(),
                             TextInput::make('depth')->label(__('commero::admin.common.depth'))->numeric()->default(0)->required(),
                             TextInput::make('sort')->label(__('commero::admin.common.sort'))->numeric()->default(0)->required(),
                             Select::make('display_category_ids')
                                 ->label(__('commero::admin.city_category.display_category_ids'))
-                                ->options(fn (): array => Category::query()
-                                    ->withTranslationsFor(app()->getLocale())
-                                    ->orderBy('sort')
-                                    ->orderBy('path')
-                                    ->get()
-                                    ->mapWithKeys(fn (Category $record): array => [
-                                        $record->getKey() => $record->translation(app()->getLocale())?->name ?? (string) $record->getKey(),
-                                    ])
-                                    ->all())
+                                ->options(fn (): array => static::getLocalizedHierarchySelectOptions(Category::class))
                                 ->multiple()
                                 ->searchable()
                                 ->preload()

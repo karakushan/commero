@@ -81,16 +81,9 @@ class PostResource extends AdminResource
                             ...static::mainTranslationSections(),
                             Select::make('post_category_id')
                                 ->label(__('commero::admin.resources.post_category.navigation'))
-                                ->relationship(
-                                    'category',
-                                    'id',
-                                    fn (Builder $query): Builder => $query->withTranslationsFor(app()->getLocale()),
-                                )
-                                ->getOptionLabelFromRecordUsing(fn (PostCategory $record): string => $record->translation(app()->getLocale())?->name ?? (string) $record->id)
+                                ->options(fn (): array => static::getLocalizedHierarchySelectOptions(PostCategory::class))
                                 ->searchable()
-                                ->getSearchResultsUsing(
-                                    fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search),
-                                )
+                                ->preload()
                                 ->columnSpan(1),
                             Select::make('status')
                                 ->label(__('commero::admin.common.status'))
@@ -170,7 +163,7 @@ class PostResource extends AdminResource
                         fn (Builder $query): Builder => $query->withTranslationsFor(app()->getLocale()),
                     )
                     ->searchable()
-                    ->getOptionLabelFromRecordUsing(fn (PostCategory $record): string => $record->translation(app()->getLocale())?->name ?? (string) $record->id)
+                    ->getOptionLabelFromRecordUsing(fn (PostCategory $record): string => static::formatLocalizedHierarchySelectLabel($record))
                     ->getSearchResultsUsing(
                         fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search),
                     ),

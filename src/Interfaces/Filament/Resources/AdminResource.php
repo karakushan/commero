@@ -59,6 +59,35 @@ abstract class AdminResource extends Resource
             ->all();
     }
 
+    /**
+     * Build localized hierarchical options for translation-backed entities.
+     *
+     * @param  class-string<Model>  $modelClass
+     * @return array<string, string>
+     */
+    protected static function getLocalizedHierarchySelectOptions(string $modelClass): array
+    {
+        return $modelClass::query()
+            ->withTranslationsFor(app()->getLocale())
+            ->orderBy('path')
+            ->get()
+            ->mapWithKeys(fn (Model $record): array => [
+                (string) $record->getKey() => static::formatLocalizedHierarchySelectLabel($record),
+            ])
+            ->all();
+    }
+
+    protected static function formatLocalizedHierarchySelectLabel(Model $record): string
+    {
+        $name = method_exists($record, 'translation')
+            ? $record->translation(app()->getLocale())?->name
+            : null;
+        $name ??= (string) ($record->getAttribute('path') ?? $record->getKey());
+        $indent = str_repeat('— ', max(0, (int) ($record->getAttribute('depth') ?? 0)));
+
+        return $indent.$name;
+    }
+
     public static function getCloneAction(): CloneAction
     {
         $resource = static::class;

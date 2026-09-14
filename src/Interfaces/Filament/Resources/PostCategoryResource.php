@@ -66,16 +66,9 @@ class PostCategoryResource extends AdminResource
                             ...static::mainTranslationSections(),
                             Select::make('parent_id')
                                 ->label(__('commero::admin.common.parent_category'))
-                                ->relationship(
-                                    'parent',
-                                    'id',
-                                    fn (Builder $query): Builder => $query->withTranslationsFor(app()->getLocale()),
-                                )
-                                ->getOptionLabelFromRecordUsing(fn (PostCategory $record): string => $record->translation(app()->getLocale())?->name ?? (string) $record->id)
+                                ->options(fn (): array => static::getLocalizedHierarchySelectOptions(PostCategory::class))
                                 ->searchable()
-                                ->getSearchResultsUsing(
-                                    fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search),
-                                ),
+                                ->preload(),
                             TextInput::make('depth')->label(__('commero::admin.common.depth'))->numeric()->default(0)->required(),
                             TextInput::make('sort')->label(__('commero::admin.common.sort'))->numeric()->default(0)->required(),
                         ])

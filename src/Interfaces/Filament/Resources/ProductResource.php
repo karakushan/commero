@@ -167,19 +167,11 @@ class ProductResource extends AdminResource
                                 ->columnSpan(1),
                             Select::make('category_ids')
                                 ->label(__('commero::admin.product.category_ids'))
-                                ->relationship(
-                                    'categories',
-                                    'id',
-                                    fn (Builder $query): Builder => $query->withTranslationsFor(app()->getLocale()),
-                                )
-                                ->getOptionLabelFromRecordUsing(
-                                    fn (Category $record): string => $record->translation(app()->getLocale())?->name ?? (string) $record->id,
-                                )
                                 ->multiple()
+                                ->options(fn (): array => static::getLocalizedHierarchySelectOptions(Category::class))
+                                ->preload()
+                                ->optionsLimit(500)
                                 ->searchable()
-                                ->getSearchResultsUsing(
-                                    fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search),
-                                )
                                 ->columnSpanFull(),
                             Select::make('multi_currency_code')
                                 ->label(__('commero::admin.product.multi_currency.select_currency'))
@@ -563,7 +555,7 @@ class ProductResource extends AdminResource
                     )
                     ->multiple()
                     ->searchable()
-                    ->getOptionLabelFromRecordUsing(fn (Category $record): string => $record->translation(app()->getLocale())?->name ?? (string) $record->id)
+                    ->getOptionLabelFromRecordUsing(fn (Category $record): string => static::formatLocalizedHierarchySelectLabel($record))
                     ->getSearchResultsUsing(
                         fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search),
                     ),
