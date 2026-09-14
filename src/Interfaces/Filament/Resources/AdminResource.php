@@ -3,12 +3,62 @@
 namespace Commero\Interfaces\Filament\Resources;
 
 use Commero\Support\Filament\CloneAction;
+use Commero\Support\Locales;
+use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 
 abstract class AdminResource extends Resource
 {
+    /**
+     * Search relationship Select options by the active localized translation.
+     *
+     * Filament defaults relationship searches to the configured title
+     * attribute. Localized entities use `id` as that attribute because their
+     * visible label is produced by getOptionLabelFromRecordUsing(), so an
+     * unconfigured searchable Select searches IDs instead of translated names.
+     */
+    protected static function getLocalizedRelationshipSearchResults(Select $component, ?string $search): array
+    {
+        $relationship = $component->getRelationship();
+
+        if (! $relationship) {
+            return [];
+        }
+
+        $locale = Locales::resolve(app()->getLocale());
+        $likeSearch = '%'.mb_strtolower(trim((string) $search)).'%';
+        $relatedModel = $relationship->getRelated();
+        $translationRelation = 'translations';
+        $translationModel = $relatedModel->{$translationRelation}()->getRelated();
+        $translationNameColumn = $translationModel->qualifyColumn('name');
+
+        $query = $relatedModel->newQuery()
+            ->with([
+                $translationRelation => fn (Relation $translations): Relation => $translations
+                    ->whereIn('locale', Locales::preferred($locale)),
+            ])
+            ->when(trim((string) $search) !== '', function (Builder $query) use ($likeSearch, $translationRelation, $translationNameColumn, $locale): void {
+                $query->whereHas($translationRelation, function (Builder $translations) use ($likeSearch, $translationNameColumn, $locale): void {
+                    $translations
+                        ->whereIn('locale', Locales::preferred($locale))
+                        ->whereRaw("LOWER({$translationNameColumn}) LIKE ?", [$likeSearch]);
+                });
+            })
+            ->limit($component->getOptionsLimit());
+
+        return $query->get()
+            ->mapWithKeys(fn (Model $record): array => [
+                (string) $record->getKey() => $component->hasOptionLabelFromRecordUsingCallback()
+                    ? $component->getOptionLabelFromRecord($record)
+                    : (string) data_get($record, $component->getRelationshipTitleAttribute() ?? $record->getKeyName()),
+            ])
+            ->all();
+    }
+
     public static function getCloneAction(): CloneAction
     {
         $resource = static::class;

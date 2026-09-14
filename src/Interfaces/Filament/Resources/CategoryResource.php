@@ -68,7 +68,7 @@ class CategoryResource extends AdminResource
                         ->icon('heroicon-o-information-circle')
                         ->schema([
                             ...static::mainTranslationSections(),
-                            Select::make('parent_id')->label(__('commero::admin.common.parent_category'))->relationship('parent', 'id')->getOptionLabelFromRecordUsing(fn (Category $record) => $record->translation(app()->getLocale())?->name ?? $record->id)->searchable()->preload(),
+                            Select::make('parent_id')->label(__('commero::admin.common.parent_category'))->relationship('parent', 'id')->getOptionLabelFromRecordUsing(fn (Category $record) => $record->translation(app()->getLocale())?->name ?? $record->id)->searchable()->getSearchResultsUsing(fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search)),
                             TextInput::make('depth')->label(__('commero::admin.common.depth'))->numeric()->default(0)->required(),
                             TextInput::make('sort')->label(__('commero::admin.common.sort'))->numeric()->default(0)->required(),
                             FileUpload::make('icon_path')

@@ -176,8 +176,10 @@ class ProductResource extends AdminResource
                                     fn (Category $record): string => $record->translation(app()->getLocale())?->name ?? (string) $record->id,
                                 )
                                 ->multiple()
-                                ->preload()
                                 ->searchable()
+                                ->getSearchResultsUsing(
+                                    fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search),
+                                )
                                 ->columnSpanFull(),
                             Select::make('multi_currency_code')
                                 ->label(__('commero::admin.product.multi_currency.select_currency'))
@@ -561,8 +563,10 @@ class ProductResource extends AdminResource
                     )
                     ->multiple()
                     ->searchable()
-                    ->preload()
-                    ->getOptionLabelFromRecordUsing(fn (Category $record): string => $record->translation(app()->getLocale())?->name ?? (string) $record->id),
+                    ->getOptionLabelFromRecordUsing(fn (Category $record): string => $record->translation(app()->getLocale())?->name ?? (string) $record->id)
+                    ->getSearchResultsUsing(
+                        fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search),
+                    ),
             ])
             ->recordActions([
                 static::getCloneAction(),

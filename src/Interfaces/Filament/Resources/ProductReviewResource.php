@@ -76,7 +76,9 @@ class ProductReviewResource extends AdminResource
                 ->relationship('product', 'id')
                 ->getOptionLabelFromRecordUsing(fn (Product $record): string => $record->translation(app()->getLocale())?->name ?? $record->sku)
                 ->searchable()
-                ->preload()
+                ->getSearchResultsUsing(
+                    fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search),
+                )
                 ->required(),
             Placeholder::make('product_edit_link')
                 ->label(__('commero::admin.product_review.product_link'))

@@ -88,7 +88,9 @@ class PostResource extends AdminResource
                                 )
                                 ->getOptionLabelFromRecordUsing(fn (PostCategory $record): string => $record->translation(app()->getLocale())?->name ?? (string) $record->id)
                                 ->searchable()
-                                ->preload()
+                                ->getSearchResultsUsing(
+                                    fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search),
+                                )
                                 ->columnSpan(1),
                             Select::make('status')
                                 ->label(__('commero::admin.common.status'))
@@ -167,7 +169,11 @@ class PostResource extends AdminResource
                         'id',
                         fn (Builder $query): Builder => $query->withTranslationsFor(app()->getLocale()),
                     )
-                    ->getOptionLabelFromRecordUsing(fn (PostCategory $record): string => $record->translation(app()->getLocale())?->name ?? (string) $record->id),
+                    ->searchable()
+                    ->getOptionLabelFromRecordUsing(fn (PostCategory $record): string => $record->translation(app()->getLocale())?->name ?? (string) $record->id)
+                    ->getSearchResultsUsing(
+                        fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search),
+                    ),
             ])
             ->recordActions([
                 static::getCloneAction(),

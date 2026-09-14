@@ -74,7 +74,9 @@ class CityCategoryResource extends AdminResource
                                 ->relationship('parent', 'id')
                                 ->getOptionLabelFromRecordUsing(fn (CityCategory $record) => $record->translation(app()->getLocale())?->name ?? $record->id)
                                 ->searchable()
-                                ->preload(),
+                                ->getSearchResultsUsing(
+                                    fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search),
+                                ),
                             TextInput::make('depth')->label(__('commero::admin.common.depth'))->numeric()->default(0)->required(),
                             TextInput::make('sort')->label(__('commero::admin.common.sort'))->numeric()->default(0)->required(),
                             Select::make('display_category_ids')

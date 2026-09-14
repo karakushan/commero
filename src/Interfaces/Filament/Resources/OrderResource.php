@@ -249,7 +249,9 @@ class OrderResource extends AdminResource
                                         ?? (string) $record->id,
                                 )
                                 ->searchable()
-                                ->preload()
+                                ->getSearchResultsUsing(
+                                    fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search),
+                                )
                                 ->required(),
                             TextInput::make('quantity')
                                 ->label(__('commero::admin.order.quantity'))
