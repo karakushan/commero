@@ -366,8 +366,22 @@ class ProductResource extends AdminResource
                                                 ->options(function (): array {
                                                     $locale = app()->getLocale();
 
-                                                    return ProductAttribute::where('is_variant_axis', true)
+                                                    $attributesQuery = ProductAttribute::query()
+                                                        ->whereHas('options');
+
+                                                    // Older/imported catalogs can contain option-bearing attributes
+                                                    // without any attribute explicitly marked as a variant axis.
+                                                    // Keep the explicit axis scope when it exists, but do not leave
+                                                    // the variant editor empty for those catalogs.
+                                                    if (ProductAttribute::query()->where('is_variant_axis', true)->exists()) {
+                                                        $attributesQuery->where('is_variant_axis', true);
+                                                    }
+
+                                                    return $attributesQuery
                                                         ->with(['options.translations'])
+                                                        ->with('translations')
+                                                        ->orderBy('sort')
+                                                        ->orderBy('code')
                                                         ->get()
                                                         ->mapWithKeys(function (ProductAttribute $attribute) use ($locale): array {
                                                             $attrName = $attribute->translation($locale)?->name ?? $attribute->code;
