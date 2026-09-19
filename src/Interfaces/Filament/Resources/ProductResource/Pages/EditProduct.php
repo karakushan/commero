@@ -108,16 +108,33 @@ class EditProduct extends EditRecord
         $data['attribute_values'] = $record->attributeValues
             ->whereNull('variant_id')
             ->sortBy('sort')
-            ->map(fn ($value) => $value->only([
-                'attribute_id',
-                'value_string',
-                'value_integer',
-                'value_numeric',
-                'value_boolean',
-                'value_option_id',
-                'sort',
-                'is_priority',
-            ]))
+            ->groupBy('attribute_id')
+            ->map(function ($values): array {
+                $first = $values->first();
+                $state = $first->only([
+                    'attribute_id',
+                    'value_string',
+                    'value_integer',
+                    'value_numeric',
+                    'value_boolean',
+                    'value_option_id',
+                    'sort',
+                    'is_priority',
+                ]);
+
+                $optionIds = $values
+                    ->pluck('value_option_id')
+                    ->filter()
+                    ->map(fn ($id): string => (string) $id)
+                    ->values()
+                    ->all();
+
+                if ($optionIds !== []) {
+                    $state['value_option_id'] = $optionIds;
+                }
+
+                return $state;
+            })
             ->values()
             ->all();
         $data['color_related_product_ids'] = $record->colorRelatedProducts->pluck('id')->map(fn ($id) => (string) $id)->all();

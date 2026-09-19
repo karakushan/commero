@@ -187,13 +187,13 @@ class UpsertProductService
             ->keyBy('id');
 
         $normalizedValues = collect($attributeValues)
-            ->map(function (array $value, int $index) use ($attributes): ?array {
+            ->flatMap(function (array $value) use ($attributes): array {
                 $attributeId = (int) ($value['attribute_id'] ?? 0);
                 /** @var ProductAttribute|null $attribute */
                 $attribute = $attributes->get($attributeId);
 
                 if (! $attribute) {
-                    return null;
+                    return [];
                 }
 
                 $row = [
@@ -205,22 +205,35 @@ class UpsertProductService
                     'value_boolean' => null,
                     'value_option_id' => null,
                     'value_json' => null,
-                    'sort' => $index,
+                    'sort' => 0,
                     'is_priority' => (bool) ($value['is_priority'] ?? false),
                 ];
 
+                if (in_array($attribute->value_type, ['select', 'option'], true)) {
+                    return collect(Arr::wrap($value['value_option_id'] ?? null))
+                        ->map(function (mixed $optionId) use ($attribute, $row): ?array {
+                            $optionRow = $row;
+
+                            return $this->fillOptionAttributeValue($optionRow, $attribute, $optionId)
+                                ? $optionRow
+                                : null;
+                        })
+                        ->filter()
+                        ->values()
+                        ->all();
+                }
+
                 $hasValue = match ($attribute->value_type) {
-                    'select', 'option' => $this->fillOptionAttributeValue($row, $attribute, $value['value_option_id'] ?? null),
                     'integer' => $this->fillIntegerAttributeValue($row, $value['value_integer'] ?? null),
                     'numeric' => $this->fillNumericAttributeValue($row, $value['value_numeric'] ?? null),
                     'boolean' => $this->fillBooleanAttributeValue($row, $value['value_boolean'] ?? false),
                     default => $this->fillStringAttributeValue($row, $value['value_string'] ?? null),
                 };
 
-                return $hasValue ? $row : null;
+                return $hasValue ? [$row] : [];
             })
-            ->filter()
-            ->unique('attribute_id')
+            ->values()
+            ->map(fn (array $value, int $index): array => [...$value, 'sort' => $index])
             ->values()
             ->all();
 

@@ -6,6 +6,7 @@ use Commero\Application\Catalog\Queries\CatalogFiltersQuery;
 use Commero\Application\Catalog\Queries\CatalogProductListQuery;
 use Commero\Models\Category;
 use Commero\Support\Locales;
+use Commero\Support\Seo\CatalogPagination;
 use Commero\Support\Seo\LocalizedSeoResolver;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -238,6 +239,8 @@ class CatalogPage extends Component
 
         $productsList = $products->handle($this->locale, $this->sort, $categoryFilters, $this->perPage);
 
+        abort_if($productsList->currentPage() > $productsList->lastPage(), 404);
+
         $filterOptions = $filters->handle($this->locale, $categoryScopeIds);
 
         $archiveTitle = $currentCategory?->translation($this->locale)?->name ?? __('Всі товари');
@@ -251,7 +254,7 @@ class CatalogPage extends Component
                     'heading' => $archiveTitle,
                     'description' => __('Каталог головних уборів ShopHats - шапки, кепки, берети, шарфи та рукавички для всієї родини.'),
                 ],
-                availableLocales: Locales::supported(),
+                availableLocales: $this->availableCategoryLocales($currentCategory),
             )
             : app(LocalizedSeoResolver::class)->forCurrentRoute(
                 request: request(),
@@ -261,7 +264,11 @@ class CatalogPage extends Component
                 description: __('Каталог головних уборів ShopHats - шапки, кепки, берети, шарфи та рукавички для всієї родини.'),
             );
 
-        $categoryBlocks = $this->resolveCategoryBlocks($currentCategory);
+        $seo = CatalogPagination::apply($seo, request(), $productsList->currentPage());
+
+        $categoryBlocks = $productsList->currentPage() === 1
+            ? $this->resolveCategoryBlocks($currentCategory)
+            : [];
 
         return view('shophats::pages.catalog', [
             'products' => $productsList,
@@ -314,6 +321,14 @@ class CatalogPage extends Component
     private function resolveCategoryUrl(Category $category, string $locale): string
     {
         return $category->frontendUrl($locale) ?? Locales::path('/'.$category->path, $locale);
+    }
+
+    private function availableCategoryLocales(Category $category): array
+    {
+        return collect(Locales::supported())
+            ->filter(fn (string $locale): bool => $category->exactTranslation($locale) !== null)
+            ->values()
+            ->all();
     }
 
     private function normalizeSort(string $sort): string

@@ -51,6 +51,27 @@ return [
         'hydrator' => NullContentBlockHydrator::class,
     ],
 
+    'sitemap' => [
+        'enabled' => true,
+        'index_path' => 'sitemap.xml',
+        'maps' => [
+            'static' => 'sitemap-static.xml',
+            'categories' => 'sitemap-categories.xml',
+            'products' => 'sitemap-products.xml',
+            'blog' => 'sitemap-blog.xml',
+            'pages' => 'sitemap-pages.xml',
+        ],
+        'static_routes' => [
+            'home',
+            'catalog.index',
+            'sale.index',
+            'special-offers.index',
+            'blog.index',
+            'contacts.index',
+            'privacy.policy',
+        ],
+    ],
+
     'locales' => [
         'supported' => ['uk', 'en', 'ru', 'es', 'pl'],
         'fallback' => 'uk',

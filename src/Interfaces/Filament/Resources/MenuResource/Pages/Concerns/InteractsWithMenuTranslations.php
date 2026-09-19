@@ -85,7 +85,11 @@ trait InteractsWithMenuTranslations
         }
 
         $activeLocale = $this->resolveActiveLocale();
-        $items = $this->normalizeItems($data['items'] ?? []);
+        $rawItems = $data['items'] ?? [];
+        $items = $this->normalizeItems(
+            $rawItems,
+            $this->hasRepeaterOrderChanged($rawItems, $menu),
+        );
         $existingItems = $menu->loadMissing('items.translations')->items->keyBy('id');
 
         foreach ($items as $index => $item) {
@@ -231,20 +235,51 @@ trait InteractsWithMenuTranslations
      * @param  array<int, array<string, mixed>>  $items
      * @return array<int, array<string, mixed>>
      */
-    private function normalizeItems(array $items): array
+    private function normalizeItems(array $items, bool $useRepeaterOrder = false): array
     {
         return collect(array_values($items))
             ->filter(fn (mixed $item): bool => is_array($item))
-            ->map(function (array $item, int $index): array {
+            ->map(function (array $item, int $index) use ($useRepeaterOrder): array {
                 return [
                     'id' => filled($item['id'] ?? null) ? (int) $item['id'] : null,
-                    'sort' => is_numeric($item['sort'] ?? null) ? (int) $item['sort'] : (($index + 1) * 10),
+                    'sort' => $useRepeaterOrder
+                        ? $index + 1
+                        : (is_numeric($item['sort'] ?? null) ? (int) $item['sort'] : (($index + 1) * 10)),
                     'is_active' => (bool) ($item['is_active'] ?? true),
                     'open_in_new_tab' => (bool) ($item['open_in_new_tab'] ?? false),
                     'translations' => $this->normalizeTranslations($item['translations'] ?? []),
                 ];
             })
             ->all();
+    }
+
+    /**
+     * Repeater drag-and-drop changes item order without changing each item's
+     * existing sort field. Detect that case before normalizing the payload.
+     *
+     * @param  array<int, mixed>  $items
+     */
+    private function hasRepeaterOrderChanged(array $items, Menu $menu): bool
+    {
+        $items = collect($items)->filter(fn (mixed $item): bool => is_array($item));
+
+        if ($items->contains(fn (array $item): bool => blank($item['id'] ?? null))) {
+            return true;
+        }
+
+        $incomingIds = $items
+            ->pluck('id')
+            ->map(fn (mixed $id): int => (int) $id)
+            ->values()
+            ->all();
+
+        $storedIds = $menu->items()
+            ->pluck('id')
+            ->map(fn (mixed $id): int => (int) $id)
+            ->values()
+            ->all();
+
+        return $incomingIds !== $storedIds;
     }
 
     /**

@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Commero\Http\Controllers\AccountController;
 use Commero\Http\Controllers\BlogController;
 use Commero\Http\Controllers\CartController;
@@ -10,11 +9,12 @@ use Commero\Http\Controllers\ContactController;
 use Commero\Http\Controllers\EntityLinkController;
 use Commero\Http\Controllers\ErrorPageController;
 use Commero\Http\Controllers\HomeController;
+use Commero\Http\Controllers\MediaController;
 use Commero\Http\Controllers\PageController;
 use Commero\Http\Controllers\ProductController;
+use Commero\Http\Controllers\SitemapController;
 use Commero\Http\Controllers\ThankYouController;
 use Commero\Http\Controllers\WishlistController;
-use Commero\Http\Controllers\MediaController;
 use Commero\Interfaces\Http\Livewire\CatalogPage;
 use Commero\Interfaces\Http\Livewire\CheckoutPage;
 use Commero\Interfaces\Http\Livewire\SaleProductsPage;
@@ -22,6 +22,7 @@ use Commero\Interfaces\Http\Livewire\SearchPage;
 use Commero\Interfaces\Http\Livewire\SpecialOffersPage;
 use Commero\Livewire\ResetPasswordPage;
 use Commero\Support\Locales;
+use Illuminate\Support\Facades\Route;
 
 $reservedRootSlugs = implode('|', array_map(
     static fn (string $slug): string => preg_quote($slug, '/'),
@@ -119,6 +120,17 @@ Route::post('/logout', function () {
 Route::get('/politika-konfidencijnosti', [PageController::class, 'show'])
     ->defaults('slug', 'politika-konfidencijnosti')
     ->name('privacy.policy');
+
+if (config('commero.sitemap.enabled', true)) {
+    Route::get('/'.ltrim((string) config('commero.sitemap.index_path', 'sitemap.xml'), '/'), [SitemapController::class, 'index'])
+        ->name('sitemap.index');
+
+    foreach ((array) config('commero.sitemap.maps', []) as $map => $path) {
+        Route::get('/'.ltrim((string) $path, '/'), [SitemapController::class, 'map'])
+            ->defaults('map', (string) $map)
+            ->name('sitemap.'.(string) $map);
+    }
+}
 
 Route::get('/{slug}', EntityLinkController::class)
     ->where('slug', '^(?!(?:'.$reservedRootSlugs.')$)[A-Za-z0-9\-_]+$')

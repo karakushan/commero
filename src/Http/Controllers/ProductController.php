@@ -71,19 +71,25 @@ class ProductController extends Controller
 
         // Build attributes list
         $attributes = $product->attributeValues
-            ->map(function ($value) use ($locale): ?array {
-                $attributeName = $value->attribute?->translation($locale)?->name;
-                $attributeValue = $this->resolveAttributeValue($value, $locale);
+            ->groupBy('attribute_id')
+            ->map(function (Collection $values) use ($locale): ?array {
+                $firstValue = $values->first();
+                $attributeName = $firstValue?->attribute?->translation($locale)?->name;
+                $attributeValue = $values
+                    ->map(fn ($value): ?string => $this->resolveAttributeValue($value, $locale))
+                    ->filter()
+                    ->unique()
+                    ->implode(', ');
 
                 if (! filled($attributeName) || ! filled($attributeValue)) {
                     return null;
                 }
 
                 return [
-                    'code' => $value->attribute?->code,
+                    'code' => $firstValue?->attribute?->code,
                     'name' => $attributeName,
                     'value' => $attributeValue,
-                    'is_priority' => (bool) $value->is_priority,
+                    'is_priority' => $values->contains(fn ($value): bool => (bool) $value->is_priority),
                 ];
             })
             ->filter()

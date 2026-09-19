@@ -6,8 +6,8 @@ use Commero\Application\Catalog\Queries\CatalogFiltersQuery;
 use Commero\Application\Catalog\Queries\CatalogProductListQuery;
 use Commero\Models\CityCategory;
 use Commero\Support\Locales;
+use Commero\Support\Seo\CatalogPagination;
 use Commero\Support\Seo\LocalizedSeoResolver;
-use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -225,6 +225,8 @@ class CityCategoryPage extends Component
         $categories = $currentCategory->categories->values();
 
         $productsList = $products->handle($this->locale, $this->sort, $categoryFilters, $this->perPage);
+
+        abort_if($productsList->currentPage() > $productsList->lastPage(), 404);
         $filterOptions = $filters->handle($this->locale, $effectiveScopeIds);
 
         $archiveTitle = $currentCategory->translation($this->locale)?->name ?? __('Всі товари');
@@ -237,10 +239,14 @@ class CityCategoryPage extends Component
                 'heading' => $archiveTitle,
                 'description' => __('Каталог головних уборів ShopHats - шапки, кепки, берети, шарфи та рукавички для всієї родини.'),
             ],
-            availableLocales: Locales::supported(),
+            availableLocales: $this->availableCategoryLocales($currentCategory),
         );
 
-        $categoryBlocks = array_values($currentCategory->translation($this->locale)?->blocks ?? []);
+        $seo = CatalogPagination::apply($seo, request(), $productsList->currentPage());
+
+        $categoryBlocks = $productsList->currentPage() === 1
+            ? array_values($currentCategory->translation($this->locale)?->blocks ?? [])
+            : [];
 
         return view('shophats::pages.catalog', [
             'products' => $productsList,
@@ -288,6 +294,14 @@ class CityCategoryPage extends Component
     private function resolveCategoryUrl(CityCategory $cityCategory, string $locale): string
     {
         return $cityCategory->frontendUrl($locale) ?? Locales::path('/'.$cityCategory->path, $locale);
+    }
+
+    private function availableCategoryLocales(CityCategory $cityCategory): array
+    {
+        return collect(Locales::supported())
+            ->filter(fn (string $locale): bool => $cityCategory->exactTranslation($locale) !== null)
+            ->values()
+            ->all();
     }
 
     private function normalizeSort(string $sort): string

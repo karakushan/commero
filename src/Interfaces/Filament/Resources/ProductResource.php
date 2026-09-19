@@ -257,6 +257,7 @@ class ProductResource extends AdminResource
                                                 ->columnSpan(1),
                                             Select::make('value_option_id')
                                                 ->label(__('commero::admin.common.value'))
+                                                ->multiple()
                                                 ->options(fn (callable $get): array => static::getAttributeOptionSelectOptions($get('attribute_id')))
                                                 ->searchable()
                                                 ->preload()
