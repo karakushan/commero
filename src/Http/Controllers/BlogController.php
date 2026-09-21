@@ -2,6 +2,7 @@
 
 namespace Commero\Http\Controllers;
 
+use Commero\Models\Page;
 use Commero\Models\Post;
 use Commero\Models\PostCategory;
 use Commero\Services\MediaUrlResolver;
@@ -42,13 +43,7 @@ class BlogController extends Controller
                 ],
                 availableLocales: Locales::supported(),
             )
-            : $seoResolver->forCurrentRoute(
-                request: $request,
-                locale: $locale,
-                title: __('Blog'),
-                heading: __('Blog'),
-                description: __('Blog about headwear, fashion tips and news from ShopHats'),
-            );
+            : $this->resolveBlogSeo($request, $seoResolver, $locale);
 
         return view('shophats::pages.blog', [
             'locale' => $locale,
@@ -243,5 +238,45 @@ class BlogController extends Controller
         return Locales::isDefault($locale)
             ? route('blog.category', ['slug' => $slug])
             : route('localized.blog.category', ['locale' => $locale, 'slug' => $slug]);
+    }
+
+    private function resolveBlogSeo(Request $request, LocalizedSeoResolver $seoResolver, string $locale): array
+    {
+        $fallbackTitle = __('Blog');
+        $fallbackDescription = __('Blog about headwear, fashion tips and news from ShopHats');
+        $page = Page::query()
+            ->published()
+            ->with('translations')
+            ->whereHas('translations', fn ($query) => $query->where('slug', 'blog'))
+            ->first();
+
+        if (! $page) {
+            return $seoResolver->forCurrentRoute(
+                request: $request,
+                locale: $locale,
+                title: $fallbackTitle,
+                heading: $fallbackTitle,
+                description: $fallbackDescription,
+            );
+        }
+
+        $seo = $seoResolver->forTranslatedContent(
+            locale: $locale,
+            translations: $page->translations,
+            urlForLocale: fn (string $supportedLocale): string => Locales::isDefault($supportedLocale)
+                ? route('blog.index')
+                : route('localized.blog.index', ['locale' => $supportedLocale]),
+            fallback: [
+                'title' => $fallbackTitle,
+                'heading' => $fallbackTitle,
+                'description' => $fallbackDescription,
+            ],
+            availableLocales: Locales::supported(),
+        );
+
+        // The CMS page controls SEO fields; the blog archive keeps its own heading.
+        $seo['heading'] = $fallbackTitle;
+
+        return $seo;
     }
 }
