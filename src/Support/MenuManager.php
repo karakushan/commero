@@ -43,7 +43,7 @@ class MenuManager
 
                 return [
                     'label' => $translation->label,
-                    'url' => $translation->url,
+                    'url' => Locales::normalizeInternalUrl($translation->url),
                     'target' => $item->open_in_new_tab ? '_blank' : '_self',
                     'rel' => $item->open_in_new_tab ? 'noopener noreferrer' : null,
                 ];

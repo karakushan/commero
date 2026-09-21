@@ -9,7 +9,6 @@ use Commero\Interfaces\Filament\Resources\ProductReviewResource;
 use Commero\Models\AttributeOption;
 use Commero\Models\Currency;
 use Commero\Models\Product;
-use Commero\Support\Locales;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
@@ -33,7 +32,7 @@ class EditProduct extends EditRecord
             Action::make('viewProduct')
                 ->label(__('commero::admin.product.actions.view_on_site'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
-                ->url(fn (): string => $this->getFrontendProductUrl())
+                ->url(fn (): string => ProductResource::getFrontendProductUrl($this->getRecord(), $this->resolveActiveLocale()) ?? route('catalog.index'))
                 ->openUrlInNewTab(),
             Action::make('reviews')
                 ->label(__('commero::admin.product_review.actions.view_reviews'))
@@ -44,46 +43,6 @@ class EditProduct extends EditRecord
                     ],
                 ])),
         ];
-    }
-
-    private function getFrontendProductUrl(): string
-    {
-        /** @var Product $product */
-        $product = $this->getRecord()->loadMissing('translations');
-        $activeLocale = $this->resolveActiveLocale();
-        $activeTranslation = $product->translation($activeLocale);
-
-        if (filled($activeTranslation?->slug)) {
-            return $this->buildFrontendProductUrl($activeLocale, $activeTranslation->slug);
-        }
-
-        $defaultTranslation = $product->translation(Locales::default());
-
-        if (filled($defaultTranslation?->slug)) {
-            return $this->buildFrontendProductUrl(
-                Locales::isDefault($activeLocale) ? Locales::default() : $activeLocale,
-                $defaultTranslation->slug,
-            );
-        }
-
-        $translationWithSlug = $product->translations
-            ->first(fn ($translation): bool => filled($translation->slug));
-
-        if (filled($translationWithSlug?->slug) && filled($translationWithSlug?->locale)) {
-            return $this->buildFrontendProductUrl(
-                Locales::isDefault($activeLocale) ? $translationWithSlug->locale : $activeLocale,
-                $translationWithSlug->slug,
-            );
-        }
-
-        return route('catalog.index');
-    }
-
-    private function buildFrontendProductUrl(string $locale, string $slug): string
-    {
-        return Locales::isDefault($locale)
-            ? route('product.show', ['slug' => $slug])
-            : route('localized.product.show', ['locale' => $locale, 'slug' => $slug]);
     }
 
     protected function mutateFormDataBeforeFill(array $data): array

@@ -6,6 +6,7 @@ use Commero\Support\Filament\CloneAction;
 use Commero\Support\Locales;
 use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
+use Illuminate\Auth\Access\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -41,6 +42,10 @@ abstract class AdminResource extends Resource
                 $translationRelation => fn (Relation $translations): Relation => $translations
                     ->whereIn('locale', Locales::preferred($locale)),
             ])
+            ->when(
+                method_exists($relatedModel, 'children'),
+                fn (Builder $query): Builder => $query->orderBy($relatedModel->qualifyColumn('path')),
+            )
             ->when(trim((string) $search) !== '', function (Builder $query) use ($likeSearch, $translationRelation, $translationNameColumn, $locale): void {
                 $query->whereHas($translationRelation, function (Builder $translations) use ($likeSearch, $translationNameColumn, $locale): void {
                     $translations
@@ -99,7 +104,7 @@ abstract class AdminResource extends Resource
                 : null);
     }
 
-    public static function getAuthorizationResponse(string|\UnitEnum $action, ?Model $record = null): \Illuminate\Auth\Access\Response
+    public static function getAuthorizationResponse(string|\UnitEnum $action, ?Model $record = null): Response
     {
         static::registerPolicyIfNeeded($record ?? static::getModel());
 

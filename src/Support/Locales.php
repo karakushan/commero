@@ -62,17 +62,58 @@ class Locales
         };
     }
 
-    public static function path(string $path = '/', ?string $locale = null): string
+    public static function path(string $path = '/', ?string $locale = null, bool $trailingSlash = true): string
     {
         $normalizedPath = '/'.ltrim($path, '/');
         $resolvedLocale = self::resolve($locale);
         $suffix = $normalizedPath === '/' ? '' : $normalizedPath;
 
-        if (self::isDefault($resolvedLocale)) {
-            return $normalizedPath;
+        $localizedPath = self::isDefault($resolvedLocale)
+            ? $normalizedPath
+            : '/'.$resolvedLocale.$suffix;
+
+        return $trailingSlash ? self::ensureTrailingSlash($localizedPath) : $localizedPath;
+    }
+
+    public static function normalizeInternalUrl(?string $url): ?string
+    {
+        if (! is_string($url)) {
+            return $url;
         }
 
-        return '/'.$resolvedLocale.$suffix;
+        $url = trim($url);
+
+        if ($url === '') {
+            return $url;
+        }
+
+        foreach (['#', 'mailto:', 'tel:', 'javascript:', '//'] as $prefix) {
+            if (str_starts_with($url, $prefix)) {
+                return $url;
+            }
+        }
+
+        $parts = parse_url($url);
+
+        if ($parts === false) {
+            return $url;
+        }
+
+        if (isset($parts['scheme'])) {
+            if (! in_array(strtolower((string) $parts['scheme']), ['http', 'https'], true)) {
+                return $url;
+            }
+
+            $appHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+
+            if (filled($parts['host'] ?? null) && filled($appHost) && $parts['host'] !== $appHost) {
+                return $url;
+            }
+        } elseif (! str_starts_with($url, '/')) {
+            return $url;
+        }
+
+        return self::ensureTrailingSlash($url);
     }
 
     public static function ensureTrailingSlash(string $path): string

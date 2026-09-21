@@ -566,10 +566,14 @@ class ProductResource extends AdminResource
                     ->relationship(
                         'categories',
                         'id',
-                        fn (Builder $query): Builder => $query->withTranslationsFor(app()->getLocale()),
+                        fn (Builder $query): Builder => $query
+                            ->withTranslationsFor(app()->getLocale())
+                            ->orderBy('path'),
                     )
                     ->multiple()
                     ->searchable()
+                    ->preload()
+                    ->optionsLimit(500)
                     ->getOptionLabelFromRecordUsing(fn (Category $record): string => static::formatLocalizedHierarchySelectLabel($record))
                     ->getSearchResultsUsing(
                         fn (Select $component, ?string $search): array => static::getLocalizedRelationshipSearchResults($component, $search),
@@ -577,6 +581,13 @@ class ProductResource extends AdminResource
             ])
             ->recordActions([
                 static::getCloneAction(),
+                Action::make('viewProduct')
+                    ->label(__('commero::admin.product.actions.view_on_site'))
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->url(fn (Product $record): ?string => static::getFrontendProductUrl($record))
+                    ->openUrlInNewTab()
+                    ->iconButton()
+                    ->hidden(fn (Product $record): bool => blank(static::getFrontendProductUrl($record))),
                 Action::make('reviews')
                     ->label(__('commero::admin.product_review.actions.view_reviews'))
                     ->icon('heroicon-o-chat-bubble-left-right')
@@ -600,6 +611,45 @@ class ProductResource extends AdminResource
         return parent::getEloquentQuery()
             ->withTranslationsFor(app()->getLocale())
             ->with(['categories.translations', 'primaryImage', 'variants']);
+    }
+
+    public static function getFrontendProductUrl(Product $product, ?string $locale = null): ?string
+    {
+        $product = $product->loadMissing('translations');
+        $activeLocale = Locales::resolve($locale ?? app()->getLocale());
+        $activeTranslation = $product->translation($activeLocale);
+
+        if (filled($activeTranslation?->slug)) {
+            return static::buildFrontendProductUrl($activeLocale, $activeTranslation->slug);
+        }
+
+        $defaultTranslation = $product->translation(Locales::default());
+
+        if (filled($defaultTranslation?->slug)) {
+            return static::buildFrontendProductUrl(
+                Locales::isDefault($activeLocale) ? Locales::default() : $activeLocale,
+                $defaultTranslation->slug,
+            );
+        }
+
+        $translationWithSlug = $product->translations
+            ->first(fn ($translation): bool => filled($translation->slug));
+
+        if (filled($translationWithSlug?->slug) && filled($translationWithSlug?->locale)) {
+            return static::buildFrontendProductUrl(
+                Locales::isDefault($activeLocale) ? $translationWithSlug->locale : $activeLocale,
+                $translationWithSlug->slug,
+            );
+        }
+
+        return null;
+    }
+
+    private static function buildFrontendProductUrl(string $locale, string $slug): string
+    {
+        return Locales::isDefault($locale)
+            ? route('product.show', ['slug' => $slug])
+            : route('localized.product.show', ['locale' => $locale, 'slug' => $slug]);
     }
 
     private static function getProductRelationOptions(?Product $record = null): array
