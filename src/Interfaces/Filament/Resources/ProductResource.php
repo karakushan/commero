@@ -855,13 +855,28 @@ class ProductResource extends AdminResource
                     ->dehydratedWhenHidden(),
                 Select::make("translations.{$locale}.robots")
                     ->label(__('commero::admin.product.seo.robots'))
-                    ->options([
-                        'index, follow' => __('commero::admin.product.seo.robots_options.index_follow'),
-                        'noindex, follow' => __('commero::admin.product.seo.robots_options.noindex_follow'),
-                        'index, nofollow' => __('commero::admin.product.seo.robots_options.index_nofollow'),
-                        'noindex, nofollow' => __('commero::admin.product.seo.robots_options.noindex_nofollow'),
-                    ])
+                    ->options(function (callable $get) use ($locale): array {
+                        $options = [
+                            'index, follow' => __('commero::admin.product.seo.robots_options.index_follow'),
+                            'noindex, follow' => __('commero::admin.product.seo.robots_options.noindex_follow'),
+                            'index, nofollow' => __('commero::admin.product.seo.robots_options.index_nofollow'),
+                            'noindex, nofollow' => __('commero::admin.product.seo.robots_options.noindex_nofollow'),
+                        ];
+                        $currentValue = $get("translations.{$locale}.robots");
+
+                        if (filled($currentValue) && ! array_key_exists($currentValue, $options)) {
+                            $options[$currentValue] = $currentValue;
+                        }
+
+                        return $options;
+                    })
+                    ->nullable()
                     ->default('index, follow')
+                    ->afterStateHydrated(function (Select $component, ?string $state): void {
+                        if (blank($state)) {
+                            $component->state('index, follow');
+                        }
+                    })
                     ->columnSpan(1)
                     ->dehydratedWhenHidden(),
                 Textarea::make("translations.{$locale}.meta_title")
