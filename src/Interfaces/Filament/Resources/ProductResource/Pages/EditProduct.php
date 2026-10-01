@@ -9,7 +9,9 @@ use Commero\Interfaces\Filament\Resources\ProductReviewResource;
 use Commero\Models\AttributeOption;
 use Commero\Models\Currency;
 use Commero\Models\Product;
+use Commero\Support\Filament\AdminLocales;
 use Filament\Actions\Action;
+use Filament\Actions\SelectAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 
@@ -29,6 +31,9 @@ class EditProduct extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            SelectAction::make('activeLocale')
+                ->label(__('commero::admin.resources.product.active_locale'))
+                ->options(AdminLocales::options()),
             Action::make('viewProduct')
                 ->label(__('commero::admin.product.actions.view_on_site'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
