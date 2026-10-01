@@ -169,15 +169,7 @@ class ProductResource extends AdminResource
                                 ->label(__('commero::admin.product.category_ids'))
                                 ->multiple()
                                 ->options(fn (): array => static::getLocalizedHierarchySelectOptions(Category::class))
-                                ->getOptionLabelsUsing(fn (array $values): array => Category::query()
-                                    ->withTranslationsFor(app()->getLocale())
-                                    ->whereKey($values)
-                                    ->orderBy('path')
-                                    ->get()
-                                    ->mapWithKeys(fn (Category $category): array => [
-                                        (string) $category->getKey() => static::formatLocalizedHierarchySelectLabel($category),
-                                    ])
-                                    ->all())
+                                ->getOptionLabelFromRecordUsing(fn (Category $record): string => static::formatLocalizedHierarchySelectLabel($record))
                                 ->preload()
                                 ->optionsLimit(500)
                                 ->searchable()
