@@ -118,7 +118,9 @@ class ProductResource extends AdminResource
                                 ->columnSpan(1),
                             TextInput::make('sku')
                                 ->label(__('commero::admin.common.sku'))
-                                ->required()
+                                ->nullable()
+                                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? trim($state) : null)
+                                ->required(fn ($livewire): bool => $livewire instanceof Pages\EditProduct)
                                 ->unique(ignoreRecord: true)
                                 ->visible(fn (callable $get): bool => $get('type') === 'simple')
                                 ->columnSpan(1),
@@ -228,11 +230,13 @@ class ProductResource extends AdminResource
                                         ->directory('catalog/products/manual')
                                         ->visibility('public')
                                         ->image()
-                                        ->required(),
+                                        ->nullable()
+                                        ->required(fn ($livewire): bool => $livewire instanceof Pages\EditProduct),
                                     TextInput::make('alt')->label('Alt текст'),
                                     TextInput::make('sort')->label('Сортування')->numeric()->default(10)->required(),
                                     Checkbox::make('is_primary')->label('Головне зображення'),
                                 ])
+                                ->defaultItems(0)
                                 ->columns(2)
                                 ->columnSpanFull(),
                         ]),
@@ -290,6 +294,7 @@ class ProductResource extends AdminResource
                                                 ->columnSpan(1),
                                             Hidden::make('sort'),
                                         ])
+                                        ->defaultItems(0)
                                         ->columns(2)
                                         ->collapsible()
                                         ->reorderable()
@@ -311,7 +316,9 @@ class ProductResource extends AdminResource
                                                 ->required(),
                                             TextInput::make('sku')
                                                 ->label(__('commero::admin.common.sku'))
-                                                ->required(),
+                                                ->nullable()
+                                                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? trim($state) : null)
+                                                ->required(fn ($livewire): bool => $livewire instanceof Pages\EditProduct),
                                             TextInput::make('price')
                                                 ->label(__('commero::admin.common.price'))
                                                 ->numeric()
@@ -437,6 +444,7 @@ class ProductResource extends AdminResource
                                                 ->default(0)
                                                 ->required(),
                                         ])
+                                        ->defaultItems(0)
                                         ->columns(2)
                                         ->collapsible()
                                         ->reorderable(false)

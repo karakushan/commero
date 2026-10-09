@@ -27,6 +27,9 @@ class CreateProduct extends CreateRecord
             ...($this->data ?? []),
             ...$this->getActiveLocaleContextState(),
             'gallery_uploads' => [],
+            'images' => [],
+            'attribute_values' => [],
+            'faqs' => [],
             'translations' => $this->getTranslationsFormState(),
         ]);
     }
@@ -99,7 +102,9 @@ class CreateProduct extends CreateRecord
 
             $variant->fill([
                 'name' => $variantData['name'] ?? '',
-                'sku' => $variantData['sku'] ?? $product->sku.'-'.($index + 1),
+                'sku' => filled($variantData['sku'] ?? null)
+                    ? $variantData['sku']
+                    : (filled($product->sku) ? $product->sku.'-'.($index + 1) : null),
                 'barcode' => $variant->barcode,
                 'price' => $variantData['price'] ?? 0,
                 'old_price' => $variantData['old_price'] ?? null,
