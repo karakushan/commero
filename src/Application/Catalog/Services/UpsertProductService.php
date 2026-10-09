@@ -106,7 +106,11 @@ class UpsertProductService
         }
 
         if (! $normalizedImages->contains(fn (array $image): bool => $image['is_primary'])) {
-            $normalizedImages[0]['is_primary'] = true;
+            $normalizedImages = $normalizedImages->map(function (array $image, int $index): array {
+                $image['is_primary'] = $index === 0;
+
+                return $image;
+            });
         }
 
         $primaryAssigned = false;
