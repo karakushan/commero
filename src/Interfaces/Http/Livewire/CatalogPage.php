@@ -285,6 +285,17 @@ class CatalogPage extends Component
             'seo' => $seo,
         ])->layout('shophats::layouts.base', [
             'seo' => $seo,
+            'structuredData' => [
+                'catalog' => [
+                    'products' => $productsList,
+                    'currentCategory' => $currentCategory,
+                    'archiveTitle' => $archiveTitle,
+                    'categoryBlocks' => $categoryBlocks,
+                    'seo' => $seo,
+                    'locale' => $this->locale,
+                    'canonical' => $seo['canonical'] ?? url()->current(),
+                ],
+            ],
         ]);
     }
 

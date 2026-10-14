@@ -46,6 +46,20 @@ You can change that path in `config/commero.php`.
 
 Content block implementation is also expected on the host project side. The package only provides the contracts and default empty infrastructure.
 
+## Structured Data
+
+Add the package component once to the storefront base layout, inside `<head>`:
+
+```blade
+<x-commero::structured-data
+    :resolved-seo="$resolvedSeo"
+    :site-setting="$siteSetting ?? null"
+    :structured-data="$structuredData ?? []"
+/>
+```
+
+Commero supplies product and catalog context from its controllers. The component renders `Organization` and `WebSite` data on the page, `Product` and breadcrumbs on product pages, and `CollectionPage` data on category pages. Replace separate structured-data partial includes with this base-layout component to avoid duplicate markup.
+
 ## Localization
 
 Commero uses `config/commero.php` as the source of truth for locales:

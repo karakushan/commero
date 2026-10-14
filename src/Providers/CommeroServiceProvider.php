@@ -28,6 +28,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -71,6 +72,7 @@ class CommeroServiceProvider extends ServiceProvider
         }
 
         $this->loadViewsFrom($this->packagePath('resources/views'), 'commero');
+        Blade::anonymousComponentPath($this->packagePath('resources/views/components'), 'commero');
         $this->loadViewsFrom(config('commero.theme_view_path', resource_path('views/shophats')), 'shophats');
         $this->loadMigrationsFrom($this->packagePath('database/migrations'));
         $this->publishes([

@@ -162,6 +162,13 @@ class ProductController extends Controller
             'product' => $productData,
             'locale' => $locale,
             'seo' => $seo,
+            'structuredData' => [
+                'product' => [
+                    'product' => $productData,
+                    'locale' => $locale,
+                    'seo' => $seo,
+                ],
+            ],
             'completeYourLookProducts' => $completeYourLookProducts,
             'similarProducts' => $similarProducts,
         ]);
