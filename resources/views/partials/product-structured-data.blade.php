@@ -63,6 +63,13 @@
         ])
         ->values()
         ->all();
+    $schemaProductCategories = collect($product['categories'] ?? [])
+        ->filter(fn ($category): bool => is_array($category) && filled($category['name'] ?? null))
+        ->map(fn (array $category): string => trim((string) $category['name']))
+        ->filter()
+        ->unique()
+        ->values()
+        ->all();
     $schemaPrice = (float) convert_price((float) ($product['price'] ?? 0));
     $schemaReviews = collect($product['reviews'] ?? [])
         ->filter(fn ($review): bool => is_array($review))
@@ -75,7 +82,7 @@
         'image' => $schemaProductImages !== [] ? $schemaProductImages : null,
         'description' => $schemaProductDescription !== '' ? $schemaProductDescription : null,
         'brand' => filled($product['brand'] ?? null) ? ['@'.'type' => 'Brand', 'name' => $product['brand']] : null,
-        'category' => filled($product['categories'][0]['name'] ?? null) ? $product['categories'][0]['name'] : null,
+        'category' => $schemaProductCategories !== [] ? $schemaProductCategories : null,
         'additionalProperty' => $schemaProductAttributes !== [] ? $schemaProductAttributes : null,
         'offers' => $schemaPrice > 0 ? [
             '@'.'type' => 'Offer',

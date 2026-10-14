@@ -344,6 +344,8 @@ return [
         'mail_from_name_hint' => 'If empty, the name from the mail configuration is used.',
         'delivery_section' => 'Delivery settings',
         'site_name' => 'Site name',
+        'merchant_return_link' => 'Return policy URL',
+        'merchant_return_link_hint' => 'Enter the full URL of the published return policy page for this language.',
         'logo_path' => 'Logo',
         'footer_logo_path' => 'Footer logo',
         'favicon_svg_path' => 'Favicon SVG',

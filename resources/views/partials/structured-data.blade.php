@@ -35,6 +35,12 @@
     $schemaSearchUrl = preg_match('/^https?:\/\//i', $schemaSearchUrl)
         ? $schemaSearchUrl
         : url('/'.ltrim($schemaSearchUrl, '/'));
+    $schemaReturnPolicyLink = $schemaSetting?->getMerchantReturnLinkForLocale($schemaSettingLocale, false);
+    $schemaReturnPolicyLink = filled($schemaReturnPolicyLink)
+        ? (preg_match('/^https?:\/\//i', $schemaReturnPolicyLink)
+            ? $schemaReturnPolicyLink
+            : url('/'.ltrim($schemaReturnPolicyLink, '/')))
+        : null;
 @endphp
 
 <script type="application/ld+json">
@@ -47,6 +53,10 @@
             'name' => $schemaName,
             'url' => $schemaBaseUrl.'/',
             'logo' => $schemaLogo,
+            'hasMerchantReturnPolicy' => filled($schemaReturnPolicyLink) ? [
+                '@'.'type' => 'MerchantReturnPolicy',
+                'merchantReturnLink' => $schemaReturnPolicyLink,
+            ] : null,
             'contactPoint' => filled($schemaPhoneContact['value'] ?? null) ? [
                 '@'.'type' => 'ContactPoint',
                 'telephone' => $schemaPhoneContact['value'],

@@ -70,6 +70,11 @@ class SiteSettings extends Page
                     Section::make(__('commero::admin.site_setting.general_section'))
                         ->schema([
                             TextInput::make('site_name')->label(__('commero::admin.site_setting.site_name'))->maxLength(255),
+                            TextInput::make('merchant_return_link')
+                                ->label(__('commero::admin.site_setting.merchant_return_link'))
+                                ->helperText(__('commero::admin.site_setting.merchant_return_link_hint'))
+                                ->url()
+                                ->maxLength(2048),
                             FileUpload::make('logo_path')
                                 ->label(__('commero::admin.site_setting.logo_path'))
                                 ->disk('public')
@@ -316,6 +321,7 @@ class SiteSettings extends Page
         return [
             static::ACTIVE_LOCALE_FIELD => $activeLocale,
             'site_name' => $record?->getSiteNameForLocale($activeLocale, false),
+            'merchant_return_link' => $record?->getMerchantReturnLinkForLocale($activeLocale, false),
             'mail_from_email' => $record?->getRawOriginal('mail_from_email'),
             'mail_from_name' => $record?->getRawOriginal('mail_from_name'),
             'logo_path' => $record?->getLogoPathForLocale($activeLocale, false),
@@ -359,6 +365,7 @@ class SiteSettings extends Page
 
         if (Locales::isDefault($activeLocale)) {
             $preparedData['site_name'] = $this->normalizeTextValue($data['site_name'] ?? null);
+            $preparedData['merchant_return_link'] = $this->normalizeTextValue($data['merchant_return_link'] ?? null);
             $preparedData['logo_path'] = $this->normalizeTextValue($data['logo_path'] ?? null);
             $preparedData['footer_logo_path'] = $this->normalizeTextValue($data['footer_logo_path'] ?? null);
             $preparedData['contacts'] = $this->normalizeLocalizedItems($data['contacts'] ?? [], ['label', 'value']);
@@ -369,18 +376,21 @@ class SiteSettings extends Page
         }
 
         $siteNameTranslations = $record->site_name_translations ?? [];
+        $merchantReturnLinkTranslations = $record->merchant_return_link_translations ?? [];
         $logoPathTranslations = $record->logo_path_translations ?? [];
         $footerLogoPathTranslations = $record->footer_logo_path_translations ?? [];
         $contactsTranslations = $record->contacts_translations ?? [];
         $socialLinksTranslations = $record->social_links_translations ?? [];
 
         $siteNameTranslations[$activeLocale] = $this->normalizeTextValue($data['site_name'] ?? null);
+        $merchantReturnLinkTranslations[$activeLocale] = $this->normalizeTextValue($data['merchant_return_link'] ?? null);
         $logoPathTranslations[$activeLocale] = $this->normalizeTextValue($data['logo_path'] ?? null);
         $footerLogoPathTranslations[$activeLocale] = $this->normalizeTextValue($data['footer_logo_path'] ?? null);
         $contactsTranslations[$activeLocale] = $this->normalizeLocalizedItems($data['contacts'] ?? [], ['label', 'value']);
         $socialLinksTranslations[$activeLocale] = $this->normalizeLocalizedItems($data['social_links'] ?? [], ['label', 'url']);
 
         $preparedData['site_name_translations'] = $this->filterEmptyTranslationValues($siteNameTranslations);
+        $preparedData['merchant_return_link_translations'] = $this->filterEmptyTranslationValues($merchantReturnLinkTranslations);
         $preparedData['logo_path_translations'] = $this->filterEmptyTranslationValues($logoPathTranslations);
         $preparedData['footer_logo_path_translations'] = $this->filterEmptyTranslationValues($footerLogoPathTranslations);
         $preparedData['contacts_translations'] = $this->filterEmptyTranslationItemLists($contactsTranslations, ['label', 'value']);

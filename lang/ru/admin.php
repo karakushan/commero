@@ -344,6 +344,8 @@ return [
         'mail_from_name_hint' => 'Если поле пустое, используется имя из конфигурации почты.',
         'delivery_section' => 'Настройки доставки',
         'site_name' => 'Название сайта',
+        'merchant_return_link' => 'URL политики возврата',
+        'merchant_return_link_hint' => 'Укажите полный URL опубликованной страницы политики возврата для этого языка.',
         'logo_path' => 'Логотип',
         'footer_logo_path' => 'Логотип футера',
         'favicon_svg_path' => 'Favicon SVG',

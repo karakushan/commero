@@ -12,6 +12,8 @@ class SiteSetting extends Model
 
     protected $fillable = [
         'site_name',
+        'merchant_return_link',
+        'merchant_return_link_translations',
         'mail_from_email',
         'mail_from_name',
         'site_name_translations',
@@ -44,6 +46,7 @@ class SiteSetting extends Model
         'social_links' => 'array',
         'social_links_translations' => 'array',
         'site_name_translations' => 'array',
+        'merchant_return_link_translations' => 'array',
         'multi_currency_enabled' => 'boolean',
         'show_price_decimals' => 'boolean',
     ];
@@ -103,6 +106,21 @@ class SiteSetting extends Model
         }
 
         $translations = $this->getRawJsonAttribute('site_name_translations');
+        $translatedValue = $this->normalizeTextValue($translations[$resolvedLocale] ?? null, false);
+
+        return $translatedValue ?? ($useFallback ? $defaultValue : null);
+    }
+
+    public function getMerchantReturnLinkForLocale(?string $locale = null, bool $useFallback = true): ?string
+    {
+        $resolvedLocale = Locales::resolve($locale);
+        $defaultValue = $this->normalizeTextValue($this->getRawOriginal('merchant_return_link'), false);
+
+        if (Locales::isDefault($resolvedLocale)) {
+            return $defaultValue;
+        }
+
+        $translations = $this->getRawJsonAttribute('merchant_return_link_translations');
         $translatedValue = $this->normalizeTextValue($translations[$resolvedLocale] ?? null, false);
 
         return $translatedValue ?? ($useFallback ? $defaultValue : null);
