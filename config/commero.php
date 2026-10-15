@@ -15,6 +15,7 @@ return [
             'quality' => 82,
         ],
         'sizes' => [
+            'tiny' => ['width' => 64, 'height' => null, 'quality' => 72, 'format' => 'webp'],
             'thumb' => ['width' => 320, 'height' => null, 'quality' => 80, 'format' => 'webp'],
             'slider' => ['width' => 345, 'height' => null, 'quality' => 82, 'format' => 'webp'],
             'slider_large' => ['width' => 571, 'height' => null, 'quality' => 85, 'format' => 'webp'],
@@ -22,7 +23,7 @@ return [
             'detail' => ['width' => 1600, 'height' => null, 'quality' => 85, 'format' => 'webp'],
         ],
         'collections' => [
-            'product_gallery' => ['thumb', 'slider', 'slider_large', 'card', 'detail'],
+            'product_gallery' => ['tiny', 'thumb', 'slider', 'slider_large', 'card', 'detail'],
             'category_thumbnail' => ['thumb'],
             'category_icon' => ['thumb'],
             'post_thumbnail' => ['card'],
