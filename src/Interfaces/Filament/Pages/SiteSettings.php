@@ -4,8 +4,10 @@ namespace Commero\Interfaces\Filament\Pages;
 
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Commero\Forms\Components\StoreLocationPicker;
+use Commero\Models\Page as CmsPage;
 use Commero\Models\SiteSetting;
 use Commero\Rules\FlexibleUrl;
+use Commero\Support\EntityLinkService;
 use Commero\Support\Filament\AdminLocales;
 use Commero\Support\Locales;
 use Filament\Actions\Action;
@@ -70,11 +72,6 @@ class SiteSettings extends Page
                     Section::make(__('commero::admin.site_setting.general_section'))
                         ->schema([
                             TextInput::make('site_name')->label(__('commero::admin.site_setting.site_name'))->maxLength(255),
-                            TextInput::make('merchant_return_link')
-                                ->label(__('commero::admin.site_setting.merchant_return_link'))
-                                ->helperText(__('commero::admin.site_setting.merchant_return_link_hint'))
-                                ->url()
-                                ->maxLength(2048),
                             FileUpload::make('logo_path')
                                 ->label(__('commero::admin.site_setting.logo_path'))
                                 ->disk('public')
@@ -120,6 +117,13 @@ class SiteSettings extends Page
                         ->columns(2),
                     Section::make(__('commero::admin.site_setting.delivery_section'))
                         ->schema([
+                            Select::make('merchant_return_link')
+                                ->label(__('commero::admin.site_setting.merchant_return_link'))
+                                ->helperText(__('commero::admin.site_setting.merchant_return_link_hint'))
+                                ->placeholder(__('commero::admin.site_setting.merchant_return_link_placeholder'))
+                                ->options(fn (): array => $this->getMerchantReturnPolicyPageOptions())
+                                ->searchable()
+                                ->native(false),
                             TextInput::make('nova_poshta_api_key')
                                 ->label(__('commero::admin.site_setting.nova_poshta_api_key'))
                                 ->password()
@@ -281,6 +285,47 @@ class SiteSettings extends Page
     protected function getRecord(): ?SiteSetting
     {
         return SiteSetting::query()->first();
+    }
+
+    protected function getMerchantReturnPolicyPageOptions(): array
+    {
+        $locale = $this->resolveActiveLocale();
+        $pages = CmsPage::query()
+            ->published()
+            ->whereHas('translations', fn ($query) => $query->where('locale', $locale))
+            ->with(['translations' => fn ($query) => $query->where('locale', $locale)])
+            ->orderBy('sort')
+            ->orderBy('id')
+            ->get();
+        $pageLinks = app(EntityLinkService::class);
+
+        $options = [];
+
+        foreach ($pages as $page) {
+            $translation = $page->translations->firstWhere('locale', $locale);
+
+            if (! $translation || blank($translation->slug)) {
+                continue;
+            }
+
+            $pageUrl = $pageLinks->pageUrl($page, $locale);
+
+            if (filled($pageUrl)) {
+                $options[url($pageUrl)] = $translation->title;
+            }
+        }
+
+        $currentValue = $this->getRecord()?->getMerchantReturnLinkForLocale($locale, false);
+
+        if (filled($currentValue) && ! array_key_exists($currentValue, $options)) {
+            $options = [
+                $currentValue => __('commero::admin.site_setting.merchant_return_link_saved_value', [
+                    'url' => $currentValue,
+                ]),
+            ] + $options;
+        }
+
+        return $options;
     }
 
     public function updatedActiveLocale(?string $locale): void
