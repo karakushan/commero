@@ -151,6 +151,14 @@ class CatalogProductListQuery
     {
         $translation = $product->translation($locale);
         $primaryVariant = $product->variants->first();
+        $displaySku = $product->sku;
+
+        if ($product->type === 'variant' && filled($primaryVariant?->sku)) {
+            $displaySku = (string) $primaryVariant->sku;
+        }
+
+        $displaySku = (string) ($displaySku ?? '');
+        $slug = $product->localizedSlug($locale, $displaySku) ?? $displaySku;
 
         // Build gallery with full URLs
         $galleryImages = [];
@@ -178,10 +186,10 @@ class CatalogProductListQuery
         return new CatalogProductCardData(
             id: $product->id,
             locale: $translation?->locale ?? $locale,
-            name: $translation?->name ?? $product->sku,
-            slug: $product->localizedSlug($locale, $product->sku) ?? $product->sku,
+            name: $translation?->name ?? $displaySku,
+            slug: $slug,
             description: $translation?->description,
-            sku: $product->sku,
+            sku: $displaySku,
             brand: $product->brand?->name,
             primaryImageUrl: $product->primaryImage
                 ? MediaUrlResolver::url($product->primaryImage, 'product_gallery', 'thumb')
@@ -195,8 +203,8 @@ class CatalogProductListQuery
             gallery: $galleryImages,
             stock_status: $product->effectiveStockStatus(),
             url: Locales::isDefault($locale)
-                ? route('product.show', ['slug' => $product->localizedSlug($locale, $product->sku) ?? $product->sku])
-                : route('localized.product.show', ['locale' => $locale, 'slug' => $product->localizedSlug($locale, $product->sku) ?? $product->sku]),
+                ? route('product.show', ['slug' => $slug])
+                : route('localized.product.show', ['locale' => $locale, 'slug' => $slug]),
             categories: $product->categories->map(fn ($category) => [
                 'id' => $category->id,
                 'name' => $category->translation($locale)?->name,
