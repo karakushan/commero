@@ -41,7 +41,7 @@ class ProductController extends Controller
                 'faqs',
                 'translations',
             ])
-            ->whereLocalizedSlug($slug, $locale)
+            ->whereExactLocalizedSlug($slug, $locale)
             ->firstOrFail();
 
         $this->trackProductView($product);
@@ -179,7 +179,7 @@ class ProductController extends Controller
         $locale = Locales::resolve($request->route('locale'));
         $slug = (string) $request->route('slug');
         $product = Product::query()
-            ->whereLocalizedSlug($slug, $locale)
+            ->whereExactLocalizedSlug($slug, $locale)
             ->firstOrFail();
 
         $validated = $request->validated();

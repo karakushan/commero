@@ -90,6 +90,15 @@ trait HasLocalizedTranslations
         });
     }
 
+    public function scopeWhereExactLocalizedSlug(Builder $query, string $slug, string $locale): Builder
+    {
+        return $query->whereHas('translations', function ($translations) use ($slug, $locale): void {
+            $translations
+                ->where('locale', $locale)
+                ->where('slug', $slug);
+        });
+    }
+
     public function scopeWithTranslationsFor($query, string $locale)
     {
         return $query->with([
