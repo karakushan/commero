@@ -86,29 +86,36 @@
     @endif
 
     @if($footerSocialLinks !== [])
-        <div style="margin:0 0 12px">
-            @foreach($footerSocialLinks as $social)
-                @php($socialUrl = trim((string) ($social['url'] ?? '')))
-                @php($socialIcon = $footerIconUrl($social['icon'] ?? null, $social['identifier'] ?? null))
-                @if(filled($socialUrl))
-                    @if(in_array(strtolower(trim((string) ($social['identifier'] ?? ''))), $footerPlainSocialIdentifiers, true))
-                        <span style="display:inline-flex;align-items:center;margin:0 5px;color:#444">
+        <div style="margin:0 0 12px;text-align:center">
+            <table role="presentation" align="center" border="0" cellpadding="0" cellspacing="0" style="margin:0 auto;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt">
+                <tr>
+                @foreach($footerSocialLinks as $social)
+                    @php($socialUrl = trim((string) ($social['url'] ?? '')))
+                    @php($socialIcon = $footerIconUrl($social['icon'] ?? null, $social['identifier'] ?? null))
+                    @php($socialLabel = $social['label'] ?? $social['identifier'] ?? $socialUrl)
+                    @php($isPlainSocial = in_array(strtolower(trim((string) ($social['identifier'] ?? ''))), $footerPlainSocialIdentifiers, true))
+                    @if(filled($socialUrl))
+                        <td align="center" valign="middle" style="padding:0 5px;vertical-align:middle;line-height:0;font-size:0">
                             @if(filled($socialIcon))
-                                <img src="{{ $socialIcon }}" alt="" width="28" height="28" style="display:inline-block;width:28px;height:28px;object-fit:contain;margin-right:5px;vertical-align:middle">
-                            @endif
-                            <span>{{ $social['label'] ?? $social['identifier'] }}</span>
-                        </span>
-                    @else
-                        <a href="{{ $socialUrl }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:0 5px;color:#444;text-decoration:none">
-                            @if(filled($socialIcon))
-                                <img src="{{ $socialIcon }}" alt="{{ $social['label'] ?? $social['identifier'] ?? '' }}" width="28" height="28" style="display:inline-block;width:28px;height:28px;object-fit:contain;vertical-align:middle">
+                                @if($isPlainSocial)
+                                    <img src="{{ $socialIcon }}" alt="{{ $socialLabel }}" width="28" height="28" style="display:block;width:28px;height:28px;object-fit:contain;margin:0 auto;border:0">
+                                @else
+                                    <a href="{{ $socialUrl }}" target="_blank" rel="noopener noreferrer" style="display:block;line-height:0;font-size:0;text-decoration:none">
+                                        <img src="{{ $socialIcon }}" alt="{{ $socialLabel }}" width="28" height="28" style="display:block;width:28px;height:28px;object-fit:contain;margin:0 auto;border:0">
+                                    </a>
+                                @endif
+                            @elseif($isPlainSocial)
+                                <span style="color:#444;font-size:12px;line-height:28px;white-space:nowrap">{{ $socialLabel }}</span>
                             @else
-                                <span>{{ $social['label'] ?? $social['identifier'] ?? $socialUrl }}</span>
+                                <a href="{{ $socialUrl }}" target="_blank" rel="noopener noreferrer" style="display:block;color:#444;text-decoration:none;font-size:12px;line-height:28px;white-space:nowrap">
+                                    {{ $socialLabel }}
+                                </a>
                             @endif
-                        </a>
+                        </td>
                     @endif
-                @endif
-            @endforeach
+                @endforeach
+                </tr>
+            </table>
         </div>
     @endif
 
