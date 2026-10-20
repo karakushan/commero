@@ -38,6 +38,7 @@ return [
         'identifier' => 'Ідентифікатор',
         'value' => 'Значення',
         'path' => 'Шлях',
+        'posts_count' => 'Кількість записів',
         'depth' => 'Рівень',
         'parent_category' => 'Батьківська категорія',
         'categories' => 'Категорії',

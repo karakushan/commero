@@ -86,11 +86,17 @@ class PostCategoryResource extends AdminResource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
-                TextColumn::make('path')->label(__('commero::admin.common.path'))->searchable(),
                 TextColumn::make('translation_name')
                     ->label(__('commero::admin.common.name'))
                     ->state(fn (PostCategory $record): ?string => $record->translation(app()->getLocale())?->name),
+                TextColumn::make('default_locale_slug')
+                    ->label(__('commero::admin.common.slug').' ('.strtoupper(Locales::default()).')')
+                    ->state(fn (PostCategory $record): ?string => $record->translation(Locales::default())?->slug),
+                TextColumn::make('posts_count')
+                    ->label(__('commero::admin.common.posts_count'))
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
                 TextColumn::make('depth')->label(__('commero::admin.common.depth'))->sortable(),
                 TextColumn::make('updated_at')->label(__('commero::admin.common.updated_at'))->dateTime()->sortable(),
             ])
@@ -116,7 +122,9 @@ class PostCategoryResource extends AdminResource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->withTranslationsFor(app()->getLocale());
+        return parent::getEloquentQuery()
+            ->withTranslationsFor(app()->getLocale())
+            ->withCount('posts');
     }
 
     public static function getPages(): array

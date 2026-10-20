@@ -38,6 +38,7 @@ return [
         'identifier' => 'Identifier',
         'value' => 'Value',
         'path' => 'Path',
+        'posts_count' => 'Post count',
         'depth' => 'Depth',
         'parent_category' => 'Parent category',
         'categories' => 'Categories',
