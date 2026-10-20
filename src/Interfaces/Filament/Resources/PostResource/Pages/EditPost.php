@@ -62,6 +62,7 @@ class EditPost extends EditRecord
         unset($data['translations'], $data['active_locale_context']);
 
         $record->update($data);
+        $this->syncPostCategoryPivot($record);
         $this->syncTranslations($record, $translations);
 
         return $record->refresh();

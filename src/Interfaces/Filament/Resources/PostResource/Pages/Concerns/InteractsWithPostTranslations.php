@@ -7,6 +7,7 @@ use Commero\Models\Post;
 use Commero\Support\Filament\AdminLocales;
 use Commero\Support\Locales;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
 trait InteractsWithPostTranslations
@@ -243,6 +244,19 @@ trait InteractsWithPostTranslations
                     'robots' => $translation['robots'] ?? 'index, follow',
                 ],
             );
+        }
+    }
+
+    protected function syncPostCategoryPivot(Post $post): void
+    {
+        if (! Schema::hasTable('post_category_post')) {
+            return;
+        }
+
+        $categoryId = $post->post_category_id;
+
+        if ($categoryId !== null) {
+            $post->categories()->syncWithoutDetaching([$categoryId]);
         }
     }
 

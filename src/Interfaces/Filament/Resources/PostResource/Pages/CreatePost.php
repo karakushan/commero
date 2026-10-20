@@ -40,6 +40,7 @@ class CreatePost extends CreateRecord
         $post = new Post($data);
         $post->save();
 
+        $this->syncPostCategoryPivot($post);
         $this->syncTranslations($post, $translations);
 
         return $post->refresh();
