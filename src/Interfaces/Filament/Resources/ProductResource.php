@@ -531,7 +531,18 @@ class ProductResource extends AdminResource
                                 });
                         });
                     }),
-                TextColumn::make('sku')->label(__('commero::admin.common.sku'))->searchable(),
+                TextColumn::make('sku')
+                    ->label(__('commero::admin.common.sku'))
+                    ->state(fn (Product $record): ?string => $record->type === 'variant'
+                        ? ($record->variants->first()?->sku ?? $record->sku)
+                        : $record->sku)
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where(function (Builder $query) use ($search): void {
+                            $query
+                                ->where('products.sku', 'like', "%{$search}%")
+                                ->orWhereHas('variants', fn (Builder $variants): Builder => $variants->where('sku', 'like', "%{$search}%"));
+                        });
+                    }),
                 TextColumn::make('min_price')->label(__('commero::admin.common.price'))
                     ->state(fn (Product $record): string => format_money_amount($record->variants->min('price'), Currency::getBaseSymbol()))
                     ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('variants_min_price', $direction)),
@@ -619,7 +630,11 @@ class ProductResource extends AdminResource
     {
         return parent::getEloquentQuery()
             ->withTranslationsFor(app()->getLocale())
-            ->with(['categories.translations', 'primaryImage', 'variants']);
+            ->with([
+                'categories.translations',
+                'primaryImage',
+                'variants' => fn (Builder $query): Builder => $query->orderBy('sort')->orderBy('id'),
+            ]);
     }
 
     public static function getFrontendProductUrl(Product $product, ?string $locale = null): ?string
