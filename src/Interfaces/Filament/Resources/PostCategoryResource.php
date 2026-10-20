@@ -86,6 +86,7 @@ class PostCategoryResource extends AdminResource
     {
         return $table
             ->columns([
+                TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
                 TextColumn::make('translation_name')
                     ->label(__('commero::admin.common.name'))
                     ->state(fn (PostCategory $record): ?string => $record->translation(app()->getLocale())?->name),
@@ -96,7 +97,6 @@ class PostCategoryResource extends AdminResource
                     ->label(__('commero::admin.common.posts_count'))
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
                 TextColumn::make('depth')->label(__('commero::admin.common.depth'))->sortable(),
                 TextColumn::make('updated_at')->label(__('commero::admin.common.updated_at'))->dateTime()->sortable(),
             ])
