@@ -25,6 +25,8 @@ use Commero\Support\Filament\RichEditorImagePlugin;
 use Commero\Support\Locales;
 use Commero\Support\Permissions;
 use Filament\Forms\Components\RichEditor;
+use Filament\Support\Assets\Js;
+use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Schema\Blueprint;
@@ -65,7 +67,7 @@ class CommeroServiceProvider extends ServiceProvider
         $this->registerMiddleware();
         $this->configureMediaLibrary();
         $this->configureRichEditors();
-        $this->registerFilamentRenderHooks();
+        $this->registerFilamentAssetsAndHooks();
 
         if (! $this->app->routesAreCached()) {
             Route::middleware('web')->group($this->packagePath('routes/web.php'));
@@ -106,12 +108,11 @@ class CommeroServiceProvider extends ServiceProvider
         $this->app->register(AdminPanelProvider::class);
     }
 
-    private function registerFilamentRenderHooks(): void
+    private function registerFilamentAssetsAndHooks(): void
     {
-        FilamentView::registerRenderHook(
-            PanelsRenderHook::SCRIPTS_AFTER,
-            fn (): string => view('commero::filament.components.store-location-picker-script')->render(),
-        );
+        FilamentAsset::register([
+            Js::make('store-location-picker', $this->packagePath('resources/js/store-location-picker.js')),
+        ], 'commero');
 
         if (! $this->hostApplicationHasPanelProvider()) {
             return;

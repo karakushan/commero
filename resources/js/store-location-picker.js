@@ -1,4 +1,3 @@
-<script>
     window.commeroStoreLocationPicker = function (config) {
         return {
             state: config.state ?? {},
@@ -403,4 +402,3 @@
             },
         }
     }
-</script>
