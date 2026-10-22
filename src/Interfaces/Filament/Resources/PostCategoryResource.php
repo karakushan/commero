@@ -86,10 +86,19 @@ class PostCategoryResource extends AdminResource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
+                TextColumn::make('id')->label(__('commero::admin.common.id'))->searchable()->sortable(),
                 TextColumn::make('translation_name')
                     ->label(__('commero::admin.common.name'))
-                    ->state(fn (PostCategory $record): ?string => $record->translation(app()->getLocale())?->name),
+                    ->state(fn (PostCategory $record): ?string => $record->translation(app()->getLocale())?->name)
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        $likeSearch = '%'.mb_strtolower(trim($search)).'%';
+
+                        return $query->whereHas('translations', function (Builder $translations) use ($likeSearch): void {
+                            $translations
+                                ->whereRaw('LOWER(name) LIKE ?', [$likeSearch])
+                                ->orWhereRaw('LOWER(slug) LIKE ?', [$likeSearch]);
+                        });
+                    }),
                 TextColumn::make('default_locale_slug')
                     ->label(__('commero::admin.common.slug').' ('.strtoupper(Locales::default()).')')
                     ->state(fn (PostCategory $record): ?string => $record->translation(Locales::default())?->slug),

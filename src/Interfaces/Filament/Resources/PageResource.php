@@ -114,10 +114,19 @@ class PageResource extends AdminResource
         return $table
             ->defaultSort('id', 'desc')
             ->columns([
-                TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
+                TextColumn::make('id')->label(__('commero::admin.common.id'))->searchable()->sortable(),
                 TextColumn::make('translation_title')
                     ->label(__('commero::admin.common.title'))
-                    ->state(fn (ContentPage $record): ?string => $record->translation(app()->getLocale())?->title),
+                    ->state(fn (ContentPage $record): ?string => $record->translation(app()->getLocale())?->title)
+                    ->searchable(query: function (EloquentBuilder $query, string $search): EloquentBuilder {
+                        $likeSearch = '%'.mb_strtolower(trim($search)).'%';
+
+                        return $query->whereHas('translations', function (EloquentBuilder $translations) use ($likeSearch): void {
+                            $translations
+                                ->whereRaw('LOWER(title) LIKE ?', [$likeSearch])
+                                ->orWhereRaw('LOWER(slug) LIKE ?', [$likeSearch]);
+                        });
+                    }),
                 TextColumn::make('default_locale_slug')
                     ->label(__('commero::admin.common.slug').' ('.strtoupper(Locales::default()).')')
                     ->state(fn (ContentPage $record): ?string => $record->translation(Locales::default())?->slug),

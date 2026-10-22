@@ -126,7 +126,7 @@ class PostResource extends AdminResource
         return $table
             ->defaultSort('id', 'desc')
             ->columns([
-                TextColumn::make('id')->label(__('commero::admin.common.id'))->sortable(),
+                TextColumn::make('id')->label(__('commero::admin.common.id'))->searchable()->sortable(),
                 ImageColumn::make('thumbnail_path')
                     ->label('')
                     ->disk('public')
@@ -136,7 +136,15 @@ class PostResource extends AdminResource
                 TextColumn::make('translation_title')
                     ->label(__('commero::admin.common.title'))
                     ->state(fn (Post $record): ?string => $record->translation(app()->getLocale())?->title)
-                    ->searchable(false),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        $likeSearch = '%'.mb_strtolower(trim($search)).'%';
+
+                        return $query->whereHas('translations', function (Builder $translations) use ($likeSearch): void {
+                            $translations
+                                ->whereRaw('LOWER(title) LIKE ?', [$likeSearch])
+                                ->orWhereRaw('LOWER(slug) LIKE ?', [$likeSearch]);
+                        });
+                    }),
                 TextColumn::make('category_name')
                     ->label(__('commero::admin.resources.post_category.singular'))
                     ->state(fn (Post $record): ?string => $record->category?->translation(app()->getLocale())?->name),
