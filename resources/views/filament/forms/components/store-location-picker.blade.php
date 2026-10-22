@@ -10,6 +10,7 @@
     <div
         x-data="window.commeroStoreLocationPicker({
             state: $wire.{{ $entangledState }},
+            apiKey: $wire.data.google_maps_api_key,
             defaultCenter: { lat: 50.4501, lng: 30.5234 },
             apiKeyInputId: 'form.google_maps_api_key',
             apiKeyInputName: 'data.google_maps_api_key',

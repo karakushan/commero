@@ -65,7 +65,7 @@ class CommeroServiceProvider extends ServiceProvider
         $this->registerMiddleware();
         $this->configureMediaLibrary();
         $this->configureRichEditors();
-        $this->registerHostPanelBrandLanguageSwitcher();
+        $this->registerFilamentRenderHooks();
 
         if (! $this->app->routesAreCached()) {
             Route::middleware('web')->group($this->packagePath('routes/web.php'));
@@ -106,8 +106,13 @@ class CommeroServiceProvider extends ServiceProvider
         $this->app->register(AdminPanelProvider::class);
     }
 
-    private function registerHostPanelBrandLanguageSwitcher(): void
+    private function registerFilamentRenderHooks(): void
     {
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::SCRIPTS_AFTER,
+            fn (): string => view('commero::filament.components.store-location-picker-script')->render(),
+        );
+
         if (! $this->hostApplicationHasPanelProvider()) {
             return;
         }
