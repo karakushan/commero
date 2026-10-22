@@ -114,15 +114,45 @@
                                 return
                             }
 
+                            let settled = false
+                            let readinessChecks = 0
+                            const finishLoading = () => {
+                                if (settled) {
+                                    return
+                                }
+
+                                if (window.google?.maps?.importLibrary) {
+                                    settled = true
+                                    delete window.__commeroGoogleMapsReady
+                                    resolve()
+
+                                    return
+                                }
+
+                                if (readinessChecks++ < 200) {
+                                    window.setTimeout(finishLoading, 25)
+
+                                    return
+                                }
+
+                                settled = true
+                                delete window.__commeroGoogleMapsReady
+                                reject(new Error('google-maps-loader-unavailable'))
+                            }
+
+                            window.__commeroGoogleMapsReady = finishLoading
+
                             const script = document.createElement('script')
-                            script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&v=weekly&loading=async`
+                            script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&v=weekly&loading=async&callback=__commeroGoogleMapsReady`
                             script.async = true
                             script.defer = true
                             script.dataset.commeroGoogleMaps = 'true'
-                            script.onload = () => window.google?.maps?.importLibrary
-                                ? resolve()
-                                : reject(new Error('google-maps-loader-unavailable'))
-                            script.onerror = () => reject(new Error('google-maps-load-failed'))
+                            script.onload = finishLoading
+                            script.onerror = () => {
+                                settled = true
+                                delete window.__commeroGoogleMapsReady
+                                reject(new Error('google-maps-load-failed'))
+                            }
                             document.head.appendChild(script)
                         })
                     }
