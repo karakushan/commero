@@ -4,6 +4,7 @@
             apiKey: config.apiKey ?? '',
             apiKeyInputId: config.apiKeyInputId ?? 'form.google_maps_api_key',
             apiKeyInputName: config.apiKeyInputName ?? 'data.google_maps_api_key',
+            searchPlaceholder: config.searchPlaceholder ?? '',
             defaultCenter: config.defaultCenter ?? { lat: 50.4501, lng: 30.5234 },
             searchQuery: '',
             suggestions: [],
@@ -144,6 +145,7 @@
 
                     this.initMap()
                 } catch (error) {
+                    console.error('Unable to initialize Google Maps location picker:', error?.message || 'Unknown error')
                     this.statusMessage = config.loadFailedMessage
                 }
             },
