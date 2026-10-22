@@ -365,6 +365,7 @@ return [
         'address_label_hint' => 'Цей підпис буде показано на сторінці контактів замість тексту адреси.',
         'address_locale' => 'Мова відображення адреси',
         'address_location_search' => 'Пошук геолокації',
+        'address_location_setup_hint' => 'Підключення: у Google Cloud увімкніть білінг, Maps JavaScript API та Places API (New). Дозвольте обидва API в обмеженнях ключа й додайте ключ у поле «API ключ Google Maps» вище. Зміни Google можуть застосовуватися до 5 хвилин.',
         'address_location_search_placeholder' => 'Почніть вводити адресу...',
         'address_location_search_hint' => 'Оберіть адресу з підказки Google, щоб автоматично заповнити адресу та координати.',
         'address_location_picker' => 'Локація магазину',

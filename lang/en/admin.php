@@ -365,6 +365,7 @@ return [
         'address_label_hint' => 'This label will be shown on the contacts page instead of the address text.',
         'address_locale' => 'Address display language',
         'address_location_search' => 'Geolocation search',
+        'address_location_setup_hint' => 'Setup: enable billing, Maps JavaScript API and Places API (New) in Google Cloud. Allow both APIs in the key restrictions and enter the key in the Google Maps API key field above. Google changes may take up to 5 minutes to apply.',
         'address_location_search_placeholder' => 'Start typing an address...',
         'address_location_search_hint' => 'Choose a Google suggestion to fill the address and coordinates automatically.',
         'address_location_picker' => 'Store location',

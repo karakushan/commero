@@ -27,6 +27,10 @@
                 {{ __('commero::admin.site_setting.address_location_search') }}
             </label>
 
+            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                {{ __('commero::admin.site_setting.address_location_setup_hint') }}
+            </p>
+
             <x-filament::input.wrapper>
                 <x-filament::input
                     x-model="searchQuery"

@@ -365,6 +365,7 @@ return [
         'address_label_hint' => 'Эта подпись будет показана на странице контактов вместо текста адреса.',
         'address_locale' => 'Язык отображения адреса',
         'address_location_search' => 'Поиск геолокации',
+        'address_location_setup_hint' => 'Подключение: в Google Cloud включите биллинг, Maps JavaScript API и Places API (New). Разрешите оба API в ограничениях ключа и добавьте ключ в поле «API ключ Google Maps» выше. Изменения Google могут применяться до 5 минут.',
         'address_location_search_placeholder' => 'Начните вводить адрес...',
         'address_location_search_hint' => 'Выберите адрес из подсказки Google, чтобы автоматически заполнить адрес и координаты.',
         'address_location_picker' => 'Локация магазина',
