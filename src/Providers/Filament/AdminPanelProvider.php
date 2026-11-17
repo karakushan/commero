@@ -26,7 +26,6 @@ use Commero\Interfaces\Filament\Resources\PostResource\Pages\EditPost;
 use Commero\Interfaces\Filament\Resources\ProductAttributeResource\Pages\CreateProductAttribute;
 use Commero\Interfaces\Filament\Resources\ProductAttributeResource\Pages\EditProductAttribute;
 use Commero\Interfaces\Filament\Resources\ProductResource\Pages\CreateProduct;
-use Commero\Interfaces\Filament\Resources\ProductResource\Pages\EditProduct;
 use Commero\Interfaces\Filament\Resources\ShippingMethodResource\Pages\CreateShippingMethod;
 use Commero\Interfaces\Filament\Resources\ShippingMethodResource\Pages\EditShippingMethod;
 use Commero\Models\SiteSetting;
@@ -85,7 +84,7 @@ class AdminPanelProvider extends PanelProvider
                     CreatePage::class,
                     EditPage::class,
                     CreateProduct::class,
-                    EditProduct::class,
+                    // EditProduct has its own locale select in the header actions.
                     CreateCategory::class,
                     EditCategory::class,
                     CreateCityCategory::class,
