@@ -346,7 +346,7 @@ class SaleProductsPage extends Component
             name: $translation?->name ?? $product->sku,
             slug: $product->localizedSlug($locale, $product->sku) ?? $product->sku,
             description: $translation?->description,
-            sku: $product->sku,
+            sku: (string) $product->sku,
             brand: $product->brand?->name,
             primaryImageUrl: $product->primaryImage
                 ? MediaUrlResolver::url($product->primaryImage, 'product_gallery', 'thumb')

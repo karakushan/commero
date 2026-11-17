@@ -16,13 +16,14 @@ class Product extends Model
     use HasFactory;
     use HasLocalizedTranslations;
 
-    protected $fillable = ['uuid', 'brand_id', 'type', 'status', 'sku', 'stock_status', 'views_count', 'attribute_snapshot', 'search_text', 'is_hit_sales', 'is_on_sale', 'is_new'];
+    protected $fillable = ['uuid', 'brand_id', 'type', 'status', 'sku', 'stock_status', 'views_count', 'attribute_snapshot', 'search_text', 'is_hit_sales', 'is_on_sale', 'is_new', 'google_shopping_condition', 'google_shopping_exclude'];
 
     protected $casts = [
         'attribute_snapshot' => 'array',
         'is_hit_sales' => 'boolean',
         'is_on_sale' => 'boolean',
         'is_new' => 'boolean',
+        'google_shopping_exclude' => 'boolean',
     ];
 
     protected static function booted(): void

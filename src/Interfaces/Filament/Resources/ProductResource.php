@@ -498,6 +498,25 @@ class ProductResource extends AdminResource
                                 ->inline(false),
                         ])
                         ->columns(1),
+                    Tabs\Tab::make(__('commero::admin.google_shopping.tab'))
+                        ->icon('heroicon-o-shopping-bag')
+                        ->schema([
+                            Select::make('google_shopping_condition')
+                                ->label(__('commero::admin.google_shopping.condition'))
+                                ->options([
+                                    'new' => __('commero::admin.google_shopping.conditions.new'),
+                                    'used' => __('commero::admin.google_shopping.conditions.used'),
+                                    'refurbished' => __('commero::admin.google_shopping.conditions.refurbished'),
+                                ])
+                                ->placeholder(__('commero::admin.google_shopping.conditions.new'))
+                                ->native(false),
+                            Toggle::make('google_shopping_exclude')
+                                ->label(__('commero::admin.google_shopping.exclude_product'))
+                                ->helperText(__('commero::admin.google_shopping.exclude_product_hint'))
+                                ->default(false)
+                                ->inline(false),
+                        ])
+                        ->columns(1),
                 ]),
         ]);
     }

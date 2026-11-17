@@ -1,5 +1,8 @@
 <?php
 
+use Commero\Payments\LiqPay\LiqPayGateway;
+use Commero\Payments\Monobank\MonobankInstallmentsGateway;
+use Commero\Payments\Privat\PrivatPayPartsGateway;
 use Commero\Support\ContentBlocks\EmptyContentBlockRegistry;
 use Commero\Support\ContentBlocks\NullContentBlockHydrator;
 
@@ -52,6 +55,22 @@ return [
         'hydrator' => NullContentBlockHydrator::class,
     ],
 
+    'tracking' => [
+        // Google Tag Manager / Analytics / Meta Pixel and custom code from the site settings.
+        'enabled' => env('COMMERO_TRACKING_ENABLED', true),
+    ],
+
+    'google_shopping' => [
+        // Google Merchant Center feed: /feed/googleshopping/ and /{locale}/feed/googleshopping/.
+        'enabled' => true,
+        'path' => 'feed/googleshopping',
+        // Currency code of g:price (default: the base currency).
+        'currency' => null,
+        'description' => '',
+        // Seconds to cache the generated XML (0 = no cache).
+        'cache_ttl' => 0,
+    ],
+
     'sitemap' => [
         'enabled' => true,
         'index_path' => 'sitemap.xml',
@@ -89,9 +108,9 @@ return [
     'payments' => [
         // Payment method code (payment_methods.code) => online payment gateway.
         'gateways' => [
-            'liqpay' => \Commero\Payments\LiqPay\LiqPayGateway::class,
-            'privatbank_payparts' => \Commero\Payments\Privat\PrivatPayPartsGateway::class,
-            'monobank_installments' => \Commero\Payments\Monobank\MonobankInstallmentsGateway::class,
+            'liqpay' => LiqPayGateway::class,
+            'privatbank_payparts' => PrivatPayPartsGateway::class,
+            'monobank_installments' => MonobankInstallmentsGateway::class,
         ],
         // Order status code applied after a successful online payment (ignored if the status does not exist).
         'paid_order_status' => 'paid',

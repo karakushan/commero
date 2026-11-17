@@ -4,6 +4,7 @@ namespace Commero\Interfaces\Filament\Pages;
 
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Commero\Forms\Components\StoreLocationPicker;
+use Commero\Marketing\GoogleShopping\GoogleShoppingFeed;
 use Commero\Models\Page as CmsPage;
 use Commero\Models\SiteSetting;
 use Commero\Rules\FlexibleUrl;
@@ -15,6 +16,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -173,6 +175,46 @@ class SiteSettings extends Page
                             Toggle::make('privat_payparts_hold')
                                 ->label(__('commero::admin.site_setting.privat_payparts_hold'))
                                 ->helperText(__('commero::admin.site_setting.privat_payparts_hold_hint')),
+                        ])
+                        ->columns(2),
+                    Section::make(__('commero::admin.site_setting.tracking_section'))
+                        ->visible(fn (): bool => $this->activeLocale === Locales::default())
+                        ->description(__('commero::admin.site_setting.tracking_hint'))
+                        ->schema([
+                            TextInput::make('google_tag_manager_id')
+                                ->label(__('commero::admin.site_setting.google_tag_manager_id'))
+                                ->placeholder('GTM-XXXXXXX')
+                                ->maxLength(64),
+                            TextInput::make('google_analytics_id')
+                                ->label(__('commero::admin.site_setting.google_analytics_id'))
+                                ->placeholder('G-XXXXXXXXXX')
+                                ->maxLength(64),
+                            TextInput::make('facebook_pixel_id')
+                                ->label(__('commero::admin.site_setting.facebook_pixel_id'))
+                                ->maxLength(64),
+                            Textarea::make('head_code')
+                                ->label(__('commero::admin.site_setting.head_code'))
+                                ->helperText(__('commero::admin.site_setting.head_code_hint'))
+                                ->rows(4)
+                                ->columnSpanFull(),
+                            Textarea::make('body_code')
+                                ->label(__('commero::admin.site_setting.body_code'))
+                                ->helperText(__('commero::admin.site_setting.body_code_hint'))
+                                ->rows(4)
+                                ->columnSpanFull(),
+                        ])
+                        ->columns(3),
+                    Section::make(__('commero::admin.site_setting.google_shopping_section'))
+                        ->visible(fn (): bool => $this->activeLocale === Locales::default())
+                        ->description(fn (): string => __('commero::admin.site_setting.google_shopping_hint', ['url' => GoogleShoppingFeed::url()]))
+                        ->schema([
+                            Toggle::make('google_shopping_enabled')
+                                ->label(__('commero::admin.site_setting.google_shopping_enabled')),
+                            TextInput::make('google_shopping_category_id')
+                                ->label(__('commero::admin.site_setting.google_shopping_category_id'))
+                                ->helperText(__('commero::admin.google_shopping.product_category_id_hint'))
+                                ->numeric()
+                                ->minValue(1),
                         ])
                         ->columns(2),
                     Section::make(__('commero::admin.site_setting.monobank_parts_section'))
@@ -453,6 +495,13 @@ class SiteSettings extends Page
             'monobank_parts_secret' => $record?->getAttribute('monobank_parts_secret'),
             'monobank_parts_sandbox' => (bool) $record?->getRawOriginal('monobank_parts_sandbox'),
             'monobank_parts_max_parts' => $record?->getRawOriginal('monobank_parts_max_parts'),
+            'google_tag_manager_id' => $record?->getRawOriginal('google_tag_manager_id'),
+            'google_analytics_id' => $record?->getRawOriginal('google_analytics_id'),
+            'facebook_pixel_id' => $record?->getRawOriginal('facebook_pixel_id'),
+            'head_code' => $record?->getRawOriginal('head_code'),
+            'body_code' => $record?->getRawOriginal('body_code'),
+            'google_shopping_enabled' => (bool) ($record?->getRawOriginal('google_shopping_enabled') ?? true),
+            'google_shopping_category_id' => $record?->getRawOriginal('google_shopping_category_id'),
             'contacts' => $record?->getEditableContactsForLocale($activeLocale) ?? [],
             'addresses' => collect($record?->getEditableAddresses() ?? [])
                 ->map(fn (array $item): array => [
@@ -492,6 +541,13 @@ class SiteSettings extends Page
             'monobank_parts_secret' => array_key_exists('monobank_parts_secret', $data) ? $this->normalizeTextValue($data['monobank_parts_secret']) : $record->monobank_parts_secret,
             'monobank_parts_sandbox' => array_key_exists('monobank_parts_sandbox', $data) ? (bool) $data['monobank_parts_sandbox'] : (bool) $record->monobank_parts_sandbox,
             'monobank_parts_max_parts' => array_key_exists('monobank_parts_max_parts', $data) ? (((int) $data['monobank_parts_max_parts']) ?: null) : $record->monobank_parts_max_parts,
+            'google_tag_manager_id' => array_key_exists('google_tag_manager_id', $data) ? $this->normalizeTextValue($data['google_tag_manager_id']) : $record->google_tag_manager_id,
+            'google_analytics_id' => array_key_exists('google_analytics_id', $data) ? $this->normalizeTextValue($data['google_analytics_id']) : $record->google_analytics_id,
+            'facebook_pixel_id' => array_key_exists('facebook_pixel_id', $data) ? $this->normalizeTextValue($data['facebook_pixel_id']) : $record->facebook_pixel_id,
+            'head_code' => array_key_exists('head_code', $data) ? $this->normalizeTextValue($data['head_code']) : $record->head_code,
+            'body_code' => array_key_exists('body_code', $data) ? $this->normalizeTextValue($data['body_code']) : $record->body_code,
+            'google_shopping_enabled' => array_key_exists('google_shopping_enabled', $data) ? (bool) $data['google_shopping_enabled'] : (bool) ($record->google_shopping_enabled ?? true),
+            'google_shopping_category_id' => array_key_exists('google_shopping_category_id', $data) ? (((int) $data['google_shopping_category_id']) ?: null) : $record->google_shopping_category_id,
             'multi_currency_enabled' => (bool) ($data['multi_currency_enabled'] ?? false),
             'country_source' => $data['multi_currency_enabled'] ? ($data['country_source'] ?? null) : null,
             'show_price_decimals' => (bool) ($data['show_price_decimals'] ?? false),

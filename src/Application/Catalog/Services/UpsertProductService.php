@@ -29,7 +29,7 @@ class UpsertProductService
             $product ??= new Product;
             $previousStockStatus = $product->exists ? $product->stock_status : null;
 
-            $productData = Arr::only($payload, ['uuid', 'brand_id', 'type', 'status', 'sku', 'stock_status', 'search_text', 'is_hit_sales', 'is_on_sale', 'is_new']);
+            $productData = Arr::only($payload, ['uuid', 'brand_id', 'type', 'status', 'sku', 'stock_status', 'search_text', 'is_hit_sales', 'is_on_sale', 'is_new', 'google_shopping_condition', 'google_shopping_exclude']);
 
             if (($productData['stock_status'] ?? null) === 'always_in_stock') {
                 $productData['stock_status'] = null;

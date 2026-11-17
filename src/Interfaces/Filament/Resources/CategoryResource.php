@@ -19,6 +19,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
@@ -96,6 +97,21 @@ class CategoryResource extends AdminResource
                         ->schema([
                             ...static::seoTranslationSections(),
                         ]),
+                    Tabs\Tab::make(__('commero::admin.google_shopping.tab'))
+                        ->icon('heroicon-o-shopping-bag')
+                        ->schema([
+                            TextInput::make('google_product_category_id')
+                                ->label(__('commero::admin.google_shopping.product_category_id'))
+                                ->helperText(__('commero::admin.google_shopping.product_category_id_hint'))
+                                ->numeric()
+                                ->minValue(1),
+                            Toggle::make('google_shopping_exclude')
+                                ->label(__('commero::admin.google_shopping.exclude_category'))
+                                ->helperText(__('commero::admin.google_shopping.exclude_category_hint'))
+                                ->default(false)
+                                ->inline(false),
+                        ])
+                        ->columns(1),
                 ]),
         ]);
     }

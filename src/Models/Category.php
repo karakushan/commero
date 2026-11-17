@@ -2,8 +2,8 @@
 
 namespace Commero\Models;
 
-use Commero\Support\Concerns\HasLocalizedTranslations;
 use Commero\Support\Concerns\HasCommeroMedia;
+use Commero\Support\Concerns\HasLocalizedTranslations;
 use Commero\Support\EntityLinkService;
 use Commero\Support\Locales;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,11 +15,13 @@ use Spatie\MediaLibrary\HasMedia;
 
 class Category extends Model implements HasMedia
 {
+    use HasCommeroMedia;
     use HasFactory;
     use HasLocalizedTranslations;
-    use HasCommeroMedia;
 
-    protected $fillable = ['parent_id', 'path', 'depth', 'sort', 'icon_path', 'thumbnail_path'];
+    protected $fillable = ['parent_id', 'path', 'depth', 'sort', 'icon_path', 'thumbnail_path', 'google_product_category_id', 'google_shopping_exclude'];
+
+    protected $casts = ['google_shopping_exclude' => 'boolean'];
 
     protected $appends = ['url'];
 

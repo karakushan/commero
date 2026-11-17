@@ -8,6 +8,7 @@ use Commero\Http\Controllers\CheckoutDeliveryController;
 use Commero\Http\Controllers\ContactController;
 use Commero\Http\Controllers\EntityLinkController;
 use Commero\Http\Controllers\ErrorPageController;
+use Commero\Http\Controllers\GoogleShoppingFeedController;
 use Commero\Http\Controllers\HomeController;
 use Commero\Http\Controllers\MediaController;
 use Commero\Http\Controllers\PageController;
@@ -144,6 +145,11 @@ if (config('commero.sitemap.enabled', true)) {
     }
 }
 
+if (config('commero.google_shopping.enabled', true)) {
+    Route::get('/'.trim((string) config('commero.google_shopping.path', 'feed/googleshopping'), '/'), GoogleShoppingFeedController::class)
+        ->name('google-shopping.feed');
+}
+
 Route::get('/{slug}', EntityLinkController::class)
     ->where('slug', '^(?!(?:'.$reservedRootSlugs.')$)[A-Za-z0-9\-_]+$')
     ->name('entity-links.show');
@@ -221,6 +227,11 @@ if ($additionalLocales !== []) {
             Route::get('/politika-konfidencijnosti', [PageController::class, 'show'])
                 ->defaults('slug', 'politika-konfidencijnosti')
                 ->name('localized.privacy.policy');
+
+            if (config('commero.google_shopping.enabled', true)) {
+                Route::get('/'.trim((string) config('commero.google_shopping.path', 'feed/googleshopping'), '/'), GoogleShoppingFeedController::class)
+                    ->name('localized.google-shopping.feed');
+            }
 
             Route::get('/{slug}', EntityLinkController::class)
                 ->where('slug', '^(?!(?:'.$reservedRootSlugs.')$)[A-Za-z0-9\-_]+$')
