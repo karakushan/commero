@@ -75,6 +75,11 @@ class ProductResource extends AdminResource
         return __('commero::admin.resources.product.plural');
     }
 
+    protected static function requiresSku(mixed $livewire): bool
+    {
+        return $livewire instanceof Pages\EditProduct && (bool) config('commero.products.sku_required', true);
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -120,7 +125,7 @@ class ProductResource extends AdminResource
                                 ->label(__('commero::admin.common.sku'))
                                 ->nullable()
                                 ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? trim($state) : null)
-                                ->required(fn ($livewire): bool => $livewire instanceof Pages\EditProduct)
+                                ->required(fn ($livewire): bool => static::requiresSku($livewire))
                                 ->unique(ignoreRecord: true)
                                 ->visible(fn (callable $get): bool => $get('type') === 'simple')
                                 ->columnSpan(1),
@@ -318,7 +323,7 @@ class ProductResource extends AdminResource
                                                 ->label(__('commero::admin.common.sku'))
                                                 ->nullable()
                                                 ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? trim($state) : null)
-                                                ->required(fn ($livewire): bool => $livewire instanceof Pages\EditProduct),
+                                                ->required(fn ($livewire): bool => static::requiresSku($livewire)),
                                             TextInput::make('price')
                                                 ->label(__('commero::admin.common.price'))
                                                 ->numeric()

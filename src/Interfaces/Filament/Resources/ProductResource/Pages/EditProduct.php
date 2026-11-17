@@ -212,7 +212,7 @@ class EditProduct extends EditRecord
 
             $variant->fill([
                 'name' => $variantData['name'] ?? '',
-                'sku' => $variantData['sku'] ?? $product->sku.'-'.($index + 1),
+                'sku' => $variantData['sku'] ?? (filled($product->sku) ? $product->sku.'-'.($index + 1) : null),
                 'barcode' => $variant->barcode,
                 'price' => $variantData['price'] ?? 0,
                 'old_price' => $variantData['old_price'] ?? null,

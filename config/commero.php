@@ -55,6 +55,11 @@ return [
         'hydrator' => NullContentBlockHydrator::class,
     ],
 
+    'products' => [
+        // Require SKU when editing products (disable for catalogs imported without SKUs).
+        'sku_required' => (bool) env('COMMERO_PRODUCT_SKU_REQUIRED', true),
+    ],
+
     'tracking' => [
         // Google Tag Manager / Analytics / Meta Pixel and custom code from the site settings.
         'enabled' => env('COMMERO_TRACKING_ENABLED', true),
