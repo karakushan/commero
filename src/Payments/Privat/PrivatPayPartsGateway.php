@@ -264,7 +264,7 @@ class PrivatPayPartsGateway implements ChecksPaymentStatus, ConfirmsPayments, In
 
     private function parts(Order $order): int
     {
-        return max($this->minParts(), min($this->maxParts(), (int) ($order->payment_parts ?: $this->minParts())));
+        return max($this->minParts(), min($this->maxPartsFor($order), (int) ($order->payment_parts ?: $this->minParts())));
     }
 
     private function findOrder(string $privatOrderId): ?Order

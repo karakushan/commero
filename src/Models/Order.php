@@ -38,6 +38,7 @@ class Order extends Model
         'paid_at',
         'payment_reference',
         'payment_parts',
+        'payment_payload',
         'shipping_method_code',
         'shipping_method_name',
         'delivery_city_ref',

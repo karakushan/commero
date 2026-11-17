@@ -170,7 +170,7 @@ class MonobankInstallmentsGateway implements ChecksPaymentStatus, ConfirmsPaymen
             'total_sum' => round((float) $order->total_amount, 2),
             'invoice' => $invoice,
             'available_programs' => [[
-                'available_parts_count' => range($this->minParts(), max($this->minParts(), $this->maxParts())),
+                'available_parts_count' => range($this->minParts(), max($this->minParts(), $this->maxPartsFor($order))),
             ]],
             'products' => collect($this->installmentProducts($order))
                 ->map(fn (array $product): array => ['name' => $product['name'], 'count' => $product['count'], 'sum' => $product['price']])

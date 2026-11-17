@@ -42,7 +42,8 @@ Use `PaymentGatewayManager::markPaid()` / `markStatus()` to update orders.
 
 Two installment gateways implement `InstallmentGateway` (`minParts()`, `maxParts()`), `ConfirmsPayments`
 (`confirm()`, `cancel()`) and `ChecksPaymentStatus` (`refreshStatus()`, called on every payment page view).
-The number of payments is stored in `orders.payment_parts` — pass `paymentParts` in the validated checkout data.
+The number of payments is stored in `orders.payment_parts` — pass `paymentParts` in the validated checkout data;
+`paymentMaxParts` caps the allowed number for the order (`maxPartsFor($order)`, e.g. the strictest product limit).
 
 When the customer approves the application the order gets `payment_status = held`: managers are notified and the
 order page in the admin shows "Confirm purchase in parts" / "Cancel application" (confirm after handing over the goods).

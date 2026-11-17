@@ -37,4 +37,11 @@ trait BuildsInstallmentProducts
             'price' => $total,
         ]];
     }
+
+    public function maxPartsFor(Order $order): int
+    {
+        $limit = (int) data_get($order->payment_payload, '_max_parts', 0);
+
+        return $limit > 0 ? max($this->minParts(), min($this->maxParts(), $limit)) : $this->maxParts();
+    }
 }

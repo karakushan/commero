@@ -40,6 +40,8 @@ class OrderPlacementService
                 'payment_method_code' => $paymentMethod->code,
                 'payment_method_name' => $paymentMethod->name,
                 'payment_parts' => ((int) ($validated['paymentParts'] ?? 0)) ?: null,
+                // Per-order limit of payments in parts (e.g. the strictest product limit in the cart).
+                'payment_payload' => ((int) ($validated['paymentMaxParts'] ?? 0)) > 0 ? ['_max_parts' => (int) $validated['paymentMaxParts']] : null,
                 'shipping_method_code' => $shippingMethod->code,
                 'shipping_method_name' => $shippingMethod->name,
                 'delivery_city_ref' => ($validated['deliveryCityRef'] ?? null) ?: null,
