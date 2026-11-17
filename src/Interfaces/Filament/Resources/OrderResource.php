@@ -5,7 +5,12 @@ namespace Commero\Interfaces\Filament\Resources;
 use Commero\Interfaces\Filament\Resources\OrderResource\Pages;
 use Commero\Models\Currency;
 use Commero\Models\Order;
+use Commero\Payments\Contracts\ConfirmsPayments;
+use Commero\Payments\PaymentException;
+use Commero\Payments\PaymentGatewayManager;
 use Commero\Payments\PaymentStatus;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification as FilamentNotification;
 use Commero\Models\OrderItem;
 use Commero\Models\OrderStatus;
 use Commero\Models\PaymentMethod;
@@ -347,6 +352,7 @@ class OrderResource extends AdminResource
                 ->color(fn (?string $state): string => PaymentStatus::color($state)),
             TextEntry::make('paid_at')->label(__('commero::admin.order.paid_at'))->dateTime()->placeholder('—'),
             TextEntry::make('payment_reference')->label(__('commero::admin.order.payment_reference'))->placeholder('—')->copyable(),
+            TextEntry::make('payment_parts')->label(__('commero::admin.order.payment_parts'))->placeholder('—'),
             TextEntry::make('shipping_method_name')->label(__('commero::admin.order.shipping_method_name')),
             TextEntry::make('shipping_method_code')->label(__('commero::admin.order.shipping_method_code')),
             TextEntry::make('delivery_city_name')->label(__('commero::admin.order.delivery_city_name'))->default('—'),
@@ -533,5 +539,52 @@ class OrderResource extends AdminResource
         $label = __($key);
 
         return $label === $key ? $status : $label;
+    }
+
+    /**
+     * Confirm / cancel a payment in parts approved by the customer (payment_status "held").
+     *
+     * @return list<Action>
+     */
+    public static function getPaymentActions(): array
+    {
+        $gatewayFor = fn (Order $record): ?ConfirmsPayments => ($gateway = app(PaymentGatewayManager::class)->forOrder($record)) instanceof ConfirmsPayments
+            ? $gateway
+            : null;
+        $isHeld = fn (Order $record): bool => $record->payment_status === PaymentStatus::HELD && $gatewayFor($record) !== null;
+        $run = function (Order $record, string $method) use ($gatewayFor): void {
+            try {
+                $gatewayFor($record)?->{$method}($record);
+
+                FilamentNotification::make()
+                    ->success()
+                    ->title(__('commero::admin.order.payment_'.$method.'_done'))
+                    ->send();
+            } catch (PaymentException $exception) {
+                FilamentNotification::make()
+                    ->danger()
+                    ->title(__('commero::admin.order.payment_action_failed'))
+                    ->body($exception->getMessage())
+                    ->send();
+            }
+        };
+
+        return [
+            Action::make('confirmPayment')
+                ->label(__('commero::admin.order.payment_confirm'))
+                ->icon('heroicon-o-check-circle')
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalDescription(__('commero::admin.order.payment_confirm_hint'))
+                ->visible($isHeld)
+                ->action(fn (Order $record) => $run($record, 'confirm')),
+            Action::make('cancelPayment')
+                ->label(__('commero::admin.order.payment_cancel'))
+                ->icon('heroicon-o-x-circle')
+                ->color('danger')
+                ->requiresConfirmation()
+                ->visible($isHeld)
+                ->action(fn (Order $record) => $run($record, 'cancel')),
+        ];
     }
 }

@@ -4,6 +4,7 @@ namespace Commero\Notifications;
 
 use Commero\Interfaces\Filament\Resources\OrderResource;
 use Commero\Models\Order;
+use Commero\Payments\PaymentStatus;
 use Commero\Support\Locales;
 use Commero\Support\Mail\OutboundMailStatus;
 use Illuminate\Bus\Queueable;
@@ -32,7 +33,7 @@ class OrderPaidNotification extends Notification
         $locale = Locales::emailLocale(config('commero.locales.default', config('app.locale')));
 
         return (new MailMessage)
-            ->subject(__('commero::app.order_notifications.paid_order_subject', ['number' => $this->order->number], $locale))
+            ->subject(__('commero::app.order_notifications.'.$this->prefix().'_order_subject', ['number' => $this->order->number], $locale))
             ->line($this->summary($locale))
             ->action(__('commero::app.order_notifications.open_order', [], $locale), OrderResource::getUrl('view', ['record' => $this->order]));
     }
@@ -40,7 +41,7 @@ class OrderPaidNotification extends Notification
     public function toDatabase(object $notifiable): array
     {
         return [
-            'title' => __('commero::app.order_notifications.paid_order_title'),
+            'title' => __('commero::app.order_notifications.'.$this->prefix().'_order_title'),
             'body' => $this->summary(),
             'order_id' => $this->order->id,
             'order_number' => $this->order->number,
@@ -55,10 +56,18 @@ class OrderPaidNotification extends Notification
 
     private function summary(?string $locale = null): string
     {
-        return __('commero::app.order_notifications.paid_order_summary', [
+        return __('commero::app.order_notifications.'.$this->prefix().'_order_summary', [
             'number' => $this->order->number,
             'total' => number_format((float) $this->order->total_amount, 2, '.', ' '),
             'method' => $this->order->payment_method_name,
         ], $locale);
+    }
+
+    /**
+     * "held": the customer approved a payment in parts and the store has to confirm it.
+     */
+    private function prefix(): string
+    {
+        return $this->order->payment_status === PaymentStatus::HELD ? 'held' : 'paid';
     }
 }

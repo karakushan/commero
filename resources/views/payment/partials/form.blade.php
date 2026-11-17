@@ -1,6 +1,5 @@
 {{-- Form to the gateway checkout. Variables: $form (Commero\Payments\PaymentForm), $autoSubmit, $buttonClass --}}
-<form method="{{ $form->method }}" action="{{ $form->action }}" accept-charset="utf-8" data-commero-payment-form
-    @if ($autoSubmit) x-data x-init="$el.submit()" @endif>
+<form method="{{ $form->method }}" action="{{ $form->action }}" accept-charset="utf-8" data-commero-payment-form>
     @foreach ($form->fields as $name => $value)
         <input type="hidden" name="{{ $name }}" value="{{ $value }}">
     @endforeach

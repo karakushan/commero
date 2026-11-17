@@ -37,3 +37,31 @@ The paid amount must match `orders.total_amount`.
 Implement `Commero\Payments\Contracts\PaymentGateway` (`key`, `label`, `isConfigured`, `checkoutForm`,
 `handleCallback`) and register it in `commero.payments.gateways` under the payment method code.
 Use `PaymentGatewayManager::markPaid()` / `markStatus()` to update orders.
+
+## Payment in parts
+
+Two installment gateways implement `InstallmentGateway` (`minParts()`, `maxParts()`), `ConfirmsPayments`
+(`confirm()`, `cancel()`) and `ChecksPaymentStatus` (`refreshStatus()`, called on every payment page view).
+The number of payments is stored in `orders.payment_parts` — pass `paymentParts` in the validated checkout data.
+
+When the customer approves the application the order gets `payment_status = held`: managers are notified and the
+order page in the admin shows "Confirm purchase in parts" / "Cancel application" (confirm after handing over the goods).
+Late "in progress" states never move a held payment back.
+
+### PrivatBank "Оплата частинами" (`privatbank_payparts`)
+
+Site settings: store ID, password, hold mode (default on), maximum parts. Config `commero.payments.privat_payparts`
+(`api_url`, `merchant_type` PP/II, `min_parts`, `max_parts`, `order_prefix`, `token_ttl_minutes`).
+The payment page creates an application (`/payment/hold` or `/payment/create`) and shows a GET form to
+`https://payparts2.privatbank.ua/ipp/v2/payment?token=…`; the token is reused for `token_ttl_minutes`.
+PrivatBank order ids are `{order number}-{random}` (stored in `payment_reference`).
+States: `SUCCESS` => paid, `LOCKED` => held, `FAIL`/`CANCELED`/`REJECTED` => failed, `CLIENT_WAIT`/`OTP_WAITING`/`PP_CREATION` => processing.
+Callback: `POST /payment/privat-payparts/callback`.
+
+### Monobank "Покупка частинами" (`monobank_installments`)
+
+Site settings: store-id, secret key, test environment, maximum parts. Config `commero.payments.monobank_installments`.
+The payment page creates the application (`/api/order/create`, `store_order_id` = order number, customer phone) once
+and asks the customer to confirm it in the monobank app; the page reloads every `refresh_seconds` and polls `/api/order/state`.
+`IN_PROCESS/WAITING_FOR_STORE_CONFIRM` => held, `SUCCESS` => paid (`RETURNED` => refunded), `FAIL/*` => failed.
+Callback: `POST /payment/monobank-parts/callback` (HMAC-SHA256 `signature` header).

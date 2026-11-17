@@ -37,6 +37,7 @@ class Order extends Model
         'payment_status',
         'paid_at',
         'payment_reference',
+        'payment_parts',
         'shipping_method_code',
         'shipping_method_name',
         'delivery_city_ref',
@@ -55,6 +56,7 @@ class Order extends Model
         'inventory_released_at' => 'datetime',
         'paid_at' => 'datetime',
         'payment_payload' => 'array',
+        'payment_parts' => 'integer',
     ];
 
     protected static function booted(): void

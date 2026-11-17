@@ -48,7 +48,7 @@ class LiqPayGateway implements PaymentGateway
         return (bool) $this->settings()?->liqpay_sandbox;
     }
 
-    public function checkoutForm(Order $order, string $resultUrl): PaymentForm
+    public function checkoutForm(Order $order, string $resultUrl): ?PaymentForm
     {
         $params = array_filter([
             'version' => 3,

@@ -3,6 +3,7 @@
 namespace Commero\Payments\Contracts;
 
 use Commero\Models\Order;
+use Commero\Payments\PaymentException;
 use Commero\Payments\PaymentForm;
 use Illuminate\Http\Request;
 
@@ -19,8 +20,12 @@ interface PaymentGateway
     /** Credentials are filled in, so orders can be sent to the payment page. */
     public function isConfigured(): bool;
 
-    /** Form that sends the customer to the gateway checkout. */
-    public function checkoutForm(Order $order, string $resultUrl): PaymentForm;
+    /**
+     * Form that sends the customer to the gateway checkout (or a message when the customer confirms elsewhere).
+     *
+     * @throws PaymentException when the gateway refuses to start the payment
+     */
+    public function checkoutForm(Order $order, string $resultUrl): ?PaymentForm;
 
     /**
      * Verifies the gateway server-to-server notification and updates the order.

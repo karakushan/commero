@@ -111,7 +111,7 @@ class PaymentGatewayManager
                 'payment_status' => PaymentStatus::PAID,
                 'paid_at' => now(),
                 'payment_reference' => $reference ?: $order->payment_reference,
-                'payment_payload' => $payload ?: $order->payment_payload,
+                'payment_payload' => $this->mergePayload($order, $payload),
             ];
 
             $paidStatus = (string) config('commero.payments.paid_order_status', 'paid');
@@ -135,10 +135,51 @@ class PaymentGatewayManager
             return;
         }
 
+        $wasHeld = $order->payment_status === PaymentStatus::HELD;
+
+        // Late or polled "in progress" states never move an approved payment back.
+        if ($wasHeld && in_array($paymentStatus, [PaymentStatus::PENDING, PaymentStatus::PROCESSING], true)) {
+            return;
+        }
+
         $order->forceFill([
             'payment_status' => $paymentStatus,
             'payment_reference' => $reference ?: $order->payment_reference,
-            'payment_payload' => $payload ?: $order->payment_payload,
+            'payment_payload' => $this->mergePayload($order, $payload),
         ])->save();
+
+        // The customer approved a payment in parts: the store has to confirm it.
+        if ($paymentStatus === PaymentStatus::HELD && ! $wasHeld) {
+            DB::afterCommit(fn () => app(OrderNotificationService::class)->notifyAboutPaidOrder($order));
+        }
+    }
+
+    /**
+     * Gateway data kept with the order (application ids, tokens…); keys starting with "_" are not
+     * overwritten by notifications.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function rememberPaymentData(Order $order, array $data, ?string $reference = null): void
+    {
+        $order->forceFill([
+            'payment_payload' => $this->mergePayload($order, $data),
+            'payment_reference' => $reference ?: $order->payment_reference,
+        ])->save();
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>|null
+     */
+    private function mergePayload(Order $order, array $payload): ?array
+    {
+        $current = (array) ($order->payment_payload ?? []);
+
+        if ($payload === []) {
+            return $current ?: null;
+        }
+
+        return array_merge($current, $payload);
     }
 }

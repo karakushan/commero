@@ -90,6 +90,8 @@ return [
         // Payment method code (payment_methods.code) => online payment gateway.
         'gateways' => [
             'liqpay' => \Commero\Payments\LiqPay\LiqPayGateway::class,
+            'privatbank_payparts' => \Commero\Payments\Privat\PrivatPayPartsGateway::class,
+            'monobank_installments' => \Commero\Payments\Monobank\MonobankInstallmentsGateway::class,
         ],
         // Order status code applied after a successful online payment (ignored if the status does not exist).
         'paid_order_status' => 'paid',
@@ -101,6 +103,26 @@ return [
             // Site locale => LiqPay checkout language (uk, en).
             'languages' => ['uk' => 'uk', 'en' => 'en'],
             'default_language' => 'uk',
+        ],
+        // PrivatBank "Оплата частинами" (PayParts API v2).
+        'privat_payparts' => [
+            'api_url' => 'https://payparts2.privatbank.ua/ipp/v2',
+            'merchant_type' => 'PP', // PP - Оплата частинами, II - Миттєва розстрочка
+            'min_parts' => 2,
+            'max_parts' => 24,
+            'order_prefix' => '',
+            // A created application (token) is reused on the payment page for this long.
+            'token_ttl_minutes' => 15,
+        ],
+        // Monobank "Покупка частинами".
+        'monobank_installments' => [
+            'api_url' => 'https://u2.monobank.com.ua',
+            'sandbox_api_url' => 'https://u2-demo-ext.mono.st4g3.com',
+            'min_parts' => 3,
+            'max_parts' => 25,
+            'point_id' => null,
+            // The payment page reloads while the customer confirms the application in the app.
+            'refresh_seconds' => 10,
         ],
     ],
 

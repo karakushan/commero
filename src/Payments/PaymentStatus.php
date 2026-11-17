@@ -8,6 +8,9 @@ final class PaymentStatus
 
     public const PROCESSING = 'processing';
 
+    /** Approved by the customer / money reserved; the store has to confirm the purchase. */
+    public const HELD = 'held';
+
     public const PAID = 'paid';
 
     public const FAILED = 'failed';
@@ -19,7 +22,7 @@ final class PaymentStatus
      */
     public static function all(): array
     {
-        return [self::PENDING, self::PROCESSING, self::PAID, self::FAILED, self::REFUNDED];
+        return [self::PENDING, self::PROCESSING, self::HELD, self::PAID, self::FAILED, self::REFUNDED];
     }
 
     public static function color(?string $status): string
@@ -27,6 +30,7 @@ final class PaymentStatus
         return match ($status) {
             self::PAID => 'success',
             self::PROCESSING => 'info',
+            self::HELD => 'primary',
             self::FAILED => 'danger',
             self::REFUNDED => 'gray',
             default => 'warning',

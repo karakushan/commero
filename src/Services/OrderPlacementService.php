@@ -39,6 +39,7 @@ class OrderPlacementService
                 'total_amount' => (float) ($cart['total_numeric'] ?? 0),
                 'payment_method_code' => $paymentMethod->code,
                 'payment_method_name' => $paymentMethod->name,
+                'payment_parts' => ((int) ($validated['paymentParts'] ?? 0)) ?: null,
                 'shipping_method_code' => $shippingMethod->code,
                 'shipping_method_name' => $shippingMethod->name,
                 'delivery_city_ref' => ($validated['deliveryCityRef'] ?? null) ?: null,

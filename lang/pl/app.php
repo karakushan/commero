@@ -2,6 +2,9 @@
 
 return [
     'order_notifications' => [
+        'held_order_subject' => 'Purchase in parts for order :number approved by the customer',
+        'held_order_title' => 'The customer approved the purchase in parts',
+        'held_order_summary' => 'Order :number (:method), amount :total, is approved by the customer. Confirm the purchase in the order.',
         'paid_order_subject' => 'Order :number paid',
         'paid_order_title' => 'Order paid online',
         'paid_order_summary' => 'Order :number paid (:method), amount :total.',

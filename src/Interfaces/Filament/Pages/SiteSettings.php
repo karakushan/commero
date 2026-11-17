@@ -150,6 +150,55 @@ class SiteSettings extends Page
                                 ->label(__('commero::admin.site_setting.liqpay_sandbox')),
                         ])
                         ->columns(2),
+                    Section::make(__('commero::admin.site_setting.privat_payparts_section'))
+                        ->visible(fn (): bool => $this->activeLocale === Locales::default())
+                        ->description(fn (): string => __('commero::admin.site_setting.privat_payparts_hint', ['url' => route('payment.callback', ['gateway' => 'privat-payparts'])]))
+                        ->schema([
+                            TextInput::make('privat_payparts_store_id')
+                                ->label(__('commero::admin.site_setting.privat_payparts_store_id'))
+                                ->autocomplete('off')
+                                ->maxLength(255),
+                            TextInput::make('privat_payparts_password')
+                                ->label(__('commero::admin.site_setting.privat_payparts_password'))
+                                ->password()
+                                ->revealable()
+                                ->autocomplete('off')
+                                ->maxLength(255),
+                            TextInput::make('privat_payparts_max_parts')
+                                ->label(__('commero::admin.site_setting.max_parts'))
+                                ->numeric()
+                                ->minValue(2)
+                                ->maxValue(36)
+                                ->placeholder((string) config('commero.payments.privat_payparts.max_parts')),
+                            Toggle::make('privat_payparts_hold')
+                                ->label(__('commero::admin.site_setting.privat_payparts_hold'))
+                                ->helperText(__('commero::admin.site_setting.privat_payparts_hold_hint')),
+                        ])
+                        ->columns(2),
+                    Section::make(__('commero::admin.site_setting.monobank_parts_section'))
+                        ->visible(fn (): bool => $this->activeLocale === Locales::default())
+                        ->description(fn (): string => __('commero::admin.site_setting.monobank_parts_hint', ['url' => route('payment.callback', ['gateway' => 'monobank-parts'])]))
+                        ->schema([
+                            TextInput::make('monobank_parts_store_id')
+                                ->label(__('commero::admin.site_setting.monobank_parts_store_id'))
+                                ->autocomplete('off')
+                                ->maxLength(255),
+                            TextInput::make('monobank_parts_secret')
+                                ->label(__('commero::admin.site_setting.monobank_parts_secret'))
+                                ->password()
+                                ->revealable()
+                                ->autocomplete('off')
+                                ->maxLength(255),
+                            TextInput::make('monobank_parts_max_parts')
+                                ->label(__('commero::admin.site_setting.max_parts'))
+                                ->numeric()
+                                ->minValue(3)
+                                ->maxValue(25)
+                                ->placeholder((string) config('commero.payments.monobank_installments.max_parts')),
+                            Toggle::make('monobank_parts_sandbox')
+                                ->label(__('commero::admin.site_setting.monobank_parts_sandbox')),
+                        ])
+                        ->columns(2),
                     Section::make(__('commero::admin.site_setting.price_currency_section'))
                         ->schema([
                             Toggle::make('multi_currency_enabled')
@@ -396,6 +445,14 @@ class SiteSettings extends Page
             'liqpay_public_key' => $record?->getAttribute('liqpay_public_key'),
             'liqpay_private_key' => $record?->getAttribute('liqpay_private_key'),
             'liqpay_sandbox' => (bool) $record?->getRawOriginal('liqpay_sandbox'),
+            'privat_payparts_store_id' => $record?->getAttribute('privat_payparts_store_id'),
+            'privat_payparts_password' => $record?->getAttribute('privat_payparts_password'),
+            'privat_payparts_hold' => (bool) ($record?->getRawOriginal('privat_payparts_hold') ?? true),
+            'privat_payparts_max_parts' => $record?->getRawOriginal('privat_payparts_max_parts'),
+            'monobank_parts_store_id' => $record?->getAttribute('monobank_parts_store_id'),
+            'monobank_parts_secret' => $record?->getAttribute('monobank_parts_secret'),
+            'monobank_parts_sandbox' => (bool) $record?->getRawOriginal('monobank_parts_sandbox'),
+            'monobank_parts_max_parts' => $record?->getRawOriginal('monobank_parts_max_parts'),
             'contacts' => $record?->getEditableContactsForLocale($activeLocale) ?? [],
             'addresses' => collect($record?->getEditableAddresses() ?? [])
                 ->map(fn (array $item): array => [
@@ -427,6 +484,14 @@ class SiteSettings extends Page
             'liqpay_public_key' => array_key_exists('liqpay_public_key', $data) ? $this->normalizeTextValue($data['liqpay_public_key']) : $record->liqpay_public_key,
             'liqpay_private_key' => array_key_exists('liqpay_private_key', $data) ? $this->normalizeTextValue($data['liqpay_private_key']) : $record->liqpay_private_key,
             'liqpay_sandbox' => array_key_exists('liqpay_sandbox', $data) ? (bool) $data['liqpay_sandbox'] : (bool) $record->liqpay_sandbox,
+            'privat_payparts_store_id' => array_key_exists('privat_payparts_store_id', $data) ? $this->normalizeTextValue($data['privat_payparts_store_id']) : $record->privat_payparts_store_id,
+            'privat_payparts_password' => array_key_exists('privat_payparts_password', $data) ? $this->normalizeTextValue($data['privat_payparts_password']) : $record->privat_payparts_password,
+            'privat_payparts_hold' => array_key_exists('privat_payparts_hold', $data) ? (bool) $data['privat_payparts_hold'] : (bool) ($record->privat_payparts_hold ?? true),
+            'privat_payparts_max_parts' => array_key_exists('privat_payparts_max_parts', $data) ? (((int) $data['privat_payparts_max_parts']) ?: null) : $record->privat_payparts_max_parts,
+            'monobank_parts_store_id' => array_key_exists('monobank_parts_store_id', $data) ? $this->normalizeTextValue($data['monobank_parts_store_id']) : $record->monobank_parts_store_id,
+            'monobank_parts_secret' => array_key_exists('monobank_parts_secret', $data) ? $this->normalizeTextValue($data['monobank_parts_secret']) : $record->monobank_parts_secret,
+            'monobank_parts_sandbox' => array_key_exists('monobank_parts_sandbox', $data) ? (bool) $data['monobank_parts_sandbox'] : (bool) $record->monobank_parts_sandbox,
+            'monobank_parts_max_parts' => array_key_exists('monobank_parts_max_parts', $data) ? (((int) $data['monobank_parts_max_parts']) ?: null) : $record->monobank_parts_max_parts,
             'multi_currency_enabled' => (bool) ($data['multi_currency_enabled'] ?? false),
             'country_source' => $data['multi_currency_enabled'] ? ($data['country_source'] ?? null) : null,
             'show_price_decimals' => (bool) ($data['show_price_decimals'] ?? false),

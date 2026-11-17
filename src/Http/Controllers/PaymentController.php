@@ -4,6 +4,8 @@ namespace Commero\Http\Controllers;
 
 use Commero\Models\Currency;
 use Commero\Models\Order;
+use Commero\Payments\Contracts\ChecksPaymentStatus;
+use Commero\Payments\PaymentException;
 use Commero\Payments\PaymentGatewayManager;
 use Commero\Payments\PaymentStatus;
 use Commero\Support\Locales;
@@ -32,10 +34,33 @@ class PaymentController extends Controller
 
         abort_if($gateway === null, 404);
 
-        $isPaid = $order->payment_status === PaymentStatus::PAID;
-        $form = ! $isPaid && $gateway->isConfigured()
-            ? $gateway->checkoutForm($order, $payments->signedPaymentUrl($order, $locale))
-            : null;
+        // Gateways without notifications for every state (Monobank, PrivatBank after the redirect back).
+        if ($gateway instanceof ChecksPaymentStatus && filled($order->payment_status)) {
+            try {
+                $gateway->refreshStatus($order);
+                $order->refresh();
+            } catch (PaymentException) {
+                // The stored status is shown.
+            }
+        }
+
+        $paymentStatus = $order->payment_status ?: PaymentStatus::PENDING;
+        $isPaid = $paymentStatus === PaymentStatus::PAID;
+        $isHeld = $paymentStatus === PaymentStatus::HELD;
+        $form = null;
+        $error = null;
+
+        if (! $isPaid && ! $isHeld && $gateway->isConfigured()) {
+            try {
+                $form = $gateway->checkoutForm($order, $payments->signedPaymentUrl($order, $locale));
+                $order->refresh();
+                $paymentStatus = $order->payment_status ?: PaymentStatus::PENDING;
+            } catch (PaymentException $exception) {
+                $error = $exception->getMessage();
+                $order->refresh();
+                $paymentStatus = $order->payment_status ?: PaymentStatus::FAILED;
+            }
+        }
 
         $view = View::exists('shophats::pages.payment') ? 'shophats::pages.payment' : 'commero::payment.show';
 
@@ -44,11 +69,17 @@ class PaymentController extends Controller
             'order' => $order,
             'gateway' => $gateway,
             'form' => $form,
+            'error' => $error,
             'isPaid' => $isPaid,
-            'paymentStatus' => $order->payment_status ?: PaymentStatus::PENDING,
+            'isHeld' => $isHeld,
+            'paymentStatus' => $paymentStatus,
             // Order totals are stored in the shop base currency.
             'amountLabel' => format_money_amount($order->total_amount, Currency::getBaseSymbol()),
-            'autoSubmit' => $form !== null && $request->boolean('pay'),
+            'autoSubmit' => $form?->hasAction() === true && $request->boolean('pay'),
+            // Reload the page while the customer confirms the payment elsewhere (monobank app).
+            'refreshSeconds' => $form?->awaitingConfirmation === true
+                ? (int) config('commero.payments.monobank_installments.refresh_seconds', 10)
+                : null,
         ]);
     }
 

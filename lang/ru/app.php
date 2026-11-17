@@ -2,6 +2,9 @@
 
 return [
     'order_notifications' => [
+        'held_order_subject' => 'Покупка частями по заказу :number подтверждена клиентом',
+        'held_order_title' => 'Клиент подтвердил покупку частями',
+        'held_order_summary' => 'Заказ :number (:method) на сумму :total подтверждён клиентом. Подтвердите выдачу товара в заказе.',
         'paid_order_subject' => 'Заказ :number оплачен',
         'paid_order_title' => 'Заказ оплачен онлайн',
         'paid_order_summary' => 'Заказ :number оплачен (:method) на сумму :total.',
