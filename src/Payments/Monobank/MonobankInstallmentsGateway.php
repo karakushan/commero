@@ -171,6 +171,8 @@ class MonobankInstallmentsGateway implements ChecksPaymentStatus, ConfirmsPaymen
             'invoice' => $invoice,
             'available_programs' => [[
                 'available_parts_count' => range($this->minParts(), max($this->minParts(), $this->maxPartsFor($order))),
+                // Still required by the API (marked deprecated in the docs).
+                'type' => 'payment_installments',
             ]],
             'products' => collect($this->installmentProducts($order))
                 ->map(fn (array $product): array => ['name' => $product['name'], 'count' => $product['count'], 'sum' => $product['price']])
