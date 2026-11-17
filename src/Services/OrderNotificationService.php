@@ -5,6 +5,7 @@ namespace Commero\Services;
 use Commero\Models\Order;
 use Commero\Models\User;
 use Commero\Notifications\OrderConfirmationNotification;
+use Commero\Notifications\OrderPaidNotification;
 use Commero\Notifications\OrderReceivedNotification;
 use Commero\Notifications\OrderStatusChangedNotification;
 use Commero\Support\Locales;
@@ -30,6 +31,31 @@ class OrderNotificationService
                 ->send($recipients, new OrderReceivedNotification($order->loadMissing('items')));
         } catch (Throwable $exception) {
             Log::error('Order notification failed.', [
+                'order_id' => $order->id,
+                'order_number' => $order->number,
+                'error' => $exception->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Online payment received (gateway callback): managers with the order notification permission.
+     */
+    public function notifyAboutPaidOrder(Order $order): void
+    {
+        $recipients = User::query()
+            ->permission(OrderReceivedNotification::permissionName())
+            ->get();
+
+        if ($recipients->isEmpty()) {
+            return;
+        }
+
+        try {
+            Notification::locale(config('commero.locales.default', config('app.locale')))
+                ->send($recipients, new OrderPaidNotification($order));
+        } catch (Throwable $exception) {
+            Log::error('Order payment notification failed.', [
                 'order_id' => $order->id,
                 'order_number' => $order->number,
                 'error' => $exception->getMessage(),

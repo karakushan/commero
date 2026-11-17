@@ -2,6 +2,9 @@
 
 return [
     'order_notifications' => [
+        'paid_order_subject' => 'Order :number paid',
+        'paid_order_title' => 'Order paid online',
+        'paid_order_summary' => 'Order :number paid (:method), amount :total.',
         'customer_order_subject' => 'Hemos recibido tu pedido :number',
         'customer_order_title' => 'Gracias por tu pedido',
         'customer_order_intro' => 'Hemos recibido tu pedido :number y pronto comenzaremos a procesarlo.',

@@ -2,9 +2,12 @@
 
 namespace Commero\Routing;
 
+use Closure;
 use Commero\Support\TrailingSlash;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\UrlGenerator;
+use Illuminate\Support\Str;
 
 class TrailingSlashUrlGenerator extends UrlGenerator
 {
@@ -62,5 +65,49 @@ class TrailingSlashUrlGenerator extends UrlGenerator
         }
 
         return TrailingSlash::shouldSkip($path);
+    }
+
+    /**
+     * Signed URLs are generated with a trailing slash, while the base check trims it from the request URL.
+     */
+    public function hasCorrectSignature(Request $request, $absolute = true, Closure|array $ignoreQuery = [])
+    {
+        if (parent::hasCorrectSignature($request, $absolute, $ignoreQuery)) {
+            return true;
+        }
+
+        $signature = $request->query('signature');
+
+        if (! is_string($signature)) {
+            return false;
+        }
+
+        $path = rtrim($request->getPathInfo(), '/').'/';
+        $url = $absolute
+            ? $request->getSchemeAndHttpHost().$request->getBaseUrl().$path
+            : '/'.ltrim($path, '/');
+
+        $queryString = collect(explode('&', (string) ($request->server->get('VAPOR_RAW_QUERY_STRING') ?? $request->server->get('QUERY_STRING'))))
+            ->reject(function (string $parameter) use ($ignoreQuery): bool {
+                $parameter = Str::before($parameter, '=');
+
+                if ($parameter === 'signature') {
+                    return true;
+                }
+
+                return $ignoreQuery instanceof Closure ? (bool) $ignoreQuery($parameter) : in_array($parameter, $ignoreQuery, true);
+            })
+            ->join('&');
+
+        $original = rtrim($url.'?'.$queryString, '?');
+        $keys = call_user_func($this->keyResolver);
+
+        foreach (is_array($keys) ? $keys : [$keys] as $key) {
+            if (hash_equals(hash_hmac('sha256', $original, (string) $key), $signature)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

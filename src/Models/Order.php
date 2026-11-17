@@ -34,6 +34,9 @@ class Order extends Model
         'total_amount',
         'payment_method_code',
         'payment_method_name',
+        'payment_status',
+        'paid_at',
+        'payment_reference',
         'shipping_method_code',
         'shipping_method_name',
         'delivery_city_ref',
@@ -50,6 +53,8 @@ class Order extends Model
         'is_quick_order' => 'boolean',
         'has_other_recipient' => 'boolean',
         'inventory_released_at' => 'datetime',
+        'paid_at' => 'datetime',
+        'payment_payload' => 'array',
     ];
 
     protected static function booted(): void

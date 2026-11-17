@@ -86,8 +86,27 @@ return [
         ],
     ],
 
+    'payments' => [
+        // Payment method code (payment_methods.code) => online payment gateway.
+        'gateways' => [
+            'liqpay' => \Commero\Payments\LiqPay\LiqPayGateway::class,
+        ],
+        // Order status code applied after a successful online payment (ignored if the status does not exist).
+        'paid_order_status' => 'paid',
+        // How long the signed payment page link stays valid.
+        'link_ttl_days' => 30,
+        'liqpay' => [
+            'checkout_url' => 'https://www.liqpay.ua/api/3/checkout',
+            'currency' => 'UAH',
+            // Site locale => LiqPay checkout language (uk, en).
+            'languages' => ['uk' => 'uk', 'en' => 'en'],
+            'default_language' => 'uk',
+        ],
+    ],
+
     'routing' => [
         'reserved_root_slugs' => [
+            'payment',
             'admin',
             'home',
             'login',

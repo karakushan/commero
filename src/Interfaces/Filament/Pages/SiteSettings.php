@@ -132,6 +132,24 @@ class SiteSettings extends Page
                                 ->helperText(__('commero::admin.site_setting.nova_poshta_api_key_hint'))
                                 ->maxLength(255),
                         ]),
+                    Section::make(__('commero::admin.site_setting.payments_section'))
+                        ->visible(fn (): bool => $this->activeLocale === Locales::default())
+                        ->description(fn (): string => __('commero::admin.site_setting.liqpay_hint', ['url' => route('payment.callback', ['gateway' => 'liqpay'])]))
+                        ->schema([
+                            TextInput::make('liqpay_public_key')
+                                ->label(__('commero::admin.site_setting.liqpay_public_key'))
+                                ->autocomplete('off')
+                                ->maxLength(255),
+                            TextInput::make('liqpay_private_key')
+                                ->label(__('commero::admin.site_setting.liqpay_private_key'))
+                                ->password()
+                                ->revealable()
+                                ->autocomplete('off')
+                                ->maxLength(255),
+                            Toggle::make('liqpay_sandbox')
+                                ->label(__('commero::admin.site_setting.liqpay_sandbox')),
+                        ])
+                        ->columns(2),
                     Section::make(__('commero::admin.site_setting.price_currency_section'))
                         ->schema([
                             Toggle::make('multi_currency_enabled')
@@ -375,6 +393,9 @@ class SiteSettings extends Page
             'favicon_png_path' => $record?->getRawOriginal('favicon_png_path'),
             'nova_poshta_api_key' => $record?->getAttribute('nova_poshta_api_key'),
             'google_maps_api_key' => $record?->getAttribute('google_maps_api_key'),
+            'liqpay_public_key' => $record?->getAttribute('liqpay_public_key'),
+            'liqpay_private_key' => $record?->getAttribute('liqpay_private_key'),
+            'liqpay_sandbox' => (bool) $record?->getRawOriginal('liqpay_sandbox'),
             'contacts' => $record?->getEditableContactsForLocale($activeLocale) ?? [],
             'addresses' => collect($record?->getEditableAddresses() ?? [])
                 ->map(fn (array $item): array => [
@@ -403,6 +424,9 @@ class SiteSettings extends Page
             'favicon_png_path' => $this->normalizeTextValue($data['favicon_png_path'] ?? null),
             'nova_poshta_api_key' => $data['nova_poshta_api_key'] ?? null,
             'google_maps_api_key' => $data['google_maps_api_key'] ?? null,
+            'liqpay_public_key' => array_key_exists('liqpay_public_key', $data) ? $this->normalizeTextValue($data['liqpay_public_key']) : $record->liqpay_public_key,
+            'liqpay_private_key' => array_key_exists('liqpay_private_key', $data) ? $this->normalizeTextValue($data['liqpay_private_key']) : $record->liqpay_private_key,
+            'liqpay_sandbox' => array_key_exists('liqpay_sandbox', $data) ? (bool) $data['liqpay_sandbox'] : (bool) $record->liqpay_sandbox,
             'multi_currency_enabled' => (bool) ($data['multi_currency_enabled'] ?? false),
             'country_source' => $data['multi_currency_enabled'] ? ($data['country_source'] ?? null) : null,
             'show_price_decimals' => (bool) ($data['show_price_decimals'] ?? false),

@@ -9,6 +9,7 @@ use Commero\Models\Product;
 use Commero\Models\ProductVariant;
 use Commero\Models\ShippingMethod;
 use Commero\Models\User;
+use Commero\Payments\PaymentGatewayManager;
 use Commero\Support\Phone;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -22,7 +23,7 @@ class OrderPlacementService
         ShippingMethod $shippingMethod,
         PaymentMethod $paymentMethod,
     ): Order {
-        return $this->createOrder(
+        $order = $this->createOrder(
             attributes: [
                 'user_id' => $user?->id,
                 'locale' => app()->getLocale(),
@@ -79,6 +80,11 @@ class OrderPlacementService
                 'delivery_apartment' => ($validated['deliveryApartment'] ?? null) ?: null,
             ],
         );
+
+        // Online payment methods (LiqPay, …) wait for the gateway callback.
+        app(PaymentGatewayManager::class)->markPending($order);
+
+        return $order;
     }
 
     public function placeQuickOrder(Product $product, int $quantity, string $phone): Order

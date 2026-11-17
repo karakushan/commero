@@ -2,6 +2,9 @@
 
 return [
     'order_notifications' => [
+        'paid_order_subject' => 'Заказ :number оплачен',
+        'paid_order_title' => 'Заказ оплачен онлайн',
+        'paid_order_summary' => 'Заказ :number оплачен (:method) на сумму :total.',
         'new_order_subject' => 'Новый заказ :number',
         'new_order_title' => 'Получен новый заказ',
         'new_order_intro' => 'На сайте оформлен новый заказ.',

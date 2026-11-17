@@ -5,6 +5,7 @@ namespace Commero\Interfaces\Http\Livewire;
 use Commero\Models\PaymentMethod;
 use Commero\Models\ShippingMethod;
 use Commero\Models\User;
+use Commero\Payments\PaymentGatewayManager;
 use Commero\Services\CartService;
 use Commero\Services\NovaPoshtaService;
 use Commero\Services\OrderPlacementService;
@@ -134,6 +135,14 @@ class CheckoutPage extends Component
 
         $cartService->clear();
         $this->resetCheckoutForm();
+
+        $paymentUrl = app(PaymentGatewayManager::class)->paymentUrl($order, $this->locale);
+
+        if ($paymentUrl !== null) {
+            $this->redirect($paymentUrl);
+
+            return;
+        }
 
         $this->redirectRoute(
             $this->thankYouRouteName(),

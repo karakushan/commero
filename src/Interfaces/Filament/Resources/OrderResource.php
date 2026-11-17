@@ -5,6 +5,7 @@ namespace Commero\Interfaces\Filament\Resources;
 use Commero\Interfaces\Filament\Resources\OrderResource\Pages;
 use Commero\Models\Currency;
 use Commero\Models\Order;
+use Commero\Payments\PaymentStatus;
 use Commero\Models\OrderItem;
 use Commero\Models\OrderStatus;
 use Commero\Models\PaymentMethod;
@@ -287,11 +288,21 @@ class OrderResource extends AdminResource
                     ->color(fn (bool $state): string => $state ? 'warning' : 'gray'),
                 TextColumn::make('total_amount')->label(__('commero::admin.order.total_amount'))
                     ->state(fn (Order $record): string => format_money_amount($record->total_amount, Currency::getBaseSymbol())),
+                TextColumn::make('payment_status')->label(__('commero::admin.order.payment_status'))
+                    ->badge()
+                    ->placeholder('—')
+                    ->formatStateUsing(fn (?string $state): string => static::getPaymentStatusLabel($state))
+                    ->color(fn (?string $state): string => PaymentStatus::color($state))
+                    ->toggleable(),
                 TextColumn::make('updated_at')->label(__('commero::admin.common.updated_at'))->dateTime()->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status')->label(__('commero::admin.common.status'))
                     ->options(fn (): array => static::getOrderStatusOptions()),
+                SelectFilter::make('payment_status')->label(__('commero::admin.order.payment_status'))
+                    ->options(fn (): array => collect(PaymentStatus::all())
+                        ->mapWithKeys(fn (string $status): array => [$status => static::getPaymentStatusLabel($status)])
+                        ->all()),
             ])
             ->recordActions([
                 ViewAction::make()->iconButton(),
@@ -329,6 +340,13 @@ class OrderResource extends AdminResource
                 ->state(fn (Order $record): string => format_money_amount($record->total_amount, Currency::getBaseSymbol())),
             TextEntry::make('payment_method_name')->label(__('commero::admin.order.payment_method_name')),
             TextEntry::make('payment_method_code')->label(__('commero::admin.order.payment_method_code')),
+            TextEntry::make('payment_status')->label(__('commero::admin.order.payment_status'))
+                ->badge()
+                ->placeholder('—')
+                ->formatStateUsing(fn (?string $state): string => static::getPaymentStatusLabel($state))
+                ->color(fn (?string $state): string => PaymentStatus::color($state)),
+            TextEntry::make('paid_at')->label(__('commero::admin.order.paid_at'))->dateTime()->placeholder('—'),
+            TextEntry::make('payment_reference')->label(__('commero::admin.order.payment_reference'))->placeholder('—')->copyable(),
             TextEntry::make('shipping_method_name')->label(__('commero::admin.order.shipping_method_name')),
             TextEntry::make('shipping_method_code')->label(__('commero::admin.order.shipping_method_code')),
             TextEntry::make('delivery_city_name')->label(__('commero::admin.order.delivery_city_name'))->default('—'),
@@ -503,5 +521,17 @@ class OrderResource extends AdminResource
             'view' => Pages\ViewOrder::route('/{record}'),
             'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];
+    }
+
+    public static function getPaymentStatusLabel(?string $status): string
+    {
+        if (! filled($status)) {
+            return '—';
+        }
+
+        $key = 'commero::admin.order.payment_statuses.'.$status;
+        $label = __($key);
+
+        return $label === $key ? $status : $label;
     }
 }

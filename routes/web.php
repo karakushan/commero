@@ -11,6 +11,7 @@ use Commero\Http\Controllers\ErrorPageController;
 use Commero\Http\Controllers\HomeController;
 use Commero\Http\Controllers\MediaController;
 use Commero\Http\Controllers\PageController;
+use Commero\Http\Controllers\PaymentController;
 use Commero\Http\Controllers\ProductController;
 use Commero\Http\Controllers\SitemapController;
 use Commero\Http\Controllers\ThankYouController;
@@ -97,6 +98,17 @@ Route::get('/checkout/delivery/warehouses', [CheckoutDeliveryController::class, 
 
 // Thank You page
 Route::get('/thank-you/{orderNumber?}', [ThankYouController::class, 'show'])->name('thank-you.show');
+
+// Online payment: signed payment page and gateway server-to-server callback (no CSRF / session).
+Route::get('/payment/{order}', [PaymentController::class, 'show'])->whereNumber('order')->middleware('signed')->name('payment.show');
+Route::post('/payment/{gateway}/callback', [PaymentController::class, 'callback'])
+    ->where('gateway', '[a-z0-9_-]+')
+    ->withoutMiddleware(array_values(array_filter([
+        'Illuminate\\Foundation\\Http\\Middleware\\PreventRequestForgery',
+        'Illuminate\\Foundation\\Http\\Middleware\\ValidateCsrfToken',
+        'Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken',
+    ], 'class_exists')))
+    ->name('payment.callback');
 
 // Account Dashboard
 Route::get('/account', [AccountController::class, 'index'])->name('account.index')->middleware('auth');
@@ -185,6 +197,7 @@ if ($additionalLocales !== []) {
 
             // Thank You page (localized)
             Route::get('/thank-you/{orderNumber?}', [ThankYouController::class, 'show'])->name('localized.thank-you.show');
+            Route::get('/payment/{order}', [PaymentController::class, 'show'])->whereNumber('order')->middleware('signed')->name('localized.payment.show');
 
             // Account Dashboard (localized)
             Route::get('/account', [AccountController::class, 'index'])->name('localized.account.index')->middleware('auth');
